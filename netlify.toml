@@ -1,0 +1,51 @@
+# Baja Curated — Netlify Configuration
+
+[[redirects]]
+  from = "/wp-admin/*"
+  to = "/404"
+  status = 410
+  force = true
+
+[[redirects]]
+  from = "/wp-login.php"
+  to = "/404"
+  status = 410
+  force = true
+
+[[redirects]]
+  from = "/wordpress/*"
+  to = "/404"
+  status = 410
+  force = true
+
+[[redirects]]
+  from = "/xmlrpc.php"
+  to = "/404"
+  status = 410
+  force = true
+
+[[redirects]]
+  from = "//wp/*"
+  to = "/404"
+  status = 410
+  force = true
+
+[[redirects]]
+  from = "/.git/*"
+  to = "/404"
+  status = 410
+  force = true
+
+[[redirects]]
+  from = "/@fs/*"
+  to = "/404"
+  status = 410
+  force = true
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
