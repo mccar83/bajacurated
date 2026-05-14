@@ -1,7 +1,6 @@
 backend:
   name: git-gateway
   branch: main
-  site_domain: bajacurated.com
 
 media_folder: "static/uploads"
 public_folder: "/uploads"
@@ -46,9 +45,19 @@ collections:
         hint: "Resumen para Google — máximo 160 caracteres"
       - label: "Etiquetas"
         name: "tags"
-        widget: "list"
+        widget: "string"
         required: false
-        hint: "Ej: Can-Am, Baja California, Off-road, Cabo Pulmo"
+        hint: "Separadas por coma: Can-Am, Baja California, Off-road, Cabo Pulmo"
+      - label: "Posición de la foto (recorte)"
+        name: "image_position"
+        widget: "select"
+        required: false
+        default: "center center"
+        options:
+          - { label: "Centro (default)", value: "center center" }
+          - { label: "Arriba — muestra la parte superior", value: "center top" }
+          - { label: "Abajo — muestra vehículo / parte inferior", value: "center bottom" }
+          - { label: "Centro-abajo", value: "center 65%" }
       - label: "Tour relacionado (opcional)"
         name: "related_tour"
         widget: "select"
