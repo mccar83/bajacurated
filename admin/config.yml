@@ -1,6 +1,7 @@
 backend:
   name: git-gateway
   branch: main
+  site_domain: bajacurated.com
 
 media_folder: "static/uploads"
 public_folder: "/uploads"
