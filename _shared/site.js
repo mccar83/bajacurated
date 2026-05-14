@@ -106,16 +106,16 @@ document.getElementById('form-submit-btn').addEventListener('click', async funct
 // Hamburger nav
 (function(){
   var burger=document.getElementById('navBurger');
-  var menu=document.querySelector('.nav-links');
-  if(!burger||!menu) return;
+  var nav=document.querySelector('nav');
+  if(!burger||!nav) return;
   burger.addEventListener('click',function(){
-    var isOpen=menu.classList.toggle('open');
+    var isOpen=nav.classList.toggle('nav-open');
     burger.classList.toggle('open');
     document.body.style.overflow=isOpen?'hidden':'';
   });
-  menu.querySelectorAll('a').forEach(function(a){
+  nav.querySelectorAll('.nav-links a').forEach(function(a){
     a.addEventListener('click',function(){
-      menu.classList.remove('open');
+      nav.classList.remove('nav-open');
       burger.classList.remove('open');
       document.body.style.overflow='';
     });
