@@ -14,12 +14,6 @@
   status = 410
   force = true
 
-[[redirects]]
-  from = "/blog/:slug"
-  to = "/blog/:slug/"
-  status = 301
-  force = true
-
 [[headers]]
   for = "/*"
   [headers.values]
