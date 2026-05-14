@@ -103,3 +103,21 @@ document.getElementById('form-submit-btn').addEventListener('click', async funct
     btn.disabled = false;
   }
 });
+// Hamburger nav
+(function(){
+  var burger=document.getElementById('navBurger');
+  var menu=document.querySelector('.nav-links');
+  if(!burger||!menu) return;
+  burger.addEventListener('click',function(){
+    burger.classList.toggle('open');
+    menu.classList.toggle('open');
+    document.body.style.overflow=menu.classList.contains('open')?'hidden':'';
+  });
+  menu.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click',function(){
+      burger.classList.remove('open');
+      menu.classList.remove('open');
+      document.body.style.overflow='';
+    });
+  });
+})();

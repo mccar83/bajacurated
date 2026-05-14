@@ -46,6 +46,7 @@ function nav(activeBlog) {
     </li>
     <li><a href="/#book" class="nav-cta">Book Now</a></li>
   </ul>
+  <button class="nav-burger" id="navBurger" aria-label="Menú"><span></span><span></span><span></span></button>
 </nav>`;
 }
 
