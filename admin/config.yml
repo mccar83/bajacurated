@@ -1,0 +1,65 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "static/uploads"
+public_folder: "/uploads"
+
+locale: "es"
+
+collections:
+  - name: "blog"
+    label: "Artículos del Blog"
+    folder: "content/blog"
+    create: true
+    slug: "{{slug}}"
+    preview_path: "blog/{{slug}}"
+    fields:
+      - label: "Título"
+        name: "title"
+        widget: "string"
+        hint: "El título principal del artículo"
+      - label: "Fecha de publicación"
+        name: "date"
+        widget: "datetime"
+        date_format: "YYYY-MM-DD"
+        time_format: false
+      - label: "Autor"
+        name: "author"
+        widget: "string"
+        default: "Baja Curated"
+      - label: "Imagen destacada"
+        name: "featured_image"
+        widget: "image"
+        required: false
+        hint: "Imagen principal del artículo (recomendado 1200×630px)"
+      - label: "Alt text de la imagen"
+        name: "featured_image_alt"
+        widget: "string"
+        required: false
+        hint: "Descripción de la imagen para SEO y accesibilidad"
+      - label: "Meta descripción (SEO)"
+        name: "meta_description"
+        widget: "string"
+        pattern: ['^.{1,160}$', "Máximo 160 caracteres"]
+        hint: "Resumen para Google — máximo 160 caracteres"
+      - label: "Etiquetas"
+        name: "tags"
+        widget: "list"
+        required: false
+        hint: "Ej: Can-Am, Baja California, Off-road, Cabo Pulmo"
+      - label: "Tour relacionado (opcional)"
+        name: "related_tour"
+        widget: "select"
+        required: false
+        options:
+          - { label: "Desert Intro 3H", value: "desert-intro-3h" }
+          - { label: "El Zorro 14", value: "el-zorro-14" }
+          - { label: "Explorer 6H", value: "explorer-6h" }
+          - { label: "Cabo Pulmo Expedition", value: "cabo-pulmo-expedition" }
+          - { label: "Challenger 10H", value: "challenger-10h" }
+          - { label: "Extreme 16H", value: "extreme-16h" }
+      - label: "Contenido"
+        name: "body"
+        widget: "markdown"
+        hint: "Escribe el artículo aquí. Puedes arrastrar fotos directamente."
