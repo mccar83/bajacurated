@@ -116,8 +116,14 @@ const BLOG_CSS = `
   .related-grid{grid-template-columns:1fr;}
 }`;
 
+function parseTags(raw) {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw.map(t=>String(t).trim()).filter(Boolean);
+  return String(raw).split(',').map(t=>t.trim()).filter(Boolean);
+}
+
 function buildPost(post, allPosts) {
-  const tags  = (post.tags||[]).map(t=>`<span class="blog-tag">${t}</span>`).join('');
+  const tags  = parseTags(post.tags).map(t=>`<span class="blog-tag">${t}</span>`).join('');
   const tour  = post.related_tour ? `
   <div class="blog-tour-cta">
     <div class="eyebrow">Experiencia relacionada</div>
@@ -139,8 +145,9 @@ function buildPost(post, allPosts) {
     </div>
   </section>` : '';
 
+  const imgPos = post.image_position || 'center center';
   const heroBg = post.featured_image
-    ? `background-image:url('${post.featured_image}');background-color:#0a0a0a;`
+    ? `background-image:url('${post.featured_image}');background-color:#0a0a0a;background-position:${imgPos};`
     : `background-color:#0a0a0a;`;
 
   return `<!DOCTYPE html>
@@ -200,7 +207,7 @@ function buildIndex(posts) {
         <div class="blog-card-meta">${fmtDate(p.date)} · ${p.readingTime} min</div>
         <h2 class="blog-card-title">${p.title}</h2>
         <p class="blog-card-excerpt">${p.meta_description||''}</p>
-        <div style="margin-bottom:12px;">${(p.tags||[]).map(t=>`<span class="blog-tag">${t}</span>`).join('')}</div>
+        <div style="margin-bottom:12px;">${parseTags(p.tags).map(t=>`<span class="blog-tag">${t}</span>`).join('')}</div>
         <span class="blog-card-cta">Leer artículo →</span>
       </div>
     </a>
