@@ -5,6 +5,10 @@ author: Baja Curated
 featured_image: /uploads/whatsapp-image-2026-05-05-at-08.46.40-2-.jpeg
 featured_image_alt: Carrera Dos Mares 500
 meta_description: Carrera Dos Mares 500 ganador clase 39 Zorro 3914
+tags:
+  - Can-Am
+  - Offroad
+  - Racing
 related_tour: el-zorro-14
 ---
 # Victoria Dominante: Bicampeones Dos Mares 500 2026
