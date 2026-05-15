@@ -34,6 +34,11 @@ nav{position:fixed;top:0;width:100%;z-index:100;display:flex;justify-content:spa
 .lang-btn{background:none;border:1px solid rgba(244,241,235,0.3);color:rgba(244,241,235,0.5);padding:5px 11px;font-size:0.68rem;letter-spacing:1px;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .2s;}
 .lang-btn.active{background:var(--yellow);color:#000;border-color:var(--yellow);font-weight:700;}
 .nav-cta{background:var(--yellow)!important;color:#000!important;padding:10px 22px;font-weight:700!important;font-size:0.73rem;letter-spacing:2px;text-transform:uppercase;}
+.nav-burger{display:none;flex-direction:column;justify-content:center;gap:5px;background:none;border:none;cursor:pointer;padding:8px;z-index:201;flex-shrink:0;}
+.nav-burger span{display:block;width:24px;height:2px;background:#fff;transition:transform .3s,opacity .3s;}
+.nav-burger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.nav-burger.open span:nth-child(2){opacity:0;}
+.nav-burger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
 
 /* HERO */
 .hero{position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;}
@@ -210,7 +215,14 @@ footer{background:var(--dark);padding:56px 48px 36px;border-top:1px solid var(--
 }
 @media(max-width:768px){
   nav{padding:10px 18px;}
+  .nav-burger{display:flex;}
   .nav-links{display:none;}
+  nav.nav-open{height:100vh!important;overflow-y:auto!important;background:#0a0a0a!important;backdrop-filter:none!important;align-items:flex-start!important;flex-wrap:wrap;padding:10px 18px 40px!important;}
+  nav.nav-open .nav-links{display:flex!important;flex-direction:column;width:100%;padding-top:20px;gap:0;}
+  nav.nav-open .nav-links li{width:100%;text-align:center;padding:18px 0;border-bottom:1px solid rgba(255,255,255,0.08);list-style:none;}
+  nav.nav-open .nav-links a{font-size:0.9rem;letter-spacing:3px;color:rgba(255,255,255,0.85);text-transform:uppercase;}
+  nav.nav-open .nav-links .nav-cta{display:inline-block;background:var(--yellow)!important;color:#000!important;padding:12px 32px!important;margin:6px 0;}
+  nav.nav-open .nav-links .lang-wrap{display:flex!important;justify-content:center;}
   .canam-flag{width:48px;}
   .f-red,.f-yel{height:5px;}
   .f-mid svg{width:38px;}
@@ -328,6 +340,7 @@ footer{background:var(--dark);padding:56px 48px 36px;border-top:1px solid var(--
     </li>
     <li><a href="/#book" class="nav-cta">Book Now</a></li>
   </ul>
+  <button class="nav-burger" id="navBurger" aria-label="Menú"><span></span><span></span><span></span></button>
 </nav>
 <header class="blog-header">
   <div class="eyebrow">Baja Curated</div>
@@ -335,6 +348,30 @@ footer{background:var(--dark);padding:56px 48px 36px;border-top:1px solid var(--
 </header>
 <main>
   <div class="blog-grid">
+  <article class="blog-card reveal">
+    <a href="/blog/cabo-pulmo-guia-completa/" class="blog-card-inner">
+      <div class="blog-card-img" style="background:url('https://i.imgur.com/e1gfxxG.jpeg') center/cover"></div>
+      <div class="blog-card-body">
+        <div class="blog-card-meta">14 de mayo de 2026 · 5 min</div>
+        <h2 class="blog-card-title">Cabo Pulmo: Cómo Llegar, Qué Hacer y Por Qué Vale Cada Kilómetro</h2>
+        <p class="blog-card-excerpt">Cabo Pulmo es el arrecife de coral más antiguo del Pacífico Norte y uno de los secretos mejor guardados de Baja California Sur. Te contamos cómo llegar, qué esperar y por qué ir en Can-Am cambia todo.</p>
+        <div style="margin-bottom:12px;"><span class="blog-tag">Cabo Pulmo</span><span class="blog-tag">Baja California</span><span class="blog-tag">Naturaleza</span><span class="blog-tag">UNESCO</span><span class="blog-tag">Snorkel</span></div>
+        <span class="blog-card-cta">Leer artículo →</span>
+      </div>
+    </a>
+  </article>
+  <article class="blog-card reveal">
+    <a href="/blog/can-am-vs-atv-tour-los-cabos/" class="blog-card-inner">
+      <div class="blog-card-img" style="background:url('https://i.imgur.com/z57WIhS.jpeg') center/cover"></div>
+      <div class="blog-card-body">
+        <div class="blog-card-meta">14 de mayo de 2026 · 4 min</div>
+        <h2 class="blog-card-title">Can-Am vs. ATV: Which Tour Is Right for You in Los Cabos?</h2>
+        <p class="blog-card-excerpt">Thinking about an off-road tour in Los Cabos? Here's the honest comparison between a Can-Am side-by-side and a traditional ATV — and why it matters for your experience.</p>
+        <div style="margin-bottom:12px;"><span class="blog-tag">Can-Am</span><span class="blog-tag">ATV</span><span class="blog-tag">Off-road</span><span class="blog-tag">Los Cabos</span><span class="blog-tag">Tips</span></div>
+        <span class="blog-card-cta">Leer artículo →</span>
+      </div>
+    </a>
+  </article>
   <article class="blog-card reveal">
     <a href="/blog/que-esperar-en-un-tour-can-am-los-cabos/" class="blog-card-inner">
       <div class="blog-card-img" style="background:url('/uploads/cabo-pulmo-hero.jpg') center/cover"></div>
@@ -574,6 +611,24 @@ document.getElementById('form-submit-btn').addEventListener('click', async funct
     btn.style.color = '#fff';
     btn.disabled = false;
   }
-});</script>
+});
+// Hamburger nav
+(function(){
+  var burger=document.getElementById('navBurger');
+  var nav=document.querySelector('nav');
+  if(!burger||!nav) return;
+  burger.addEventListener('click',function(){
+    var isOpen=nav.classList.toggle('nav-open');
+    burger.classList.toggle('open');
+    document.body.style.overflow=isOpen?'hidden':'';
+  });
+  nav.querySelectorAll('.nav-links a').forEach(function(a){
+    a.addEventListener('click',function(){
+      nav.classList.remove('nav-open');
+      burger.classList.remove('open');
+      document.body.style.overflow='';
+    });
+  });
+})();</script>
 </body>
 </html>

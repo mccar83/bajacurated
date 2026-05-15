@@ -270,4 +270,42 @@ posts.forEach(p => {
 
 fs.writeFileSync(path.join(OUT, 'index.html'), buildIndex(posts));
 console.log(`  ✓ /blog/`);
+
+// ── Auto-generate sitemap.xml ─────────────────────────────────────────────────
+const today = new Date().toISOString().slice(0, 10);
+
+const staticUrls = [
+  { loc: `${SITE}/`,                               priority: '1.0', changefreq: 'weekly'  },
+  { loc: `${SITE}/tours/desert-intro-3h.html`,     priority: '0.8', changefreq: 'monthly' },
+  { loc: `${SITE}/tours/el-zorro-14.html`,         priority: '0.8', changefreq: 'monthly' },
+  { loc: `${SITE}/tours/explorer-6h.html`,         priority: '0.8', changefreq: 'monthly' },
+  { loc: `${SITE}/tours/cabo-pulmo-expedition.html`, priority: '0.9', changefreq: 'monthly' },
+  { loc: `${SITE}/tours/challenger-10h.html`,      priority: '0.8', changefreq: 'monthly' },
+  { loc: `${SITE}/tours/extreme-16h.html`,         priority: '0.8', changefreq: 'monthly' },
+  { loc: `${SITE}/blog/`,                          priority: '0.8', changefreq: 'weekly'  },
+];
+
+const blogUrls = posts.map(p => ({
+  loc:        `${SITE}/blog/${p.slug}/`,
+  lastmod:    p.date ? new Date(p.date).toISOString().slice(0, 10) : today,
+  priority:   '0.7',
+  changefreq: 'monthly',
+}));
+
+const allUrls = [...staticUrls, ...blogUrls];
+
+const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+${allUrls.map(u => `  <url>
+    <loc>${u.loc}</loc>
+    <lastmod>${u.lastmod || today}</lastmod>
+    <changefreq>${u.changefreq}</changefreq>
+    <priority>${u.priority}</priority>
+  </url>`).join('\n')}
+</urlset>
+`;
+
+fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), sitemapXml);
+console.log(`  ✓ sitemap.xml (${allUrls.length} URLs)`);
 console.log(`Done — ${posts.length} post(s) built.`);
