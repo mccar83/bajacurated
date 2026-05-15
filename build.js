@@ -169,6 +169,9 @@ ${post.featured_image?`<meta property="og:image" content="${SITE}${post.featured
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,600;0,700;1,300&display=swap" rel="stylesheet">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Article","headline":${JSON.stringify(post.title)},"description":${JSON.stringify(post.meta_description||'')},"datePublished":"${post.date}","author":{"@type":"Organization","name":"${post.author||'Baja Curated'}"},"publisher":{"@type":"Organization","name":"Baja Curated","url":"${SITE}"},"url":"${SITE}/blog/${post.slug}/"${post.featured_image?`,"image":"${SITE}${post.featured_image}"`:''}}</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"${SITE}/"},{"@type":"ListItem","position":2,"name":"Blog","item":"${SITE}/blog/"},{"@type":"ListItem","position":3,"name":${JSON.stringify(post.title)},"item":"${SITE}/blog/${post.slug}/"}]}
+</script>
 <style>${CSS}${BLOG_CSS}</style>
 </head>
 <body>
