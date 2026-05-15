@@ -18,7 +18,11 @@
   from = "/blog/:slug"
   to = "/blog/:slug/"
   status = 301
-  force = true
+
+[[redirects]]
+  from = "/blog/*"
+  to = "/blog/"
+  status = 302
 
 [[headers]]
   for = "/*"
