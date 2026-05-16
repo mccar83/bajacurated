@@ -1,12 +1,20 @@
 ---
-title: "Qué esperar en un tour privado Can-Am en Los Cabos"
-date: "2026-05-13"
-author: "Baja Curated"
-featured_image: "/uploads/cabo-pulmo-hero.jpg"
-featured_image_alt: "Can-Am Maverick en los trails del desierto cerca de San José del Cabo, Baja California Sur"
-meta_description: "Todo lo que necesitas saber antes de tu primer tour privado en Can-Am por Los Cabos. Ropa, nivel requerido, qué incluye y cómo es la experiencia real."
-tags: ["Can-Am", "Los Cabos", "Off-road", "Guía"]
-related_tour: "cabo-pulmo-expedition"
+title: Qué esperar en un tour privado Can-Am en Los Cabos
+date: 2026-05-13
+author: Baja Curated
+featured_image: https://res.cloudinary.com/dvbuzehvr/image/upload/f_auto,q_auto/v1778943681/ORVMY26MAVFAMLifestyleDSC09153RGB_rixovw.jpg
+featured_image_alt: Can-Am Maverick en los trails del desierto cerca de San José
+  del Cabo, Baja California Sur
+meta_description: Todo lo que necesitas saber antes de tu primer tour privado en
+  Can-Am por Los Cabos. Ropa, nivel requerido, qué incluye y cómo es la
+  experiencia real.
+tags:
+  - Can-Am
+  - Los Cabos
+  - Off-road
+  - Guía
+image_position: center center
+related_tour: cabo-pulmo-expedition
 ---
 
 Si nunca has conducido un Can-Am Maverick, la primera pregunta que aparece es siempre la misma: **¿puedo con esto?**
