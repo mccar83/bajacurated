@@ -286,6 +286,7 @@ const staticUrls = [
   { loc: `${SITE}/tours/challenger-10h.html`,      priority: '0.8', changefreq: 'monthly' },
   { loc: `${SITE}/tours/extreme-16h.html`,         priority: '0.8', changefreq: 'monthly' },
   { loc: `${SITE}/blog/`,                          priority: '0.8', changefreq: 'weekly'  },
+  { loc: `${SITE}/can-am-authorized-dealer.html`,  priority: '0.9', changefreq: 'monthly' },
 ];
 
 const blogUrls = posts.map(p => ({
