@@ -7,15 +7,16 @@ featured_image_alt: Maverick R compitiendo en la Baja 1000
 meta_description: "La Baja 1000 no es solo una carrera, es la prueba definitiva
   de hombre y máquina contra el desierto. "
 tags: Baja 1000, Off-road, Historia, Racing, Adrenalina
-image_position: center 30%
+image_position: center bottom
 related_tour: extreme-16h
 ---
-
 Si hay una carrera que define el off-road mundial, es la Baja 1000.
 
 No el Dakar. No las 24 horas de Le Mans. No el Rally de Montecarlo. **La Baja 1000** — la carrera sin pavimento más larga y más brutal del planeta, que desde 1967 rasga el desierto de la Península de Baja California de norte a sur cada noviembre.
 
 Más de 1,600 kilómetros de terracería, piedra volcánica, arroyos secos, dunas de arena y cañones sin nombre que solo existen en el mapa si alguien los midió en los días previos a la carrera. Sin barricadas. Sin zonas de seguridad garantizada. Con poblados locales que llevan décadas poniendo sillas a la orilla de la pista para ver pasar los vehículos a 200 kilómetros por hora.
+
+![](https://res.cloudinary.com/dvbuzehvr/image/upload/f_auto,q_auto/v1778942689/DIK20501-copy-scaled_ylly10.jpg "Maverick R compitiendo en la Baja 1000")
 
 ## De Dónde Viene Todo Esto
 
