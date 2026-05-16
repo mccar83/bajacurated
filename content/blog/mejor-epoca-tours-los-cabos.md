@@ -1,12 +1,15 @@
 ---
-title: "¿Cuándo es la Mejor Época Para Hacer un Tour en Los Cabos?"
-date: "2026-05-15"
-author: "Baja Curated"
-meta_description: "La temporada de tours en Los Cabos no es la misma que la temporada de playa. Te explicamos mes a mes cuándo ir, qué esperar, y por qué algunos meses son mejores que otros para el off-road."
-featured_image: "https://i.imgur.com/z57WIhS.jpeg"
-image_position: "center 60%"
-tags: "Los Cabos, Tips, Clima, Temporadas"
-related_tour: "desert-intro-3h"
+title: ¿Cuándo es la Mejor Época Para Hacer un Tour en Los Cabos?
+date: 2026-05-15
+author: Baja Curated
+featured_image: https://res.cloudinary.com/dvbuzehvr/image/upload/f_auto,q_auto/v1778943681/ORVMY25MAVX3MAXRSTURBOScandiBlueOrangeCrushActionDSC04050RGB_zua5h2.jpg
+featured_image_alt: Tour Offroad en Cabo
+meta_description: La temporada de tours en Los Cabos. Te explicamos mes a mes
+  cuándo ir, qué esperar, y por qué algunos meses son mejores que otros para el
+  off-road.
+tags: Los Cabos, Tips, Clima, Temporadas
+image_position: center 60%
+related_tour: desert-intro-3h
 ---
 
 La pregunta que nos llega más seguido no es "¿cuánto cuesta?" ni "¿qué tan difícil es?" Es: **"¿Cuándo debo ir?"**
