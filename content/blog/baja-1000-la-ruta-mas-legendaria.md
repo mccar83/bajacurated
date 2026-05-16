@@ -1,12 +1,13 @@
 ---
 title: "La Baja 1000: La Carrera Más Brutal del Mundo y Cómo Verla Desde Adentro"
-date: "2026-05-15"
-author: "Baja Curated"
-meta_description: "La Baja 1000 no es solo una carrera — es la prueba definitiva de hombre y máquina contra el desierto. Te contamos su historia, su ruta, y cómo los tours en Can-Am te acercan a esa misma adrenalina."
-featured_image: "https://i.imgur.com/e1gfxxG.jpeg"
-image_position: "center 30%"
-tags: "Baja 1000, Off-road, Historia, Racing, Adrenalina"
-related_tour: "extreme-16h"
+date: 2026-05-15
+author: Baja Curated
+featured_image: ""
+meta_description: "La Baja 1000 no es solo una carrera, es la prueba definitiva
+  de hombre y máquina contra el desierto. "
+tags: Baja 1000, Off-road, Historia, Racing, Adrenalina
+image_position: center 30%
+related_tour: extreme-16h
 ---
 
 Si hay una carrera que define el off-road mundial, es la Baja 1000.
