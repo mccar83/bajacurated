@@ -2,8 +2,6 @@ backend:
   name: github
   repo: mccar83/bajacurated
   branch: main
-  auth_type: pkce
-  app_id: Ov23liaQCDbkabKFrAon
 
 media_folder: "static/uploads"
 public_folder: "/uploads"
