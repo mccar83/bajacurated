@@ -1,12 +1,13 @@
 ---
 title: "Can-Am vs. ATV: Which Tour Is Right for You in Los Cabos?"
-date: "2026-05-14"
-author: "Baja Curated"
-meta_description: "Thinking about an off-road tour in Los Cabos? Here's the honest comparison between a Can-Am side-by-side and a traditional ATV — and why it matters for your experience."
-featured_image: "https://i.imgur.com/z57WIhS.jpeg"
-image_position: "center center"
-tags: "Can-Am, ATV, Off-road, Los Cabos, Tips"
-related_tour: "desert-intro-3h"
+date: 2026-05-14
+author: Baja Curated
+featured_image: https://res.cloudinary.com/dvbuzehvr/image/upload/f_auto,q_auto/v1778943938/can-am-atvs-and-utvs-models-prices-specs-and-reviews.jpg_ejkitt.webp
+meta_description: Thinking about an off-road tour in Los Cabos? Here's the
+  honest comparison between a Can-Am side-by-side and a traditional ATV.
+tags: Can-Am, ATV, Off-road, Los Cabos, Tips
+image_position: center center
+related_tour: desert-intro-3h
 ---
 
 You've decided to get off the resort and into the desert. Smart move. But now comes the question everyone eventually asks: **Can-Am or ATV?**
