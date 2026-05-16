@@ -1,12 +1,13 @@
 ---
 title: "Cabo Pulmo: Cómo Llegar, Qué Hacer y Por Qué Vale Cada Kilómetro"
-date: "2026-05-14"
-author: "Baja Curated"
-meta_description: "Cabo Pulmo es el arrecife de coral más antiguo del Pacífico Norte y uno de los secretos mejor guardados de Baja California Sur. Te contamos cómo llegar, qué esperar y por qué ir en Can-Am cambia todo."
-featured_image: "https://i.imgur.com/e1gfxxG.jpeg"
-image_position: "center 40%"
-tags: "Cabo Pulmo, Baja California, Naturaleza, UNESCO, Snorkel"
-related_tour: "cabo-pulmo-expedition"
+date: 2026-05-14
+author: Baja Curated
+featured_image: https://res.cloudinary.com/dvbuzehvr/image/upload/f_auto,q_auto/v1778943006/image_rjfbad.webp
+meta_description: "Cabo Pulmo es el arrecife de coral más antiguo del Pacífico
+  Norte y uno de los secretos mejor guardados de Baja California Sur. "
+tags: Cabo Pulmo, Baja California, Naturaleza, UNESCO, Snorkel
+image_position: center center
+related_tour: cabo-pulmo-expedition
 ---
 
 Si has visitado Los Cabos y no has llegado a Cabo Pulmo, no has visto la Baja de verdad.
