@@ -19,11 +19,6 @@
   to = "/blog/:slug/"
   status = 301
 
-[[redirects]]
-  from = "/blog/*"
-  to = "/blog/"
-  status = 302
-
 [[headers]]
   for = "/*"
   [headers.values]
