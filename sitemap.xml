@@ -1,111 +1,110 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://bajacurated.com/</loc>
-    <lastmod>2026-05-17</lastmod>
+    <lastmod>2026-05-18T12:00:00+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://bajacurated.com/tours/desert-intro-3h.html</loc>
-    <lastmod>2026-05-17</lastmod>
+    <lastmod>2026-05-18T12:00:00+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bajacurated.com/tours/el-zorro-14.html</loc>
-    <lastmod>2026-05-17</lastmod>
+    <lastmod>2026-05-18T12:00:00+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bajacurated.com/tours/explorer-6h.html</loc>
-    <lastmod>2026-05-17</lastmod>
+    <lastmod>2026-05-18T12:00:00+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bajacurated.com/tours/cabo-pulmo-expedition.html</loc>
-    <lastmod>2026-05-17</lastmod>
+    <lastmod>2026-05-18T12:00:00+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://bajacurated.com/tours/challenger-10h.html</loc>
-    <lastmod>2026-05-17</lastmod>
+    <lastmod>2026-05-18T12:00:00+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bajacurated.com/tours/extreme-16h.html</loc>
-    <lastmod>2026-05-17</lastmod>
+    <lastmod>2026-05-18T12:00:00+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bajacurated.com/blog/</loc>
-    <lastmod>2026-05-17</lastmod>
+    <lastmod>2026-05-18T12:00:00+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bajacurated.com/can-am-authorized-dealer.html</loc>
-    <lastmod>2026-05-17</lastmod>
+    <lastmod>2026-05-18T12:00:00+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://bajacurated.com/blog/private-can-am-tour-los-cabos/</loc>
-    <lastmod>2026-05-16</lastmod>
+    <lastmod>2026-05-16T12:00:00+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bajacurated.com/blog/baja-1000-la-ruta-mas-legendaria/</loc>
-    <lastmod>2026-05-15</lastmod>
+    <lastmod>2026-05-15T12:00:00+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bajacurated.com/blog/mejor-epoca-tours-los-cabos/</loc>
-    <lastmod>2026-05-15</lastmod>
+    <lastmod>2026-05-15T12:00:00+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bajacurated.com/blog/tour-privado-can-am-los-cabos/</loc>
-    <lastmod>2026-05-15</lastmod>
+    <lastmod>2026-05-15T12:00:00+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bajacurated.com/blog/cabo-pulmo-guia-completa/</loc>
-    <lastmod>2026-05-14</lastmod>
+    <lastmod>2026-05-14T12:00:00+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bajacurated.com/blog/can-am-vs-atv-tour-los-cabos/</loc>
-    <lastmod>2026-05-14</lastmod>
+    <lastmod>2026-05-14T12:00:00+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bajacurated.com/blog/los-5-mejores-tours-off-road-en-los-cabos-2026-guía-definitiva/</loc>
-    <lastmod>2026-05-14</lastmod>
+    <lastmod>2026-05-14T12:00:00+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bajacurated.com/blog/ganadores-clase-39-dos-mares-500/</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-13T12:00:00+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bajacurated.com/blog/que-esperar-en-un-tour-can-am-los-cabos/</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-13T12:00:00+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
