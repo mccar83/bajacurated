@@ -735,6 +735,10 @@ function setLang(l,e){
     const realChildren=Array.from(el.children).filter(c=>c.tagName!=='BR');
     if(realChildren.length===0){
       el.innerHTML=val;
+    } else if(realChildren.length===1 && realChildren[0].classList.contains('inc-check')){
+      // Has only a checkmark span — preserve it, update the text
+      const check=realChildren[0].outerHTML;
+      el.innerHTML=check+' '+val;
     }
   });
   document.querySelectorAll('#tour-select option').forEach(opt=>{
