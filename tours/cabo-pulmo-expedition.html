@@ -32,21 +32,60 @@
   "@type": "Product",
   "name": "Cabo Pulmo Expedition — Private Can-Am Tour + Snorkel UNESCO",
   "description": "Flagship 8-hour private Can-Am expedition from San José del Cabo to Cabo Pulmo UNESCO reef. Snorkel, food, Can-Am jersey included. The only tour of its kind in Los Cabos.",
-  "brand": {"@type": "Brand", "name": "Can-Am BRP"},
+  "brand": {
+    "@type": "Brand",
+    "name": "Can-Am BRP"
+  },
   "offers": {
     "@type": "Offer",
     "priceCurrency": "USD",
     "price": "1595",
     "priceValidUntil": "2026-12-31",
     "availability": "https://schema.org/InStock",
-    "url": "https://bajacurated.com/tours/cabo-pulmo-expedition.html"
+    "url": "https://bajacurated.com/tours/cabo-pulmo-expedition.html",
+    "hasMerchantReturnPolicy": {
+      "@type": "MerchantReturnPolicy",
+      "applicableCountry": "MX",
+      "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+      "merchantReturnDays": 7,
+      "returnFees": "https://schema.org/FreeReturn",
+      "returnMethod": "https://schema.org/ReturnByMail"
+    },
+    "shippingDetails": {
+      "@type": "OfferShippingDetails",
+      "shippingRate": {
+        "@type": "MonetaryAmount",
+        "value": "0",
+        "currency": "USD"
+      },
+      "shippingDestination": {
+        "@type": "DefinedRegion",
+        "addressCountry": "MX"
+      },
+      "deliveryTime": {
+        "@type": "ShippingDeliveryTime",
+        "handlingTime": {
+          "@type": "QuantitativeValue",
+          "minValue": 0,
+          "maxValue": 0,
+          "unitCode": "DAY"
+        },
+        "transitTime": {
+          "@type": "QuantitativeValue",
+          "minValue": 0,
+          "maxValue": 0,
+          "unitCode": "DAY"
+        }
+      }
+    }
   },
   "provider": {
     "@type": "TourOperator",
     "@id": "https://bajacurated.com/#organization",
     "name": "Baja Curated",
     "url": "https://bajacurated.com"
-  }
+  },
+  "image": "https://i.imgur.com/UW7a39R.jpeg"
 }
 </script>
 

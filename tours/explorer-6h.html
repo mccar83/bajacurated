@@ -32,21 +32,60 @@
   "@type": "Product",
   "name": "Explorer 6H — Private Can-Am Tour Palo Escopeta & Cabo Pulmo",
   "description": "6-hour Can-Am expedition through Palo Escopeta, Los Frailes and Cabo Pulmo. Ideal for families and first-time visitors in Los Cabos. Food and hydration included.",
-  "brand": {"@type": "Brand", "name": "Can-Am BRP"},
+  "brand": {
+    "@type": "Brand",
+    "name": "Can-Am BRP"
+  },
   "offers": {
     "@type": "Offer",
     "priceCurrency": "USD",
     "price": "950",
     "priceValidUntil": "2026-12-31",
     "availability": "https://schema.org/InStock",
-    "url": "https://bajacurated.com/tours/explorer-6h.html"
+    "url": "https://bajacurated.com/tours/explorer-6h.html",
+    "hasMerchantReturnPolicy": {
+      "@type": "MerchantReturnPolicy",
+      "applicableCountry": "MX",
+      "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+      "merchantReturnDays": 7,
+      "returnFees": "https://schema.org/FreeReturn",
+      "returnMethod": "https://schema.org/ReturnByMail"
+    },
+    "shippingDetails": {
+      "@type": "OfferShippingDetails",
+      "shippingRate": {
+        "@type": "MonetaryAmount",
+        "value": "0",
+        "currency": "USD"
+      },
+      "shippingDestination": {
+        "@type": "DefinedRegion",
+        "addressCountry": "MX"
+      },
+      "deliveryTime": {
+        "@type": "ShippingDeliveryTime",
+        "handlingTime": {
+          "@type": "QuantitativeValue",
+          "minValue": 0,
+          "maxValue": 0,
+          "unitCode": "DAY"
+        },
+        "transitTime": {
+          "@type": "QuantitativeValue",
+          "minValue": 0,
+          "maxValue": 0,
+          "unitCode": "DAY"
+        }
+      }
+    }
   },
   "provider": {
     "@type": "TourOperator",
     "@id": "https://bajacurated.com/#organization",
     "name": "Baja Curated",
     "url": "https://bajacurated.com"
-  }
+  },
+  "image": "https://i.imgur.com/OYTI5MB.jpeg"
 }
 </script>
 

@@ -32,21 +32,60 @@
   "@type": "Product",
   "name": "Challenger 10H — Full Day Can-Am East Cape & Hot Springs Baja",
   "description": "10-hour Can-Am expedition through Miraflores, Santiago hot springs and the full East Cape of Baja California Sur. 2 meals and hot springs pass included.",
-  "brand": {"@type": "Brand", "name": "Can-Am BRP"},
+  "brand": {
+    "@type": "Brand",
+    "name": "Can-Am BRP"
+  },
   "offers": {
     "@type": "Offer",
     "priceCurrency": "USD",
     "price": "1765",
     "priceValidUntil": "2026-12-31",
     "availability": "https://schema.org/InStock",
-    "url": "https://bajacurated.com/tours/challenger-10h.html"
+    "url": "https://bajacurated.com/tours/challenger-10h.html",
+    "hasMerchantReturnPolicy": {
+      "@type": "MerchantReturnPolicy",
+      "applicableCountry": "MX",
+      "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+      "merchantReturnDays": 7,
+      "returnFees": "https://schema.org/FreeReturn",
+      "returnMethod": "https://schema.org/ReturnByMail"
+    },
+    "shippingDetails": {
+      "@type": "OfferShippingDetails",
+      "shippingRate": {
+        "@type": "MonetaryAmount",
+        "value": "0",
+        "currency": "USD"
+      },
+      "shippingDestination": {
+        "@type": "DefinedRegion",
+        "addressCountry": "MX"
+      },
+      "deliveryTime": {
+        "@type": "ShippingDeliveryTime",
+        "handlingTime": {
+          "@type": "QuantitativeValue",
+          "minValue": 0,
+          "maxValue": 0,
+          "unitCode": "DAY"
+        },
+        "transitTime": {
+          "@type": "QuantitativeValue",
+          "minValue": 0,
+          "maxValue": 0,
+          "unitCode": "DAY"
+        }
+      }
+    }
   },
   "provider": {
     "@type": "TourOperator",
     "@id": "https://bajacurated.com/#organization",
     "name": "Baja Curated",
     "url": "https://bajacurated.com"
-  }
+  },
+  "image": "https://i.imgur.com/6PQoPnn.jpeg"
 }
 </script>
 

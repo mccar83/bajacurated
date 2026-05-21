@@ -32,21 +32,60 @@
   "@type": "Product",
   "name": "Desert Intro 3H — Private Can-Am Tour Los Cabos",
   "description": "3-hour introductory Can-Am off-road experience near San José del Cabo. Perfect for first-timers and resort guests with limited time. Bilingual guide and full safety gear included.",
-  "brand": {"@type": "Brand", "name": "Can-Am BRP"},
+  "brand": {
+    "@type": "Brand",
+    "name": "Can-Am BRP"
+  },
   "offers": {
     "@type": "Offer",
     "priceCurrency": "USD",
     "price": "550",
     "priceValidUntil": "2026-12-31",
     "availability": "https://schema.org/InStock",
-    "url": "https://bajacurated.com/tours/desert-intro-3h.html"
+    "url": "https://bajacurated.com/tours/desert-intro-3h.html",
+    "hasMerchantReturnPolicy": {
+      "@type": "MerchantReturnPolicy",
+      "applicableCountry": "MX",
+      "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+      "merchantReturnDays": 7,
+      "returnFees": "https://schema.org/FreeReturn",
+      "returnMethod": "https://schema.org/ReturnByMail"
+    },
+    "shippingDetails": {
+      "@type": "OfferShippingDetails",
+      "shippingRate": {
+        "@type": "MonetaryAmount",
+        "value": "0",
+        "currency": "USD"
+      },
+      "shippingDestination": {
+        "@type": "DefinedRegion",
+        "addressCountry": "MX"
+      },
+      "deliveryTime": {
+        "@type": "ShippingDeliveryTime",
+        "handlingTime": {
+          "@type": "QuantitativeValue",
+          "minValue": 0,
+          "maxValue": 0,
+          "unitCode": "DAY"
+        },
+        "transitTime": {
+          "@type": "QuantitativeValue",
+          "minValue": 0,
+          "maxValue": 0,
+          "unitCode": "DAY"
+        }
+      }
+    }
   },
   "provider": {
     "@type": "TourOperator",
     "@id": "https://bajacurated.com/#organization",
     "name": "Baja Curated",
     "url": "https://bajacurated.com"
-  }
+  },
+  "image": "https://i.imgur.com/1uCKOwh.jpeg"
 }
 </script>
 
