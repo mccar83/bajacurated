@@ -24,7 +24,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
 .btn-google{width:100%;padding:11px 16px;background:#fff;color:#3c4043;border:1px solid #dadce0;border-radius:var(--radius);font-size:.85rem;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:background .2s;letter-spacing:.2px;}
 .btn-google:hover{background:#f8f9fa;border-color:#c6c9cc;}
 #login-screen{display:flex;align-items:center;justify-content:center;height:100vh;background:var(--bg);}
-.login-box{width:360px;padding:48px 40px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;}
+.login-box{width:420px;padding:48px 40px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;}
 .login-logo{text-align:center;margin-bottom:32px;}
 .login-logo .brand{font-size:1rem;letter-spacing:4px;color:var(--yellow);font-weight:700;text-transform:uppercase;}
 .login-logo .sub{font-size:.65rem;letter-spacing:3px;color:var(--text3);margin-top:5px;text-transform:uppercase;}
@@ -43,8 +43,8 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
 #app.visible{display:flex;}
 
 /* ── SIDEBAR ── */
-#sidebar{width:210px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;}
-.s-logo{padding:22px 18px 18px;border-bottom:1px solid var(--border);}
+#sidebar{width:248px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;}
+.s-logo{padding:20px 16px 16px;border-bottom:1px solid var(--border);}
 .s-logo .brand{font-size:.78rem;letter-spacing:3px;color:var(--yellow);font-weight:700;text-transform:uppercase;}
 .s-logo .sub{font-size:.58rem;letter-spacing:2px;color:var(--text3);margin-top:4px;text-transform:uppercase;}
 .s-nav{flex:1;padding:10px 0;}
@@ -263,7 +263,7 @@ tbody tr:hover td{background:rgba(255,255,255,.015);}
 <div id="login-screen">
   <div class="login-box">
     <div class="login-logo">
-      <img src="https://bajacurated.com/baja-curated-main.svg" alt="Baja Curated" style="height:92px;width:auto;margin:0 auto 10px;">
+      <img src="https://bajacurated.com/baja-curated-main.svg" alt="Baja Curated" style="height:140px;width:auto;max-width:100%;margin:0 auto 12px;">
       <div class="sub">Panel de Administración</div>
     </div>
     <div class="err-msg" id="login-err"></div>
@@ -278,7 +278,7 @@ tbody tr:hover td{background:rgba(255,255,255,.015);}
 <div id="app">
   <aside id="sidebar">
     <div class="s-logo">
-      <img src="https://bajacurated.com/baja-curated-main.svg" alt="Baja Curated" style="height:64px;width:auto;display:block;margin-bottom:6px;">
+      <img src="https://bajacurated.com/baja-curated-main.svg" alt="Baja Curated" style="width:100%;height:auto;display:block;margin-bottom:8px;">
       <div class="sub">Admin</div>
     </div>
     <nav class="s-nav">
@@ -288,6 +288,7 @@ tbody tr:hover td{background:rgba(255,255,255,.015);}
       <div class="nav-item" onclick="showView('galeria')"><span class="ni">🖼️</span> Galería</div>
       <div class="nav-item" onclick="showView('vehicles')"><span class="ni">🚙</span> Vehículos</div>
       <div class="nav-item" onclick="showView('concierges')"><span class="ni">🤝</span> Concierges</div>
+      <div class="nav-item" onclick="window.open('/cms/','_blank')"><span class="ni">✍️</span> Blog <span style="font-size:.6rem;color:var(--text3);margin-left:auto;">↗</span></div>
     </nav>
     <div class="s-footer">
       <div class="user-info" id="user-email"></div>

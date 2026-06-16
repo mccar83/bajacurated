@@ -33,7 +33,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
 /* ── HEADER ── */
 #app{display:none;flex-direction:column;min-height:100vh;}
 #app.visible{display:flex;}
-.app-header{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.app-header{background:var(--bg2);border-bottom:1px solid var(--border);padding:16px 18px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
 .hdr-brand{font-size:.75rem;letter-spacing:3px;color:var(--yellow);font-weight:700;text-transform:uppercase;}
 .hdr-sub{font-size:.6rem;letter-spacing:2px;color:var(--text3);margin-top:3px;text-transform:uppercase;}
 .hdr-user{text-align:right;}
@@ -185,14 +185,14 @@ h1,h2,.hdr-name,.unauth-title,.success-title,.link-card-title{font-family:'Bebas
 
 <!-- LOADING -->
 <div class="full-center" id="screen-loading">
-  <img src="https://bajacurated.com/baja-curated-main.svg" alt="Baja Curated" style="height:80px;width:auto;">
+  <img src="https://bajacurated.com/baja-curated-main.svg" alt="Baja Curated" style="height:140px;width:auto;max-width:100%;">
   <div class="spinner"></div>
   <div style="font-size:.75rem;color:var(--text3);">Verificando acceso…</div>
 </div>
 
 <!-- UNAUTHORIZED -->
 <div class="full-center" id="screen-unauth" style="display:none;">
-  <img src="https://bajacurated.com/baja-curated-main.svg" alt="Baja Curated" style="height:80px;width:auto;">
+  <img src="https://bajacurated.com/baja-curated-main.svg" alt="Baja Curated" style="height:140px;width:auto;max-width:100%;">
   <div class="unauth-icon">🔒</div>
   <div class="unauth-title">Acceso no autorizado</div>
   <div class="unauth-sub" id="unauth-msg">El enlace no es válido o ya no está activo. Contacta a Baja Curated para obtener tu link personal.</div>
@@ -202,7 +202,7 @@ h1,h2,.hdr-name,.unauth-title,.success-title,.link-card-title{font-family:'Bebas
 <div id="app">
   <header class="app-header">
     <div>
-      <img src="https://bajacurated.com/baja-curated-main.svg" alt="Baja Curated" style="height:64px;width:auto;">
+      <img src="https://bajacurated.com/baja-curated-main.svg" alt="Baja Curated" style="height:96px;width:auto;">
       <div class="hdr-sub">Portal Concierge</div>
     </div>
     <div class="hdr-user">
