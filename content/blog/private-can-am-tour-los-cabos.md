@@ -1,12 +1,14 @@
 ---
-title: "Private Can-Am Tour in Los Cabos: What to Expect, What It Costs, and Why It's Worth It"
-date: "2026-05-16"
-author: "Baja Curated"
-meta_description: "Everything you need to know about booking a private Can-Am Maverick X3 tour in Los Cabos — routes, prices, what's included, and how to choose the right operator."
-featured_image: "https://i.imgur.com/z57WIhS.jpeg"
-image_position: "center 55%"
-tags: "Can-Am, Private Tour, Los Cabos, Off-road, Tips"
-related_tour: "desert-intro-3h"
+title: "Private Can-Am Tour in Los Cabos: What to Expect, What It Costs, and Why
+  It's Worth It"
+date: 2026-05-16
+author: Baja Curated
+featured_image: https://res.cloudinary.com/dvbuzehvr/image/upload/f_auto,q_auto/v1778943679/ORVMY26MAVAPPLifestyleDSC06873RGB_pyg6ui.jpg
+meta_description: Everything you need to know about booking a private Can-Am
+  Maverick X3 tour in Los Cabos — routes and how to choose the right operator.
+tags: Can-Am, Private Tour, Los Cabos, Off-road, Tips
+image_position: center 55%
+related_tour: desert-intro-3h
 ---
 
 You've seen them on the road from the airport — Can-Am Maverick X3s kicking up desert dust, heading somewhere that definitely isn't a resort pool. And at some point you've thought: *I want to do that.*
