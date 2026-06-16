@@ -185,6 +185,10 @@ tbody tr:hover td{background:rgba(255,255,255,.015);}
 .price-hint.show{display:block;}
 .avail-warn{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:var(--radius);padding:7px 11px;font-size:.76rem;color:#ef4444;margin-top:5px;display:none;}
 .avail-warn.show{display:block;}
+.chip-block-btn{padding:2px 7px;background:transparent;border:1px solid rgba(239,68,68,.2);border-radius:3px;color:rgba(239,68,68,.5);font-size:.6rem;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0;}
+.chip-block-btn:hover{border-color:#ef4444;color:#ef4444;}
+.custom-tour-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-top:8px;display:none;}
+.custom-tour-box.show{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 
 /* ── CONCIERGES VIEW ── */
 #view-concierges{flex:1;overflow-y:auto;padding:20px 24px;display:none;}
@@ -338,7 +342,20 @@ tbody tr:hover td{background:rgba(255,255,255,.015);}
       <div class="form-2">
         <div class="field" style="grid-column:1/-1">
           <label>Tour</label>
-          <select id="f-tour" onchange="onTourChange()"><option value="">Seleccionar tour…</option></select>
+          <select id="f-tour" onchange="onTourChange()">
+            <option value="">Seleccionar tour…</option>
+            <option value="__custom__">✏️ Evento / Tour Especial</option>
+          </select>
+          <div class="custom-tour-box" id="custom-tour-box">
+            <div class="field" style="margin:0">
+              <label>Nombre del evento *</label>
+              <input type="text" id="f-custom-name" placeholder="Carrera Zorro, Demo tienda, Tour Privado…" oninput="updateEndTime()">
+            </div>
+            <div class="field" style="margin:0">
+              <label>Duración (horas)</label>
+              <input type="number" id="f-custom-hours" value="3" min="0.5" max="24" step="0.5" onchange="updateEndTime()">
+            </div>
+          </div>
         </div>
         <div class="field">
           <label>Fecha</label>
@@ -413,7 +430,19 @@ tbody tr:hover td{background:rgba(255,255,255,.015);}
       <input type="hidden" id="bl-vehicle-id">
       <div class="field"><label>Vehículo</label><input type="text" id="bl-vehicle-name" readonly style="opacity:.6;cursor:default;"></div>
       <div class="field"><label>Fecha</label><input type="date" id="bl-date"></div>
-      <div class="field"><label>Motivo (opcional)</label><input type="text" id="bl-reason" placeholder="Mantenimiento, reserva privada…"></div>
+      <div class="field">
+        <label>Motivo</label>
+        <select id="bl-reason-sel" onchange="onReasonSelect()">
+          <option value="">Seleccionar motivo…</option>
+          <option value="Carrera / Racing event">🏁 Carrera / Racing event</option>
+          <option value="Demo en tienda">🏪 Demo en tienda</option>
+          <option value="Mantenimiento">🔧 Mantenimiento</option>
+          <option value="Evento privado">🎉 Evento privado</option>
+          <option value="Reservado">📌 Reservado</option>
+          <option value="__other__">✏️ Otro…</option>
+        </select>
+        <input type="text" id="bl-reason" placeholder="Describe el motivo…" style="margin-top:6px;display:none;">
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn-sec" onclick="closeBlackout()">Cancelar</button>
@@ -619,11 +648,18 @@ function renderDayDetail(dateStr) {
   S.vehicles.forEach(v => {
     const booked = bks.find(b => b.vehicle_id === v.id);
     const blacked = bls.find(b => b.vehicle_id === v.id);
-    let cls = 'avail-chip free', st = 'Disponible';
-    if (booked) { cls='avail-chip busy'; st=booked.bc_tours?.name||'Ocupado'; }
-    if (blacked) { cls='avail-chip out'; st='Bloqueado'; }
+    let cls = 'avail-chip free', st = 'Disponible', extra = '';
+    if (booked) {
+      cls='avail-chip busy';
+      st = booked.custom_tour_name || booked.bc_tours?.name || 'Ocupado';
+      if (booked.start_time) st += ` · ${booked.start_time.slice(0,5)}`;
+    }
+    if (blacked) { cls='avail-chip out'; st=blacked.reason||'Bloqueado'; }
     if (v.status !== 'active') { cls='avail-chip out'; st=v.status==='maintenance'?'Mantenimiento':'Inactivo'; }
-    chips += `<div class="${cls}"><div class="av-dot" style="background:${VH_COLOR[v.type]||'#666'}"></div><div class="av-name">${v.name}</div><div class="av-st">${st}</div></div>`;
+    if (cls.includes('free')) {
+      extra = `<button class="chip-block-btn" onclick="openBlackout('${v.id}','${v.name}','${dateStr}')">🚫 Bloquear</button>`;
+    }
+    chips += `<div class="${cls}"><div class="av-dot" style="background:${VH_COLOR[v.type]||'#666'}"></div><div class="av-name">${v.name}</div><div class="av-st">${st}</div>${extra}</div>`;
   });
   chips += '</div>';
 
@@ -640,7 +676,7 @@ function renderDayDetail(dateStr) {
           <div class="vbadge" style="background:${color}">${b.bc_vehicles?.name||'—'}</div>
           <div class="bk-badge st-${b.status}">${b.status}</div>
         </div>
-        <div class="bk-tour">${b.bc_tours?.name||'—'}</div>
+        <div class="bk-tour">${b.custom_tour_name||b.bc_tours?.name||'—'}${b.custom_tour_name?'<span style="font-size:.62rem;color:var(--yellow);margin-left:5px;letter-spacing:.5px">ESPECIAL</span>':''}</div>
         <div class="bk-client">${b.client_name}${b.client_phone?' · '+b.client_phone:''}</div>
         ${b.start_time?`<div style="font-size:.7rem;color:var(--text3);margin-top:2px">⏰ ${b.start_time.slice(0,5)}${b.end_time?' → '+b.end_time.slice(0,5):''}</div>`:''}
         <div class="bk-price">${b.total_price?'$'+Number(b.total_price).toLocaleString()+' USD':''}</div>
@@ -701,7 +737,7 @@ function renderBookingsTable(data) {
     return `<tr>
       <td class="ref-cell">${b.booking_ref}</td>
       <td class="date-cell">${fmtDate(b.booking_date)}${b.start_time?'<br><span style="font-size:.7rem;color:var(--text3)">⏰ '+b.start_time.slice(0,5)+(b.end_time?' → '+b.end_time.slice(0,5):'')+'</span>':''}</td>
-      <td>${b.bc_tours?.name||'—'}</td>
+      <td>${b.custom_tour_name?`<span>${b.custom_tour_name}</span><span style="font-size:.6rem;color:var(--yellow);margin-left:4px">ESPECIAL</span>`:b.bc_tours?.name||'—'}</td>
       <td><span class="vbadge" style="background:${color};padding:2px 7px;border-radius:3px;font-size:.68rem;font-weight:700;color:#000">${b.bc_vehicles?.name||'—'}</span></td>
       <td>${b.client_name}</td>
       <td class="price-cell">${b.total_price?'$'+Number(b.total_price).toLocaleString():''}</td>
@@ -792,7 +828,12 @@ async function openBookingModal(dateStr, bookingId) {
     const {data:b} = await sb.from('bc_bookings').select('*').eq('id',bookingId).single();
     if (b) {
       $('f-booking-id').value = b.id;
-      $('f-tour').value = b.tour_id||'';
+      if (b.tour_id) { $('f-tour').value = b.tour_id; $('custom-tour-box').classList.remove('show'); }
+      else if (b.custom_tour_name) {
+        $('f-tour').value = '__custom__'; $('custom-tour-box').classList.add('show');
+        $('f-custom-name').value = b.custom_tour_name;
+        $('f-custom-hours').value = b.custom_duration_hours||3;
+      }
       $('f-date').value = b.booking_date||'';
       $('f-time').value = b.start_time||'08:00';
       $('f-end-time').value = b.end_time||'';
@@ -823,6 +864,9 @@ function clearModalForm() {
     const el=$(id); if(el){ if(el.tagName==='SELECT') el.selectedIndex=0; else el.value=''; }
   });
   if ($('f-concierge-id')) $('f-concierge-id').value = '';
+  $('custom-tour-box').classList.remove('show');
+  $('f-custom-name').value = '';
+  $('f-custom-hours').value = '3';
   $('f-guests').value = 1;
   $('f-status-sel').value = 'confirmed';
   $('f-time').value = '08:00';
@@ -830,7 +874,12 @@ function clearModalForm() {
   $('avail-warn').classList.remove('show');
 }
 
-function onTourChange() { updatePriceHint(); updateEndTime(); }
+function onTourChange() {
+  const isCustom = $('f-tour').value === '__custom__';
+  $('custom-tour-box').classList.toggle('show', isCustom);
+  updatePriceHint();
+  updateEndTime();
+}
 function onVehicleChange() { updatePriceHint(); checkVehicleAvailability(); }
 function onDateChange() { checkVehicleAvailability(); }
 
@@ -844,11 +893,19 @@ function getVehiclePrice(vtype, tour) {
 }
 
 function updateEndTime() {
-  const tour = S.tours.find(t=>t.id===$('f-tour').value);
+  const tourId = $('f-tour').value;
   const startVal = $('f-time').value;
-  if (!tour || !startVal) { $('f-end-time').value=''; return; }
+  if (!startVal) { $('f-end-time').value=''; return; }
+  let hours = 0;
+  if (tourId === '__custom__') {
+    hours = parseFloat($('f-custom-hours').value)||0;
+  } else {
+    const tour = S.tours.find(t=>t.id===tourId);
+    if (!tour) { $('f-end-time').value=''; return; }
+    hours = tour.duration_hours||0;
+  }
   const [h,m] = startVal.split(':').map(Number);
-  const endMin = h*60 + m + (tour.duration_hours||0)*60;
+  const endMin = h*60 + m + hours*60;
   $('f-end-time').value = String(Math.floor(endMin/60)%24).padStart(2,'0')+':'+String(endMin%60).padStart(2,'0');
 }
 
@@ -936,20 +993,26 @@ async function saveBooking() {
   const name = $('f-name').value.trim();
   if (!name) { alert('El nombre del cliente es requerido'); return; }
   const tourId = $('f-tour').value;
-  if (!tourId) { alert('Selecciona un tour'); return; }
+  if (!tourId) { alert('Selecciona un tour o evento'); return; }
   const selected = getSelectedVehicles();
   const date = $('f-date').value;
   if (!date) { alert('Selecciona una fecha'); return; }
   if (!selected.length) { alert('Selecciona al menos un vehículo'); return; }
+  if (isCustomTour && !customTourName) { alert('Escribe el nombre del evento'); return; }
 
-  const tour = S.tours.find(t=>t.id===tourId);
+  const isCustomTour = tourId === '__custom__';
+  const tour = isCustomTour ? null : S.tours.find(t=>t.id===tourId);
+  const customTourName = isCustomTour ? ($('f-custom-name').value.trim()||'Evento especial') : null;
+  const customDurationHours = isCustomTour ? (parseFloat($('f-custom-hours').value)||null) : null;
   const commPct = parseFloat($('f-commission').value)||null;
   const conciergeId = $('f-concierge-id').value||null;
   const concierge = conciergeId ? S.concierges.find(c=>c.id===conciergeId) : null;
   const editId = $('f-booking-id').value;
   const baseRef = 'BC-'+ymd(new Date()).replace(/-/g,'')+'-'+String(Math.floor(Math.random()*900+100));
   const commonFields = {
-    tour_id: tourId||null,
+    tour_id: isCustomTour ? null : (tourId||null),
+    custom_tour_name: customTourName,
+    custom_duration_hours: customDurationHours,
     booking_date: date,
     start_time: $('f-time').value||null,
     end_time: $('f-end-time').value||null,
@@ -1013,12 +1076,24 @@ async function cancelBooking(id, dateStr) {
 }
 
 // ── BLACKOUTS ─────────────────────────────────────
-function openBlackout(vehicleId, vehicleName) {
+function openBlackout(vehicleId, vehicleName, dateStr) {
   $('bl-vehicle-id').value = vehicleId;
   $('bl-vehicle-name').value = vehicleName;
-  $('bl-date').value = '';
+  $('bl-date').value = dateStr || '';
+  $('bl-reason-sel').value = '';
   $('bl-reason').value = '';
+  $('bl-reason').style.display = 'none';
   $('modal-blackout').classList.add('open');
+}
+function onReasonSelect() {
+  const val = $('bl-reason-sel').value;
+  if (val === '__other__') {
+    $('bl-reason').style.display = 'block';
+    $('bl-reason').focus();
+  } else {
+    $('bl-reason').style.display = 'none';
+    $('bl-reason').value = '';
+  }
 }
 function closeBlackout() { $('modal-blackout').classList.remove('open'); }
 
@@ -1026,7 +1101,10 @@ async function saveBlackout() {
   const vehicleId = $('bl-vehicle-id').value;
   const date = $('bl-date').value;
   if (!date) { alert('Selecciona una fecha'); return; }
-  const {error} = await sb.from('bc_blackouts').insert({vehicle_id:vehicleId, blackout_date:date, reason:$('bl-reason').value.trim()||null});
+  const selVal = $('bl-reason-sel').value;
+  const reason = selVal === '__other__' ? ($('bl-reason').value.trim()||null)
+    : (selVal || $('bl-reason').value.trim() || null);
+  const {error} = await sb.from('bc_blackouts').insert({vehicle_id:vehicleId, blackout_date:date, reason});
   if (error) { alert('Error: '+error.message); return; }
   closeBlackout();
   await loadAllBlackouts();
