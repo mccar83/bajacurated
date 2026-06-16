@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Baja Curated · Reserva tu Expedición</title>
+<meta name="description" content="Reserva tu tour de aventura en Los Cabos con Baja Curated Expeditions. Off-road, Can-Am, Baja California Sur.">
+<meta name="robots" content="noindex">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#080808;--bg2:#111;--bg3:#181818;
+  --border:#222;--border2:#333;
+  --text:#f4f1eb;--text2:#aaa;--text3:#555;
+  --yellow:#F5C518;--yellow2:#c9a100;
+  --radius:10px;
+}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;line-height:1.6;}
+img{display:block;}
+a{color:inherit;text-decoration:none;}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to bottom,rgba(8,8,8,.95),transparent);backdrop-filter:blur(2px);}
+.nav-brand .brand{font-size:.75rem;letter-spacing:5px;color:var(--yellow);font-weight:800;text-transform:uppercase;}
+.nav-brand .sub{font-size:.52rem;letter-spacing:3px;color:rgba(255,255,255,.4);margin-top:2px;text-transform:uppercase;}
+.btn-nav{background:var(--yellow);color:#000;padding:9px 22px;border-radius:6px;font-size:.75rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;transition:background .2s;white-space:nowrap;}
+.btn-nav:hover{background:var(--yellow2);}
+
+/* ── HERO ── */
+.hero{height:100svh;min-height:520px;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.hero-bg{position:absolute;inset:0;background-image:url('https://i.imgur.com/xAjYxLd.jpeg');background-size:cover;background-position:center;transform:scale(1.04);transition:transform 8s ease;}
+.hero-bg.loaded{transform:scale(1);}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(8,8,8,.4) 0%,rgba(8,8,8,.15) 40%,rgba(8,8,8,.7) 100%);}
+.hero-content{position:relative;z-index:1;text-align:center;padding:0 24px;max-width:640px;}
+.hero-pre{font-size:.65rem;letter-spacing:5px;color:var(--yellow);text-transform:uppercase;margin-bottom:18px;font-weight:700;}
+.hero-h1{font-size:clamp(2rem,6vw,3.8rem);font-weight:800;line-height:1.05;letter-spacing:-1px;margin-bottom:16px;text-shadow:0 2px 20px rgba(0,0,0,.5);}
+.hero-sub{font-size:.9rem;color:rgba(255,255,255,.7);letter-spacing:3px;text-transform:uppercase;margin-bottom:36px;}
+.btn-hero{display:inline-block;background:var(--yellow);color:#000;padding:14px 36px;border-radius:6px;font-size:.8rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;transition:all .2s;box-shadow:0 4px 24px rgba(245,197,24,.3);}
+.btn-hero:hover{background:var(--yellow2);transform:translateY(-1px);}
+.scroll-hint{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);font-size:.6rem;letter-spacing:3px;color:rgba(255,255,255,.3);text-transform:uppercase;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.scroll-arrow{width:1px;height:36px;background:linear-gradient(to bottom,rgba(255,255,255,.3),transparent);}
+
+/* ── SECTION COMMON ── */
+.section{padding:80px 24px;}
+.container{max-width:1100px;margin:0 auto;}
+.section-hdr{text-align:center;margin-bottom:52px;}
+.section-hdr .pre{font-size:.6rem;letter-spacing:4px;color:var(--yellow);text-transform:uppercase;margin-bottom:10px;}
+.section-hdr h2{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-0.5px;margin-bottom:12px;}
+.section-hdr p{color:var(--text2);font-size:.9rem;max-width:440px;margin:0 auto;}
+
+/* ── TOUR CARDS ── */
+.tours-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;}
+.tour-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:transform .25s,border-color .25s,box-shadow .25s;position:relative;}
+.tour-card:hover{transform:translateY(-4px);border-color:var(--border2);box-shadow:0 12px 40px rgba(0,0,0,.5);}
+.tour-card-img{width:100%;height:210px;object-fit:cover;background:var(--bg3);transition:transform .4s;}
+.tour-card:hover .tour-card-img{transform:scale(1.04);}
+.tc-img-wrap{overflow:hidden;position:relative;}
+.tc-badges{position:absolute;top:12px;left:12px;display:flex;gap:6px;flex-wrap:wrap;}
+.tc-badge{font-size:.58rem;font-weight:800;letter-spacing:1.5px;padding:3px 9px;border-radius:4px;text-transform:uppercase;}
+.tc-badge.dur{background:rgba(8,8,8,.85);color:var(--yellow);border:1px solid rgba(245,197,24,.3);}
+.tc-badge.lbl{background:rgba(245,197,24,.15);color:var(--yellow);border:1px solid rgba(245,197,24,.25);}
+.tour-card-body{padding:18px;}
+.tc-name{font-size:1.05rem;font-weight:800;margin-bottom:5px;letter-spacing:-.2px;}
+.tc-desc{font-size:.8rem;color:var(--text2);margin-bottom:14px;line-height:1.55;}
+.tc-footer{display:flex;align-items:center;justify-content:space-between;}
+.tc-price{font-size:.78rem;color:var(--text3);}
+.tc-price strong{color:var(--yellow);font-size:1rem;font-weight:800;}
+.btn-tc{background:var(--yellow);color:#000;padding:8px 18px;border-radius:6px;font-size:.72rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;transition:background .2s;border:none;cursor:pointer;}
+.btn-tc:hover{background:var(--yellow2);}
+
+/* ── DIVIDER ── */
+.divider{height:1px;background:linear-gradient(to right,transparent,var(--border2),transparent);margin:0 24px;}
+
+/* ── BOOKING SECTION ── */
+.booking-section{background:var(--bg);padding:80px 24px 100px;}
+.booking-wrap{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start;max-width:960px;margin:0 auto;}
+@media(max-width:760px){.booking-wrap{grid-template-columns:1fr;gap:36px;}}
+.booking-info{}
+.booking-info h2{font-size:clamp(1.5rem,4vw,2.2rem);font-weight:800;letter-spacing:-.3px;margin-bottom:14px;}
+.booking-info p{color:var(--text2);font-size:.88rem;line-height:1.7;margin-bottom:24px;}
+.info-items{display:flex;flex-direction:column;gap:12px;}
+.info-item{display:flex;align-items:flex-start;gap:12px;font-size:.82rem;color:var(--text2);}
+.info-item .ii{font-size:1.1rem;flex-shrink:0;margin-top:1px;}
+
+.booking-form-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:28px;}
+.bf-title{font-size:.75rem;letter-spacing:3px;color:var(--yellow);text-transform:uppercase;margin-bottom:22px;font-weight:700;}
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:.65rem;letter-spacing:1.5px;color:var(--text2);margin-bottom:6px;text-transform:uppercase;}
+.field input,.field select,.field textarea{width:100%;padding:11px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:.88rem;outline:none;transition:border-color .2s;font-family:inherit;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--yellow);}
+.field select option{background:var(--bg3);}
+.field textarea{resize:vertical;min-height:72px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:480px){.form-row{grid-template-columns:1fr;}}
+.sdiv{font-size:.58rem;letter-spacing:2.5px;color:var(--text3);text-transform:uppercase;margin:20px 0 12px;padding-bottom:5px;border-bottom:1px solid var(--border);}
+.vehicle-list{display:flex;flex-direction:column;gap:7px;}
+.vehicle-opt{display:flex;align-items:center;gap:11px;padding:10px 13px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;cursor:pointer;transition:border-color .2s;}
+.vehicle-opt:hover{border-color:var(--border2);}
+.vehicle-opt input[type=radio],.vehicle-opt input[type=checkbox]{width:16px;height:16px;accent-color:var(--yellow);flex-shrink:0;cursor:pointer;}
+.vo-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.vo-info{flex:1;}
+.vo-name{font-size:.85rem;font-weight:700;}
+.vo-desc{font-size:.7rem;color:var(--text3);margin-top:1px;}
+.vo-price{font-size:.88rem;font-weight:800;color:var(--yellow);flex-shrink:0;}
+.vehicle-hint{display:none;background:rgba(245,197,24,.06);border:1px solid rgba(245,197,24,.15);border-radius:8px;padding:9px 13px;font-size:.78rem;color:var(--text2);margin-top:8px;line-height:1.5;}
+.vehicle-hint.show{display:block;}
+.time-hint{font-size:.68rem;color:var(--text3);margin-top:5px;}
+.btn-submit{width:100%;padding:14px;background:var(--yellow);color:#000;border:none;border-radius:8px;font-size:.82rem;font-weight:800;letter-spacing:2px;cursor:pointer;transition:all .2s;text-transform:uppercase;margin-top:8px;}
+.btn-submit:hover{background:var(--yellow2);}
+.btn-submit:disabled{opacity:.5;cursor:not-allowed;}
+.form-note{font-size:.72rem;color:var(--text3);text-align:center;margin-top:12px;line-height:1.5;}
+
+/* ── SUCCESS ── */
+.success-screen{display:none;text-align:center;padding:20px 0;}
+.success-icon{font-size:3rem;margin-bottom:16px;}
+.success-title{font-size:1.2rem;font-weight:800;color:var(--yellow);margin-bottom:8px;}
+.success-ref{font-family:monospace;font-size:1.4rem;color:var(--text);font-weight:800;margin:14px 0;letter-spacing:2px;}
+.success-sub{font-size:.82rem;color:var(--text2);line-height:1.7;max-width:300px;margin:0 auto;}
+.btn-reset{margin-top:20px;padding:10px 24px;background:transparent;border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-size:.78rem;cursor:pointer;transition:all .2s;}
+.btn-reset:hover{border-color:var(--yellow);color:var(--yellow);}
+
+/* ── FOOTER ── */
+footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 24px;text-align:center;}
+.footer-brand{font-size:.75rem;letter-spacing:5px;color:var(--yellow);font-weight:800;text-transform:uppercase;margin-bottom:8px;}
+.footer-sub{font-size:.7rem;color:var(--text3);letter-spacing:2px;margin-bottom:16px;text-transform:uppercase;}
+.footer-links{display:flex;justify-content:center;gap:24px;font-size:.75rem;color:var(--text3);}
+.footer-links a{transition:color .2s;}.footer-links a:hover{color:var(--yellow);}
+
+/* ── LOADING ── */
+#loading-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;z-index:9999;}
+.loading-brand{font-size:.72rem;letter-spacing:5px;color:var(--yellow);font-weight:800;text-transform:uppercase;}
+.spinner{width:28px;height:28px;border:2px solid var(--border2);border-top-color:var(--yellow);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+#err-screen{position:fixed;inset:0;background:var(--bg);display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;text-align:center;padding:24px;z-index:9999;}
+.err-icon{font-size:2.5rem;}
+.err-title{font-size:1rem;font-weight:700;}
+.err-sub{font-size:.8rem;color:var(--text3);max-width:280px;line-height:1.6;}
+
+/* ── MOBILE TWEAKS ── */
+@media(max-width:600px){
+  .section{padding:60px 16px;}
+  .booking-section{padding:60px 16px 80px;}
+  .booking-form-card{padding:20px 16px;}
+  nav{padding:0 16px;}
+  .tours-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div id="loading-screen">
+  <div class="loading-brand">Baja Curated</div>
+  <div class="spinner"></div>
+</div>
+
+<div id="err-screen">
+  <div class="err-icon">🔒</div>
+  <div class="err-title">Enlace no válido</div>
+  <div class="err-sub" id="err-msg">Este enlace ya no está disponible. Contacta a tu concierge para obtener uno nuevo.</div>
+</div>
+
+<nav>
+  <div class="nav-brand">
+    <div class="brand">Baja Curated</div>
+    <div class="sub">Expeditions · Los Cabos</div>
+  </div>
+  <a href="#reservar" class="btn-nav">Reservar ahora</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg" id="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <p class="hero-pre">Can-Am · Off-Road · Baja California Sur</p>
+    <h1 class="hero-h1">Una aventura<br>que no olvidarás</h1>
+    <p class="hero-sub">Los Cabos · México</p>
+    <a href="#tours" class="btn-hero">Explorar Tours</a>
+  </div>
+  <div class="scroll-hint">
+    <div class="scroll-arrow"></div>
+    <span>Descubre más</span>
+  </div>
+</section>
+
+<!-- TOURS -->
+<section class="section" id="tours">
+  <div class="container">
+    <div class="section-hdr">
+      <div class="pre">Nuestras Expediciones</div>
+      <h2>Elige tu aventura</h2>
+      <p>Desde 3 hasta 16 horas de adrenalina pura en los paisajes más espectaculares de Baja California.</p>
+    </div>
+    <div class="tours-grid" id="tours-grid">
+      <!-- JS renders here -->
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- BOOKING -->
+<section class="booking-section" id="reservar">
+  <div class="booking-wrap">
+    <div class="booking-info">
+      <div style="font-size:.6rem;letter-spacing:4px;color:var(--yellow);text-transform:uppercase;margin-bottom:12px;font-weight:700;">Reservaciones</div>
+      <h2>Solicita tu reserva</h2>
+      <p>Completa el formulario y recibirás confirmación en menos de 24 horas. El pago se coordina directamente con nuestro equipo.</p>
+      <div class="info-items">
+        <div class="info-item"><span class="ii">✅</span><span>Confirmación en menos de 24 horas</span></div>
+        <div class="info-item"><span class="ii">🏁</span><span>Guías expertos en cada expedición</span></div>
+        <div class="info-item"><span class="ii">🚙</span><span>Vehículos Can-Am BRP oficiales</span></div>
+        <div class="info-item"><span class="ii">📍</span><span>Salida desde Los Cabos · Pick-up disponible</span></div>
+        <div class="info-item"><span class="ii">💬</span><span>Instrucciones y detalles por WhatsApp</span></div>
+      </div>
+    </div>
+
+    <div class="booking-form-card">
+      <div id="form-wrap">
+        <div class="bf-title">Datos de la Reserva</div>
+
+        <div class="sdiv">Tour y fecha</div>
+        <div class="field">
+          <label>Tour *</label>
+          <select id="f-tour" onchange="onTourChange()"><option value="">Selecciona un tour…</option></select>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label>Fecha *</label>
+            <input type="date" id="f-date">
+          </div>
+          <div class="field">
+            <label>Hora de salida *</label>
+            <input type="time" id="f-time" value="08:00" onchange="updateEndTime()">
+          </div>
+        </div>
+        <div class="time-hint" id="time-hint"></div>
+
+        <div class="sdiv">Vehículo *</div>
+        <div class="vehicle-list" id="vehicle-list">
+          <div style="font-size:.8rem;color:var(--text3);padding:10px 0;">Selecciona un tour para ver los vehículos disponibles.</div>
+        </div>
+        <div class="vehicle-hint" id="vehicle-hint"></div>
+
+        <div class="sdiv">Tus datos</div>
+        <div class="field"><label>Nombre completo *</label><input type="text" id="f-name" placeholder="Tu nombre completo"></div>
+        <div class="form-row">
+          <div class="field"><label>Teléfono / WhatsApp *</label><input type="text" id="f-phone" placeholder="+1 (555)…"></div>
+          <div class="field"><label>Email</label><input type="email" id="f-email" placeholder="tu@email.com"></div>
+        </div>
+        <div class="field">
+          <label>Número de personas</label>
+          <select id="f-guests">
+            <option value="1">1 persona</option><option value="2">2 personas</option>
+            <option value="3">3 personas</option><option value="4">4 personas</option>
+            <option value="5">5 personas</option><option value="6">6+ personas</option>
+          </select>
+        </div>
+        <div class="field"><label>Notas o solicitudes especiales</label><textarea id="f-notes" placeholder="Hotel o punto de encuentro, alergias, preferencias, etc."></textarea></div>
+
+        <button class="btn-submit" id="btn-submit" onclick="submitBooking()">Enviar Solicitud</button>
+        <p class="form-note">Al enviar, nuestro equipo revisará tu solicitud y te contactará para confirmar disponibilidad y coordinar el pago.</p>
+      </div>
+
+      <div class="success-screen" id="success-screen">
+        <div class="success-icon">🏁</div>
+        <div class="success-title">¡Solicitud recibida!</div>
+        <div style="font-size:.65rem;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin:6px 0 2px;">Número de referencia</div>
+        <div class="success-ref" id="success-ref">—</div>
+        <div class="success-sub">Nuestro equipo revisará tu solicitud y te contactará en menos de 24 horas para confirmar la reserva y coordinar los detalles.</div>
+        <button class="btn-reset" onclick="resetForm()">Hacer otra solicitud</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-brand">Baja Curated</div>
+  <div class="footer-sub">Off-Road Expeditions · Los Cabos, BCS, México</div>
+  <div class="footer-links">
+    <a href="https://bajacurated.com" target="_blank">bajacurated.com</a>
+    <a href="https://wa.me/526241234567" target="_blank">WhatsApp</a>
+  </div>
+</footer>
+
+<script>
+const SB_URL = 'https://tdcpxawarfgtgnfwdthh.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkY3B4YXdhcmZndGduZndkdGhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MTk4ODIsImV4cCI6MjA5NDA5NTg4Mn0.birNHYp_IIp2LlZ1x5L8QQTke_jtVtG12jf1jJcuCFE';
+const sb = window.supabase.createClient(SB_URL, SB_KEY);
+
+const VH_COLOR = {trail:'#22c55e', maverick_r:'#818cf8', ds_max:'#fb923c', el_zorro:'#ef4444'};
+const VH_LABEL = {trail:'Trail', maverick_r:'Maverick R', ds_max:'DS Max', el_zorro:'El Zorro 14'};
+const VH_DESC  = {
+  trail:      'El más accesible · Ideal para principiantes',
+  maverick_r: 'Alto desempeño · Experiencia de carreras',
+  ds_max:     'Hasta 4 pasajeros · Máxima comodidad',
+  el_zorro:   'Buggy de carreras · Solo tour Zorro 14'
+};
+const MONTHS_ES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+const TOUR_IMGS = {
+  'Desert Intro 3H':       'https://i.imgur.com/1uCKOwh.jpeg',
+  'Explorer 6H':           'https://i.imgur.com/OYTI5MB.jpeg',
+  'Cabo Pulmo Expedition': 'https://i.imgur.com/1IA8gZq.jpeg',
+  'Challenger 10H':        'https://i.imgur.com/6PQoPnn.jpeg',
+  'Extreme 16H':           'https://i.imgur.com/k3eUmx8.jpeg',
+  'El Zorro 14':           'https://i.imgur.com/v7KZ8Pw.jpeg'
+};
+const TOUR_DESCS = {
+  'Desert Intro 3H':       'Tu primer contacto con el desierto de Baja. Rutas perfectas para iniciarte en el off-road con paisajes increíbles.',
+  'Explorer 6H':           'Media jornada explorando los mejores senderos de Los Cabos. Ideal para quienes quieren ir más allá del resort.',
+  'Cabo Pulmo Expedition': 'Expedición completa hasta el Parque Nacional Cabo Pulmo, Patrimonio de la Humanidad UNESCO. Una experiencia única.',
+  'Challenger 10H':        'Un día completo de aventura para quienes buscan ir más lejos. Rutas desafiantes y vistas que no existen en ningún tour.',
+  'Extreme 16H':           'La expedición definitiva de Baja California. Solo para los más aventureros. Un día que recordarás toda la vida.',
+  'El Zorro 14':           'Sube al buggy de carreras más exclusivo de Los Cabos. Una experiencia de adrenalina pura solo disponible en este tour.'
+};
+
+const S = {
+  token: null,
+  concierge: null,
+  tours: [],
+  vehicles: []
+};
+
+// ── INIT ──────────────────────────────────────────
+async function init() {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('c');
+
+  // Lazy-load hero image
+  const heroBg = document.getElementById('hero-bg');
+  const img = new Image();
+  img.onload = () => { heroBg.style.backgroundImage = "url('https://i.imgur.com/xAjYxLd.jpeg')"; heroBg.classList.add('loaded'); };
+  img.src = 'https://i.imgur.com/xAjYxLd.jpeg';
+
+  if (!token) { showErr('Enlace inválido. Solicita un nuevo link a tu concierge.'); return; }
+
+  try {
+    const {data, error} = await sb.rpc('get_concierge_by_token', {p_token: token});
+    if (error || !data || !data.length) { showErr('Este enlace ya no es válido. Solicita uno nuevo a tu concierge.'); return; }
+    S.token = token;
+    S.concierge = data[0];
+    await loadData();
+    hideLoading();
+  } catch(e) {
+    showErr('Error de conexión. Intenta de nuevo más tarde.');
+  }
+}
+
+function showErr(msg) {
+  document.getElementById('loading-screen').style.display = 'none';
+  const err = document.getElementById('err-screen');
+  err.style.display = 'flex';
+  document.getElementById('err-msg').textContent = msg;
+}
+function hideLoading() {
+  document.getElementById('loading-screen').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+async function loadData() {
+  const [tr, vr] = await Promise.all([
+    sb.from('bc_tours').select('*').eq('is_active', true).order('sort_order'),
+    sb.from('bc_vehicles').select('*').eq('status','active').order('sort_order')
+  ]);
+  S.tours = tr.data || [];
+  S.vehicles = vr.data || [];
+
+  renderTourCards();
+  populateTourSelect();
+  setMinDate();
+}
+
+// ── TOUR CARDS ────────────────────────────────────
+function renderTourCards() {
+  const grid = document.getElementById('tours-grid');
+  grid.innerHTML = S.tours.map(t => {
+    const img = TOUR_IMGS[t.name] || 'https://i.imgur.com/xAjYxLd.jpeg';
+    const desc = TOUR_DESCS[t.name] || '';
+    const minPrice = Math.min(
+      ...[t.price_trail, t.price_maverick_r, t.price_ds_max, t.price_special]
+        .filter(p => p && p > 0)
+    );
+    const dur = t.duration_hours ? (t.duration_hours >= 1 ? t.duration_hours+'H' : Math.round(t.duration_hours*60)+'min') : '';
+    return `<div class="tour-card" onclick="selectTour('${t.id}')">
+      <div class="tc-img-wrap">
+        <img class="tour-card-img" src="${img}" alt="${t.name}" loading="lazy">
+        <div class="tc-badges">
+          ${dur?`<span class="tc-badge dur">${dur}</span>`:''}
+          ${t.badge?`<span class="tc-badge lbl">${t.badge}</span>`:''}
+        </div>
+      </div>
+      <div class="tour-card-body">
+        <div class="tc-name">${t.name}</div>
+        <div class="tc-desc">${desc}</div>
+        <div class="tc-footer">
+          <div class="tc-price">desde <strong>$${minPrice?Number(minPrice).toLocaleString():'—'}</strong> USD</div>
+          <button class="btn-tc">Reservar →</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function selectTour(tourId) {
+  document.getElementById('f-tour').value = tourId;
+  onTourChange();
+  const reservar = document.getElementById('reservar');
+  reservar.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// ── FORM ──────────────────────────────────────────
+function populateTourSelect() {
+  const sel = document.getElementById('f-tour');
+  sel.innerHTML = '<option value="">Selecciona un tour…</option>' +
+    S.tours.map(t => `<option value="${t.id}">${t.name}${t.duration_hours?' ('+t.duration_hours+'h)':''}</option>`).join('');
+}
+
+function setMinDate() {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  document.getElementById('f-date').min = tomorrow.toISOString().split('T')[0];
+}
+
+function onTourChange() {
+  const tour = S.tours.find(t => t.id === document.getElementById('f-tour').value);
+  updateEndTime();
+  renderVehicleList(tour);
+}
+
+function updateEndTime() {
+  const tour = S.tours.find(t => t.id === document.getElementById('f-tour').value);
+  const startVal = document.getElementById('f-time').value;
+  const hint = document.getElementById('time-hint');
+  if (!tour || !startVal) { hint.textContent = ''; return; }
+  const [h, m] = startVal.split(':').map(Number);
+  const endMin = h * 60 + m + (tour.duration_hours || 0) * 60;
+  const endStr = String(Math.floor(endMin / 60) % 24).padStart(2, '0') + ':' + String(endMin % 60).padStart(2, '0');
+  document.getElementById('f-time').dataset.endTime = endStr;
+  hint.textContent = `⏰ Regreso aproximado: ${endStr} hrs`;
+}
+
+function renderVehicleList(tour) {
+  const list = document.getElementById('vehicle-list');
+  const hint = document.getElementById('vehicle-hint');
+  if (!tour) {
+    list.innerHTML = '<div style="font-size:.8rem;color:var(--text3);padding:10px 0;">Selecciona un tour para ver los vehículos disponibles.</div>';
+    hint.classList.remove('show');
+    return;
+  }
+
+  // For El Zorro 14 tour, only show el_zorro; otherwise show trail, maverick_r, ds_max
+  const eligible = S.vehicles.filter(v => {
+    if (tour.name === 'El Zorro 14') return v.type === 'el_zorro';
+    return v.type !== 'el_zorro';
+  });
+
+  const multiOk = tour.name !== 'El Zorro 14';
+
+  list.innerHTML = eligible.map((v, i) => {
+    const price = getVehiclePrice(v.type, tour);
+    return `<label class="vehicle-opt">
+      <input type="${multiOk ? 'checkbox' : 'radio'}" name="vehicle" class="veh-input" value="${v.id}" data-type="${v.type}" ${i === 0 && !multiOk ? 'checked' : ''} onchange="updatePriceHint(tour_${tour.id.replace(/-/g,'')})">
+      <div class="vo-dot" style="background:${VH_COLOR[v.type]||'#888'}"></div>
+      <div class="vo-info">
+        <div class="vo-name">${v.name}</div>
+        <div class="vo-desc">${VH_DESC[v.type]||''}</div>
+      </div>
+      <div class="vo-price">${price ? '$' + Number(price).toLocaleString() : '—'}</div>
+    </label>`;
+  }).join('');
+
+  // Attach event listeners for price hint
+  document.querySelectorAll('.veh-input').forEach(inp => {
+    inp.addEventListener('change', () => updatePriceHint(tour));
+  });
+
+  if (multiOk) {
+    hint.textContent = '💡 Puedes seleccionar más de un vehículo si viajan en grupo.';
+    hint.classList.add('show');
+  } else {
+    hint.classList.remove('show');
+  }
+
+  // Pre-select first if radio
+  if (!multiOk && eligible.length) updatePriceHint(tour);
+}
+
+function getVehiclePrice(vtype, tour) {
+  if (!tour) return null;
+  if (vtype === 'trail') return tour.price_trail;
+  if (vtype === 'maverick_r') return tour.price_maverick_r;
+  if (vtype === 'ds_max') return tour.price_ds_max;
+  return tour.price_special;
+}
+
+function updatePriceHint(tour) {
+  if (!tour) return;
+  const selected = [...document.querySelectorAll('.veh-input:checked')];
+  if (!selected.length) return;
+  const total = selected.reduce((s, el) => s + (getVehiclePrice(el.getAttribute('data-type'), tour) || 0), 0);
+  const breakdown = selected.map(el => VH_LABEL[el.getAttribute('data-type')] || el.getAttribute('data-type')).join(' + ');
+  const hint = document.getElementById('vehicle-hint');
+  if (selected.length > 1) {
+    hint.textContent = `${breakdown} · Total: $${Number(total).toLocaleString()} USD`;
+    hint.classList.add('show');
+  }
+}
+
+async function submitBooking() {
+  const tourId   = document.getElementById('f-tour').value;
+  const date     = document.getElementById('f-date').value;
+  const startTime = document.getElementById('f-time').value;
+  const endTime  = document.getElementById('f-time').dataset.endTime || null;
+  const name     = document.getElementById('f-name').value.trim();
+  const phone    = document.getElementById('f-phone').value.trim();
+  const email    = document.getElementById('f-email').value.trim();
+  const guests   = parseInt(document.getElementById('f-guests').value) || 1;
+  const notes    = document.getElementById('f-notes').value.trim() || null;
+  const vehicleIds = [...document.querySelectorAll('.veh-input:checked')].map(el => el.value);
+
+  if (!tourId)            { shake('f-tour');  alert('Por favor selecciona un tour'); return; }
+  if (!date)              { shake('f-date');  alert('Por favor selecciona una fecha'); return; }
+  if (!name)              { shake('f-name');  alert('Por favor ingresa tu nombre'); return; }
+  if (!phone)             { shake('f-phone'); alert('Por favor ingresa tu teléfono'); return; }
+  if (!vehicleIds.length) { alert('Por favor selecciona al menos un vehículo'); return; }
+
+  const btn = document.getElementById('btn-submit');
+  btn.disabled = true;
+  btn.textContent = 'Enviando…';
+
+  const {data, error} = await sb.rpc('create_concierge_request', {
+    p_token:        S.token,
+    p_tour_id:      tourId,
+    p_vehicle_ids:  vehicleIds,
+    p_date:         date,
+    p_start_time:   startTime,
+    p_end_time:     endTime,
+    p_client_name:  name,
+    p_client_email: email || null,
+    p_client_phone: phone,
+    p_num_guests:   guests,
+    p_notes:        notes
+  });
+
+  btn.disabled = false;
+  btn.textContent = 'Enviar Solicitud';
+
+  if (error) {
+    alert('Hubo un error al enviar tu solicitud. Por favor intenta de nuevo o contáctanos por WhatsApp.');
+    console.error(error);
+    return;
+  }
+
+  document.getElementById('success-ref').textContent = data;
+  document.getElementById('form-wrap').style.display = 'none';
+  document.getElementById('success-screen').style.display = 'block';
+  document.getElementById('reservar').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function resetForm() {
+  document.getElementById('form-wrap').style.display = 'block';
+  document.getElementById('success-screen').style.display = 'none';
+  ['f-tour','f-date','f-name','f-phone','f-email','f-notes'].forEach(id => {
+    const el = document.getElementById(id); if(el) { if(el.tagName==='SELECT') el.selectedIndex=0; else el.value=''; }
+  });
+  document.getElementById('f-time').value = '08:00';
+  document.getElementById('f-time').dataset.endTime = '';
+  document.getElementById('time-hint').textContent = '';
+  document.getElementById('vehicle-list').innerHTML = '<div style="font-size:.8rem;color:var(--text3);padding:10px 0;">Selecciona un tour para ver los vehículos disponibles.</div>';
+  document.getElementById('vehicle-hint').classList.remove('show');
+  document.getElementById('f-guests').value = '1';
+}
+
+function shake(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.style.animation = 'none';
+  el.style.borderColor = '#ef4444';
+  setTimeout(() => { el.style.borderColor = ''; }, 1500);
+}
+
+init();
+</script>
+</body>
+</html>

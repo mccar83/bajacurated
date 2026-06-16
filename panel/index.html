@@ -1181,10 +1181,11 @@ async function renderConciergesView() {
     grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text3);padding:48px 0;font-size:.85rem;">Aún no hay concierges. Agrega el primero arriba.</div>';
     return;
   }
-  const portalBase = window.location.origin.replace('/panel','') + '/portal/';
+  const base = window.location.origin.replace('/panel','');
   grid.innerHTML = S.concierges.map(c => {
     const st = stats[c.id] || {count:0,total:0,commission:0,pending:0};
-    const portalUrl = portalBase + '?t=' + c.portal_token;
+    const portalUrl = base + '/portal/?t=' + c.portal_token;
+    const bookingUrl = base + '/book/?c=' + c.portal_token;
     return `<div class="co-card ${c.is_active?'':'inactive-co'}">
       <div class="co-hdr">
         <div>
@@ -1204,12 +1205,17 @@ async function renderConciergesView() {
           <div class="co-stat">Comisión ganada<span>$${Math.round(st.commission).toLocaleString()} USD</span></div>
         </div>
       </div>
-      <div class="link-row" onclick="copyPortalLink('${encodeURIComponent(portalUrl)}')" title="Clic para copiar">
-        🔗 ${portalUrl}
+      <div style="font-size:.58rem;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;margin-top:12px;margin-bottom:4px;">📱 Link para clientes (folleto)</div>
+      <div class="link-row" onclick="copyPortalLink('${encodeURIComponent(bookingUrl)}')" title="Copiar link para clientes">
+        ${bookingUrl}
+      </div>
+      <div style="font-size:.58rem;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;margin-top:8px;margin-bottom:4px;">🔐 Portal personal del concierge</div>
+      <div class="link-row" onclick="copyPortalLink('${encodeURIComponent(portalUrl)}')" title="Copiar portal personal" style="opacity:.6;">
+        ${portalUrl}
       </div>
       <div class="co-actions">
-        <button class="btn-link" onclick="showQRModal('${encodeURIComponent(c.name)}','${encodeURIComponent(portalUrl)}')">📱 Ver QR</button>
-        <button class="btn-link" onclick="copyPortalLink('${encodeURIComponent(portalUrl)}')">📋 Copiar Link</button>
+        <button class="btn-link" onclick="showQRModal('${encodeURIComponent(c.name+' · Reservas')}','${encodeURIComponent(bookingUrl)}')">📱 QR Clientes</button>
+        <button class="btn-link" onclick="copyPortalLink('${encodeURIComponent(bookingUrl)}')">📋 Copiar Folleto</button>
         <button class="btn-link" onclick="openConciergeModal('${c.id}')">✏️ Editar</button>
       </div>
     </div>`;

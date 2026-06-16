@@ -41,3 +41,8 @@
   for = "/portal/*"
   [headers.values]
     X-Robots-Tag = "noindex"
+
+[[headers]]
+  for = "/book/*"
+  [headers.values]
+    X-Robots-Tag = "noindex"
