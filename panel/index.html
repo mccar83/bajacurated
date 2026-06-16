@@ -1122,7 +1122,7 @@ async function renderConciergesView() {
           <div class="co-pct-label">Comisión base</div>
         </div>
         <div class="co-stats">
-          <div class="co-stat">Reservas<span>${st.count}${st.pending?` <span style="color:var(--yellow);font-size:.7rem">(${st.pending} pend.)</span>`:''}` </span></div>
+          <div class="co-stat">Reservas<span>${st.count}${st.pending?' ('+st.pending+' pend.)':''}</span></div>
           <div class="co-stat">Comisión ganada<span>$${Math.round(st.commission).toLocaleString()} USD</span></div>
         </div>
       </div>
