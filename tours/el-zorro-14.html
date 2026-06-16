@@ -844,10 +844,11 @@ function bkPopulateTours() {
   if (!sel) return;
   const cur = sel.value;
   const ph = lang === 'es' ? 'Selecciona un tour…' : 'Select a tour…';
+  const customLbl = lang === 'es' ? '✨ Tour especial / a la medida' : '✨ Special / custom tour';
   sel.innerHTML = '<option value="">' + ph + '</option>' + _allTours.map(t => {
     const nm = (lang === 'es' && t.name_es) ? t.name_es : t.name;
     return '<option value="' + t.id + '"' + (t.id === cur ? ' selected' : '') + '>' + nm + (t.duration_hours ? ' (' + t.duration_hours + 'h)' : '') + '</option>';
-  }).join('');
+  }).join('') + '<option value="__custom__"' + (cur === '__custom__' ? ' selected' : '') + '>' + customLbl + '</option>';
 }
 
 function bkSetMinDate() {
@@ -869,10 +870,25 @@ function bkPopulateTimes(tour) {
 }
 
 function bkTourChange() {
-  const t = _allTours.find(x => x.id === document.getElementById('f-tour').value);
+  const val = document.getElementById('f-tour').value;
+  if (val === '__custom__') { bkCustomMode(); return; }
+  const t = _allTours.find(x => x.id === val);
   bkPopulateTimes(t);
   bkUpdateEnd();
   bkRenderVehicles(t);
+}
+
+function bkCustomMode() {
+  bkPopulateTimes(null);
+  document.getElementById('bk-time-hint').textContent = lang === 'es' ? '⏰ Coordinaremos el horario contigo.' : '⏰ We will coordinate the time with you.';
+  const list = document.getElementById('bk-vehicle-list');
+  const hint = document.getElementById('bk-veh-hint');
+  list.innerHTML = _allVehicles.map(function(v) {
+    const desc = (VH_DESCS[lang] && VH_DESCS[lang][v.type]) || '';
+    return '<label class="bk-veh"><input type="checkbox" name="bk-veh" class="bk-veh-input" value="' + v.id + '" data-type="' + v.type + '"><div class="bk-dot" style="background:' + (v.color || VH_COLOR[v.type] || '#888') + '"></div><div class="bk-vo"><div class="bk-vo-name">' + v.name + '</div><div class="bk-vo-desc">' + desc + '</div></div><div class="bk-vo-price"></div></label>';
+  }).join('');
+  hint.textContent = lang === 'es' ? '✨ Cuéntanos qué experiencia buscas en Notas (duración, destino, ocasión). Te armamos un tour a la medida y te cotizamos.' : '✨ Tell us what experience you want in Notes (duration, destination, occasion). We build a custom tour and quote it.';
+  hint.classList.add('show');
 }
 
 function bkUpdateEnd() {
@@ -971,22 +987,27 @@ async function bkSubmit() {
   const notes = document.getElementById('f-notes').value.trim() || null;
   const vehicleIds = [...document.querySelectorAll('.bk-veh-input:checked')].map(el => el.value);
   const es = lang === 'es';
+  const isCustom = tourId === '__custom__';
   if (!tourId) { bkHighlight('f-tour'); alert(es ? 'Por favor selecciona un tour.' : 'Please select a tour.'); return; }
   if (!date) { bkHighlight('f-date'); alert(es ? 'Por favor selecciona una fecha.' : 'Please select a date.'); return; }
   if (!name) { bkHighlight('f-name'); alert(es ? 'Por favor ingresa tu nombre.' : 'Please enter your name.'); return; }
   if (!phone) { bkHighlight('f-phone'); alert(es ? 'Por favor ingresa tu teléfono.' : 'Please enter your phone.'); return; }
   if (!email) { bkHighlight('f-email'); alert(es ? 'Por favor ingresa tu email para enviarte la confirmación.' : 'Please enter your email so we can send your confirmation.'); return; }
-  if (!vehicleIds.length) { alert(es ? 'Por favor selecciona al menos un vehículo.' : 'Please select at least one vehicle.'); return; }
+  if (isCustom) {
+    if (!notes) { bkHighlight('f-notes'); alert(es ? 'Cuéntanos qué tour especial buscas en las notas.' : 'Please describe the custom tour you want in the notes.'); return; }
+  } else {
+    if (!vehicleIds.length) { alert(es ? 'Por favor selecciona al menos un vehículo.' : 'Please select at least one vehicle.'); return; }
+  }
   const btn = document.getElementById('bk-submit');
   btn.disabled = true;
   btn.textContent = es ? 'ENVIANDO…' : 'SENDING…';
   try {
-    const { data, error } = await _sb.rpc('create_direct_booking', {
-      p_tour_id: tourId, p_vehicle_ids: vehicleIds, p_date: date, p_start_time: startTime, p_end_time: endTime,
-      p_client_name: name, p_client_email: email || null, p_client_phone: phone, p_num_guests: guests, p_notes: notes
-    });
+    const rpcRes = isCustom
+      ? await _sb.rpc('create_custom_request', { p_custom_name: es ? 'Tour especial' : 'Custom tour', p_vehicle_ids: vehicleIds.length ? vehicleIds : null, p_date: date, p_start_time: startTime, p_client_name: name, p_client_email: email || null, p_client_phone: phone, p_num_guests: guests, p_notes: notes })
+      : await _sb.rpc('create_direct_booking', { p_tour_id: tourId, p_vehicle_ids: vehicleIds, p_date: date, p_start_time: startTime, p_end_time: endTime, p_client_name: name, p_client_email: email || null, p_client_phone: phone, p_num_guests: guests, p_notes: notes });
+    const data = rpcRes.data, error = rpcRes.error;
     if (error) throw error;
-    bkNotify({ ref: data, tour: (_allTours.find(function(t){return t.id===tourId;})||{}).name, date: date, time: startTime, vehicles: vehicleIds.length, name: name, phone: phone, email: email, guests: guests, notes: notes });
+    bkNotify({ ref: data, tour: isCustom ? (es ? 'Tour especial' : 'Custom tour') : (_allTours.find(function(t){return t.id===tourId;})||{}).name, date: date, time: startTime, vehicles: vehicleIds.length, name: name, phone: phone, email: email, guests: guests, notes: notes });
     document.getElementById('bk-success-ref').textContent = data;
     document.getElementById('bk-form-wrap').style.display = 'none';
     document.getElementById('bk-success').style.display = 'block';
@@ -1026,8 +1047,9 @@ async function bkLoadGallery() {
 
 window.bkOnLang = function() {
   bkPopulateTours();
-  const t = _allTours.find(x => x.id === document.getElementById('f-tour').value);
-  if (t) { bkRenderVehicles(t); bkUpdateEnd(); }
+  const val = document.getElementById('f-tour').value;
+  if (val === '__custom__') { bkCustomMode(); }
+  else { const t = _allTours.find(x => x.id === val); if (t) { bkRenderVehicles(t); bkUpdateEnd(); } }
   bkLoadGallery();
 };
 
