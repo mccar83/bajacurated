@@ -310,7 +310,11 @@ tbody tr:hover td{background:rgba(255,255,255,.015);}
         </div>
         <div class="field">
           <label>Hora de salida</label>
-          <input type="time" id="f-time" value="08:00">
+          <input type="time" id="f-time" value="08:00" onchange="updateEndTime();checkVehicleAvailability();">
+        </div>
+        <div class="field">
+          <label>Hora de regreso (aprox.)</label>
+          <input type="time" id="f-end-time" placeholder="—" style="opacity:.6;" readonly>
         </div>
         <div class="field" style="grid-column:1/-1">
           <label>Vehículos</label>
@@ -548,6 +552,7 @@ function renderDayDetail(dateStr) {
         </div>
         <div class="bk-tour">${b.bc_tours?.name||'—'}</div>
         <div class="bk-client">${b.client_name}${b.client_phone?' · '+b.client_phone:''}</div>
+        ${b.start_time?`<div style="font-size:.7rem;color:var(--text3);margin-top:2px">⏰ ${b.start_time.slice(0,5)}${b.end_time?' → '+b.end_time.slice(0,5):''}</div>`:''}
         <div class="bk-price">${b.total_price?'$'+Number(b.total_price).toLocaleString()+' USD':''}</div>
         <div class="bk-ref">${b.booking_ref}</div>
         <div class="bk-acts">
@@ -605,7 +610,7 @@ function renderBookingsTable(data) {
     const color = VH_COLOR[vtype]||'#666';
     return `<tr>
       <td class="ref-cell">${b.booking_ref}</td>
-      <td class="date-cell">${fmtDate(b.booking_date)}</td>
+      <td class="date-cell">${fmtDate(b.booking_date)}${b.start_time?'<br><span style="font-size:.7rem;color:var(--text3)">⏰ '+b.start_time.slice(0,5)+(b.end_time?' → '+b.end_time.slice(0,5):'')+'</span>':''}</td>
       <td>${b.bc_tours?.name||'—'}</td>
       <td><span class="vbadge" style="background:${color};padding:2px 7px;border-radius:3px;font-size:.68rem;font-weight:700;color:#000">${b.bc_vehicles?.name||'—'}</span></td>
       <td>${b.client_name}</td>
@@ -700,6 +705,7 @@ async function openBookingModal(dateStr, bookingId) {
       $('f-tour').value = b.tour_id||'';
       $('f-date').value = b.booking_date||'';
       $('f-time').value = b.start_time||'08:00';
+      $('f-end-time').value = b.end_time||'';
       renderVehicleCheckboxes(b.vehicle_id?[b.vehicle_id]:[]);
       $('f-price').value = b.total_price||'';
       $('f-name').value = b.client_name||'';
@@ -732,7 +738,7 @@ function clearModalForm() {
   $('avail-warn').classList.remove('show');
 }
 
-function onTourChange() { updatePriceHint(); }
+function onTourChange() { updatePriceHint(); updateEndTime(); }
 function onVehicleChange() { updatePriceHint(); checkVehicleAvailability(); }
 function onDateChange() { checkVehicleAvailability(); }
 
@@ -743,6 +749,15 @@ function getVehiclePrice(vtype, tour) {
   if (vtype==='ds_max') return tour.price_ds_max;
   if (vtype==='el_zorro') return tour.price_special;
   return null;
+}
+
+function updateEndTime() {
+  const tour = S.tours.find(t=>t.id===$('f-tour').value);
+  const startVal = $('f-time').value;
+  if (!tour || !startVal) { $('f-end-time').value=''; return; }
+  const [h,m] = startVal.split(':').map(Number);
+  const endMin = h*60 + m + (tour.duration_hours||0)*60;
+  $('f-end-time').value = String(Math.floor(endMin/60)%24).padStart(2,'0')+':'+String(endMin%60).padStart(2,'0');
 }
 
 function updatePriceHint() {
@@ -773,22 +788,40 @@ function updatePriceHint() {
   if (!$('f-price').value) $('f-price').value = total||'';
 }
 
+function timesOverlap(s1,e1,s2,e2) {
+  // s1<e1, s2<e2 in "HH:MM" strings — returns true if ranges overlap
+  if (!s1||!e1||!s2||!e2) return true; // can't determine → warn
+  return s1 < e2 && e1 > s2;
+}
+
 async function checkVehicleAvailability() {
   const selected = getSelectedVehicles();
   const date = $('f-date').value;
   const editId = $('f-booking-id').value;
   $('avail-warn').classList.remove('show');
   if (!selected.length || !date) return;
+  const newStart = $('f-time').value;
+  const newEnd = $('f-end-time').value;
   let hasConflict = false;
   for (const v of selected) {
-    let q = sb.from('bc_bookings').select('id').eq('vehicle_id',v.id).eq('booking_date',date).neq('status','cancelled');
+    // Blackouts (always block full day)
+    const {data:bls} = await sb.from('bc_blackouts').select('id').eq('vehicle_id',v.id).eq('blackout_date',date);
+    if (bls&&bls.length) { hasConflict=true; break; }
+    // Maintenance
+    const vObj = S.vehicles.find(vv=>vv.id===v.id);
+    if (vObj&&vObj.status!=='active') { hasConflict=true; break; }
+    // Existing bookings — check time overlap
+    let q = sb.from('bc_bookings').select('id,start_time,end_time').eq('vehicle_id',v.id).eq('booking_date',date).neq('status','cancelled');
     if (editId) q = q.neq('id', editId);
     const {data:bks} = await q;
-    const {data:bls} = await sb.from('bc_blackouts').select('id').eq('vehicle_id',v.id).eq('blackout_date',date);
-    const vObj = S.vehicles.find(vv=>vv.id===v.id);
-    if ((bks&&bks.length)||(bls&&bls.length)||(vObj&&vObj.status!=='active')) {
-      hasConflict=true; break;
+    if (bks&&bks.length) {
+      for (const b of bks) {
+        if (timesOverlap(newStart,newEnd,b.start_time,b.end_time)) {
+          hasConflict=true; break;
+        }
+      }
     }
+    if (hasConflict) break;
   }
   if (hasConflict) $('avail-warn').classList.add('show');
 }
@@ -816,6 +849,7 @@ async function saveBooking() {
     tour_id: tourId||null,
     booking_date: date,
     start_time: $('f-time').value||null,
+    end_time: $('f-end-time').value||null,
     client_name: name,
     client_email: $('f-email').value.trim()||null,
     client_phone: $('f-phone').value.trim()||null,
