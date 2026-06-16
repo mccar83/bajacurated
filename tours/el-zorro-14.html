@@ -600,7 +600,7 @@ footer{background:var(--dark);padding:56px 48px 36px;border-top:1px solid var(--
         <div class="form-group"><label data-en="Phone / WhatsApp" data-es="Teléfono / WhatsApp">Phone / WhatsApp</label><input type="tel" name="phone" id="f-phone" placeholder="+1 555…"></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Email</label><input type="email" name="email" id="f-email" placeholder="john@email.com"></div>
+        <div class="form-group"><label>Email *</label><input type="email" name="email" id="f-email" placeholder="john@email.com"></div>
         <div class="form-group"><label data-en="Guests" data-es="Personas">Guests</label>
           <select id="f-guests"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6+</option></select>
         </div>
@@ -975,6 +975,7 @@ async function bkSubmit() {
   if (!date) { bkHighlight('f-date'); alert(es ? 'Por favor selecciona una fecha.' : 'Please select a date.'); return; }
   if (!name) { bkHighlight('f-name'); alert(es ? 'Por favor ingresa tu nombre.' : 'Please enter your name.'); return; }
   if (!phone) { bkHighlight('f-phone'); alert(es ? 'Por favor ingresa tu teléfono.' : 'Please enter your phone.'); return; }
+  if (!email) { bkHighlight('f-email'); alert(es ? 'Por favor ingresa tu email para enviarte la confirmación.' : 'Please enter your email so we can send your confirmation.'); return; }
   if (!vehicleIds.length) { alert(es ? 'Por favor selecciona al menos un vehículo.' : 'Please select at least one vehicle.'); return; }
   const btn = document.getElementById('bk-submit');
   btn.disabled = true;

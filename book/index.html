@@ -267,7 +267,7 @@ html,body{font-family:'Barlow',sans-serif;}
             <input type="text" id="f-phone" placeholder="+1 (555)…">
           </div>
           <div class="field">
-            <label id="lbl-email" data-es="Email" data-en="Email">Email</label>
+            <label id="lbl-email" data-es="Email *" data-en="Email *">Email *</label>
             <input type="email" id="f-email">
           </div>
         </div>
@@ -602,6 +602,7 @@ async function submitBooking() {
   if (!date)              { highlight('f-date');  alert(es ? 'Por favor selecciona una fecha' : 'Please select a date'); return; }
   if (!name)              { highlight('f-name');  alert(es ? 'Por favor ingresa tu nombre' : 'Please enter your name'); return; }
   if (!phone)             { highlight('f-phone'); alert(es ? 'Por favor ingresa tu teléfono' : 'Please enter your phone number'); return; }
+  if (!email)             { highlight('f-email'); alert(es ? 'Por favor ingresa el email del cliente para enviarle la confirmación' : 'Please enter the client email to send their confirmation'); return; }
   if (!vehicleIds.length) { alert(es ? 'Por favor selecciona al menos un vehículo' : 'Please select at least one vehicle'); return; }
 
   const btn = document.getElementById('btn-submit');
