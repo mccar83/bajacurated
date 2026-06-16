@@ -245,7 +245,7 @@ html,body{font-family:'Barlow',sans-serif;}
           </div>
           <div class="field">
             <label id="lbl-time" data-es="Hora de salida *" data-en="Departure time *">Hora de salida *</label>
-            <input type="time" id="f-time" value="08:00" onchange="updateEndTime()">
+            <select id="f-time" onchange="updateEndTime()"><option value="08:00">8:00 AM</option></select>
           </div>
         </div>
         <div class="time-hint" id="time-hint"></div>
@@ -494,8 +494,20 @@ function setMinDate() {
   document.getElementById('f-date').min = d.toISOString().split('T')[0];
 }
 
+function populateTimes(tour) {
+  const sel = document.getElementById('f-time');
+  if (!sel) return;
+  const cur = sel.value || '08:00';
+  const short = tour && (tour.duration_hours || 0) <= 3;
+  const slots = short ? ['08:00','13:00'] : ['08:00'];
+  const lbl = { '08:00':'8:00 AM', '13:00':'1:00 PM' };
+  sel.innerHTML = slots.map(s => '<option value="'+s+'"'+(s===cur?' selected':'')+'>'+(lbl[s]||s)+'</option>').join('');
+  if (!slots.includes(cur)) sel.value = '08:00';
+}
+
 function onTourChange() {
   const tour = S.tours.find(t => t.id === document.getElementById('f-tour').value);
+  populateTimes(tour);
   updateEndTime();
   renderVehicleList(tour);
 }
@@ -622,7 +634,7 @@ async function submitBooking() {
     const _tn = (S.tours.find(t => t.id === tourId) || {}).name;
     fetch('https://formspree.io/f/mjgjbool', {
       method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({ _subject: 'Nueva solicitud de concierge — ' + (data || ''), ref: data, tour: _tn, date: date, time: startTime, name: name, phone: phone, email: email, guests: guests, notes: notes, concierge: (S.concierge||{}).name, property: (S.concierge||{}).property_name, source: 'book' })
+      body: JSON.stringify({ _subject: 'Nueva solicitud de concierge — ' + (data || ''), _replyto: email || '', ref: data, tour: _tn, date: date, time: startTime, name: name, phone: phone, email: email, guests: guests, notes: notes, concierge: (S.concierge||{}).name, property: (S.concierge||{}).property_name, source: 'book' })
     }).catch(function(){});
   } catch (e) {}
   document.getElementById('success-ref').textContent = data;
