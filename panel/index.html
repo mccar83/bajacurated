@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Baja Curated · Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#080808;--bg2:#111;--bg3:#1a1a1a;--bg4:#222;
+  --border:#252525;--border2:#333;
+  --text:#f4f1eb;--text2:#999;--text3:#555;
+  --yellow:#F5C518;--yellow2:#c9a100;
+  --trail:#22c55e;--mav:#818cf8;--dsmax:#fb923c;--zorro:#ef4444;
+  --radius:8px;
+}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:14px;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+
+/* ── LOGIN ── */
+#login-screen{display:flex;align-items:center;justify-content:center;height:100vh;background:var(--bg);}
+.login-box{width:360px;padding:48px 40px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;}
+.login-logo{text-align:center;margin-bottom:32px;}
+.login-logo .brand{font-size:1rem;letter-spacing:4px;color:var(--yellow);font-weight:700;text-transform:uppercase;}
+.login-logo .sub{font-size:.65rem;letter-spacing:3px;color:var(--text3);margin-top:5px;text-transform:uppercase;}
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:.7rem;letter-spacing:1.5px;color:var(--text2);margin-bottom:7px;text-transform:uppercase;}
+.field input,.field select,.field textarea{width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-size:.875rem;outline:none;transition:border-color .2s;font-family:inherit;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--yellow);}
+.field select option{background:var(--bg3);}
+.field textarea{resize:vertical;min-height:70px;}
+.btn-primary{width:100%;padding:11px;background:var(--yellow);color:#000;border:none;border-radius:var(--radius);font-size:.8rem;font-weight:700;letter-spacing:1.5px;cursor:pointer;transition:background .2s;text-transform:uppercase;}
+.btn-primary:hover{background:var(--yellow2);}
+.err-msg{color:#ef4444;font-size:.78rem;min-height:18px;margin-bottom:10px;text-align:center;}
+
+/* ── APP LAYOUT ── */
+#app{height:100vh;display:none;flex-direction:row;}
+#app.visible{display:flex;}
+
+/* ── SIDEBAR ── */
+#sidebar{width:210px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;}
+.s-logo{padding:22px 18px 18px;border-bottom:1px solid var(--border);}
+.s-logo .brand{font-size:.78rem;letter-spacing:3px;color:var(--yellow);font-weight:700;text-transform:uppercase;}
+.s-logo .sub{font-size:.58rem;letter-spacing:2px;color:var(--text3);margin-top:4px;text-transform:uppercase;}
+.s-nav{flex:1;padding:10px 0;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:11px 18px;color:var(--text2);cursor:pointer;transition:all .15s;font-size:.82rem;letter-spacing:.3px;border-left:2px solid transparent;}
+.nav-item:hover{color:var(--text);background:rgba(255,255,255,.025);}
+.nav-item.active{color:var(--yellow);border-left-color:var(--yellow);background:rgba(245,197,24,.05);}
+.nav-item .ni{font-size:.95rem;width:18px;text-align:center;}
+.s-footer{padding:14px 18px;border-top:1px solid var(--border);}
+.user-info{font-size:.7rem;color:var(--text3);margin-bottom:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.btn-logout{width:100%;padding:7px 10px;background:transparent;border:1px solid var(--border2);border-radius:var(--radius);color:var(--text3);font-size:.72rem;cursor:pointer;letter-spacing:.5px;transition:all .2s;}
+.btn-logout:hover{border-color:#ef4444;color:#ef4444;}
+
+/* ── MAIN ── */
+#main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
+.main-hdr{padding:16px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.main-hdr h1{font-size:.95rem;font-weight:600;letter-spacing:1px;}
+.hdr-stats{display:flex;gap:22px;}
+.hdr-stat{font-size:.72rem;color:var(--text3);}
+.hdr-stat span{color:var(--yellow);font-weight:700;}
+.btn-new{padding:8px 18px;background:var(--yellow);color:#000;border:none;border-radius:var(--radius);font-size:.75rem;font-weight:700;letter-spacing:1px;cursor:pointer;transition:background .2s;text-transform:uppercase;}
+.btn-new:hover{background:var(--yellow2);}
+
+/* ── CALENDAR VIEW ── */
+#view-calendar{flex:1;display:flex;overflow:hidden;}
+.cal-panel{flex:1;padding:18px 20px;overflow-y:auto;}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.cal-nav h2{font-size:.9rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;}
+.cal-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text2);padding:5px 14px;border-radius:var(--radius);cursor:pointer;font-size:.78rem;transition:all .15s;}
+.cal-btn:hover{border-color:var(--yellow);color:var(--yellow);}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.cal-hdr{text-align:center;font-size:.6rem;letter-spacing:2px;color:var(--text3);padding:5px 0;text-transform:uppercase;}
+.cal-day{min-height:78px;background:var(--bg2);border:1px solid var(--border);border-radius:5px;padding:6px 7px;cursor:pointer;transition:all .15s;}
+.cal-day:hover{border-color:var(--border2);background:var(--bg3);}
+.cal-day.today{border-color:var(--yellow);}
+.cal-day.selected{border-color:var(--yellow);background:rgba(245,197,24,.08);}
+.cal-day.other{opacity:.2;pointer-events:none;}
+.cal-day .dn{font-size:.75rem;font-weight:600;color:var(--text3);}
+.cal-day.today .dn{color:var(--yellow);}
+.dots{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px;}
+.dot{width:7px;height:7px;border-radius:50%;}
+.dot.bl{border-radius:2px;opacity:.35;}
+
+/* ── DAY DETAIL PANEL ── */
+.day-panel{width:290px;flex-shrink:0;background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.dp-hdr{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.dp-hdr h3{font-size:.82rem;font-weight:600;letter-spacing:.5px;}
+.btn-sm{padding:5px 13px;background:var(--yellow);color:#000;border:none;border-radius:var(--radius);font-size:.7rem;font-weight:700;letter-spacing:.5px;cursor:pointer;text-transform:uppercase;}
+.btn-sm:hover{background:var(--yellow2);}
+.dp-body{flex:1;overflow-y:auto;padding:12px 14px;}
+.dp-placeholder{display:flex;align-items:center;justify-content:center;height:100%;color:var(--text3);font-size:.8rem;text-align:center;padding:20px;}
+.sec-label{font-size:.6rem;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:7px;}
+.avail-chips{display:flex;flex-direction:column;gap:4px;margin-bottom:14px;}
+.avail-chip{display:flex;align-items:center;gap:8px;padding:6px 9px;border-radius:5px;border:1px solid var(--border);font-size:.75rem;}
+.avail-chip.free{border-color:rgba(34,197,94,.25);background:rgba(34,197,94,.05);}
+.avail-chip.busy{border-color:rgba(255,255,255,.06);background:rgba(255,255,255,.02);}
+.avail-chip.out{opacity:.4;}
+.av-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.av-name{flex:1;font-size:.77rem;}
+.av-st{font-size:.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;}
+.bk-card{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px 11px;margin-bottom:7px;}
+.bk-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;}
+.vbadge{font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:3px;color:#000;}
+.st-badge{font-size:.62rem;padding:2px 6px;border-radius:3px;text-transform:uppercase;letter-spacing:.5px;}
+.st-confirmed{background:rgba(34,197,94,.15);color:#22c55e;}
+.st-pending{background:rgba(245,197,24,.15);color:#F5C518;}
+.st-completed{background:rgba(129,140,248,.15);color:#818cf8;}
+.st-cancelled{background:rgba(239,68,68,.15);color:#ef4444;}
+.bk-tour{font-size:.8rem;font-weight:600;margin-bottom:2px;}
+.bk-client{font-size:.74rem;color:var(--text2);}
+.bk-price{font-size:.8rem;color:var(--yellow);font-weight:700;margin-top:4px;}
+.bk-ref{font-size:.62rem;color:var(--text3);}
+.bk-acts{display:flex;gap:5px;margin-top:8px;}
+.btn-xs{padding:3px 10px;border-radius:4px;font-size:.65rem;cursor:pointer;border:none;font-weight:600;letter-spacing:.3px;}
+.btn-xs.edit{background:var(--bg4);color:var(--text2);}
+.btn-xs.edit:hover{color:var(--text);}
+.btn-xs.del{background:rgba(239,68,68,.1);color:#ef4444;}
+.btn-xs.del:hover{background:rgba(239,68,68,.2);}
+.no-items{text-align:center;color:var(--text3);font-size:.78rem;padding:18px 0;}
+
+/* ── BOOKINGS LIST ── */
+#view-bookings{flex:1;overflow-y:auto;padding:20px 24px;display:none;}
+#view-bookings .vh{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+#view-bookings h2{font-size:.9rem;font-weight:600;letter-spacing:1px;}
+.filters{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.filters select,.filters input[type=date]{padding:6px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:.78rem;outline:none;}
+.filters select:focus,.filters input[type=date]:focus{border-color:var(--yellow);}
+table{width:100%;border-collapse:collapse;}
+thead th{text-align:left;font-size:.62rem;letter-spacing:2px;color:var(--text3);text-transform:uppercase;padding:8px 10px;border-bottom:1px solid var(--border);}
+tbody td{padding:10px 10px;border-bottom:1px solid var(--border);font-size:.8rem;vertical-align:middle;}
+tbody tr:hover td{background:rgba(255,255,255,.015);}
+.ref-cell{font-family:monospace;color:var(--text2);font-size:.72rem;}
+.price-cell{color:var(--yellow);font-weight:700;}
+.date-cell{font-weight:600;}
+.act-cell{display:flex;gap:5px;}
+
+/* ── VEHICLES VIEW ── */
+#view-vehicles{flex:1;overflow-y:auto;padding:20px 24px;display:none;}
+#view-vehicles .vh{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+#view-vehicles h2{font-size:.9rem;font-weight:600;letter-spacing:1px;}
+.v-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
+.v-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px;position:relative;}
+.vc-hdr{display:flex;align-items:center;gap:11px;margin-bottom:14px;}
+.vc-icon{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.75rem;color:#000;flex-shrink:0;}
+.vc-name{font-size:.95rem;font-weight:700;}
+.vc-type{font-size:.65rem;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
+.guide-badge{position:absolute;top:12px;right:12px;font-size:.58rem;letter-spacing:1px;padding:2px 6px;background:rgba(129,140,248,.12);border:1px solid rgba(129,140,248,.25);border-radius:3px;color:#818cf8;text-transform:uppercase;}
+.vc-status-row{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+.vc-st-label{font-size:.65rem;letter-spacing:1px;color:var(--text3);text-transform:uppercase;}
+.st-btns{display:flex;gap:5px;}
+.st-btn{padding:3px 10px;border-radius:4px;font-size:.68rem;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text3);transition:all .15s;}
+.st-btn.sel.active{background:rgba(34,197,94,.12);border-color:#22c55e;color:#22c55e;}
+.st-btn.sel.maintenance{background:rgba(245,197,24,.12);border-color:#F5C518;color:#F5C518;}
+.st-btn.sel.inactive{background:rgba(239,68,68,.12);border-color:#ef4444;color:#ef4444;}
+.bl-sec .sec-label{font-size:.6rem;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:7px;}
+.bl-tags{display:flex;flex-wrap:wrap;gap:5px;min-height:22px;margin-bottom:6px;}
+.bl-tag{display:flex;align-items:center;gap:4px;padding:2px 7px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.18);border-radius:4px;font-size:.7rem;color:#ef4444;}
+.bl-rm{cursor:pointer;opacity:.5;font-size:.75rem;}
+.bl-rm:hover{opacity:1;}
+.btn-add-bl{padding:5px 11px;background:transparent;border:1px dashed var(--border2);border-radius:var(--radius);color:var(--text3);font-size:.72rem;cursor:pointer;transition:all .15s;}
+.btn-add-bl:hover{border-color:#ef4444;color:#ef4444;}
+
+/* ── MODAL ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;z-index:1000;}
+.overlay.open{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;width:500px;max-width:95vw;max-height:90vh;overflow-y:auto;}
+.modal-hdr{padding:18px 22px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg2);z-index:1;}
+.modal-hdr h3{font-size:.9rem;font-weight:600;letter-spacing:.5px;}
+.close-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:1.2rem;line-height:1;}
+.close-btn:hover{color:var(--text);}
+.modal-body{padding:18px 22px;}
+.modal-footer{padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;}
+.btn-sec{padding:8px 18px;background:transparent;border:1px solid var(--border2);border-radius:var(--radius);color:var(--text2);font-size:.78rem;cursor:pointer;transition:all .15s;}
+.btn-sec:hover{color:var(--text);border-color:var(--text2);}
+.form-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.sdiv{font-size:.62rem;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin:14px 0 10px;padding-bottom:5px;border-bottom:1px solid var(--border);}
+.price-hint{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:7px 13px;margin-top:5px;font-size:.82rem;color:var(--yellow);font-weight:700;display:none;}
+.price-hint.show{display:block;}
+.avail-warn{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:var(--radius);padding:7px 11px;font-size:.76rem;color:#ef4444;margin-top:5px;display:none;}
+.avail-warn.show{display:block;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="brand">Baja Curated</div>
+      <div class="sub">Panel de Administración</div>
+    </div>
+    <div class="err-msg" id="login-err"></div>
+    <div class="field"><label>Correo</label><input type="email" id="email" placeholder="admin@bajacurated.com"></div>
+    <div class="field"><label>Contraseña</label><input type="password" id="pwd" placeholder="••••••••"></div>
+    <button class="btn-primary" onclick="login()">Ingresar</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <aside id="sidebar">
+    <div class="s-logo">
+      <div class="brand">Baja Curated</div>
+      <div class="sub">Admin</div>
+    </div>
+    <nav class="s-nav">
+      <div class="nav-item active" onclick="showView('calendar')"><span class="ni">📅</span> Calendario</div>
+      <div class="nav-item" onclick="showView('bookings')"><span class="ni">📋</span> Reservaciones</div>
+      <div class="nav-item" onclick="showView('vehicles')"><span class="ni">🚙</span> Vehículos</div>
+    </nav>
+    <div class="s-footer">
+      <div class="user-info" id="user-email"></div>
+      <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
+    </div>
+  </aside>
+  <div id="main">
+    <div class="main-hdr">
+      <h1 id="view-title">Calendario</h1>
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div class="hdr-stats">
+          <div class="hdr-stat">Este mes: <span id="stat-count">—</span> reservas</div>
+          <div class="hdr-stat">Ingresos: <span id="stat-rev">—</span></div>
+        </div>
+        <button class="btn-new" onclick="openBookingModal()">+ Nueva Reserva</button>
+      </div>
+    </div>
+
+    <!-- CALENDAR -->
+    <div id="view-calendar">
+      <div class="cal-panel">
+        <div class="cal-nav">
+          <button class="cal-btn" onclick="prevMonth()">← Anterior</button>
+          <h2 id="cal-month-label"></h2>
+          <button class="cal-btn" onclick="nextMonth()">Siguiente →</button>
+        </div>
+        <div class="cal-grid">
+          <div class="cal-hdr">Dom</div><div class="cal-hdr">Lun</div><div class="cal-hdr">Mar</div>
+          <div class="cal-hdr">Mié</div><div class="cal-hdr">Jue</div><div class="cal-hdr">Vie</div><div class="cal-hdr">Sáb</div>
+          <div id="cal-days"></div>
+        </div>
+      </div>
+      <div class="day-panel">
+        <div class="dp-hdr">
+          <h3 id="dp-date">Selecciona un día</h3>
+          <button class="btn-sm" id="dp-add-btn" onclick="openBookingModal(S.selDate)" style="display:none">+ Agregar</button>
+        </div>
+        <div class="dp-body" id="dp-body">
+          <div class="dp-placeholder">← Toca un día para ver disponibilidad y reservas</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOOKINGS LIST -->
+    <div id="view-bookings">
+      <div class="vh"><h2>Todas las Reservaciones</h2></div>
+      <div class="filters">
+        <select id="f-status" onchange="loadAllBookings()">
+          <option value="">Todos los estados</option>
+          <option value="confirmed">Confirmadas</option>
+          <option value="pending">Pendientes</option>
+          <option value="completed">Completadas</option>
+          <option value="cancelled">Canceladas</option>
+        </select>
+        <select id="f-vehicle" onchange="loadAllBookings()"><option value="">Todos los vehículos</option></select>
+        <input type="date" id="f-from" onchange="loadAllBookings()" placeholder="Desde">
+        <input type="date" id="f-to" onchange="loadAllBookings()" placeholder="Hasta">
+      </div>
+      <table>
+        <thead><tr>
+          <th>Referencia</th><th>Fecha</th><th>Tour</th><th>Vehículo</th>
+          <th>Cliente</th><th>Precio</th><th>Estado</th><th>Acciones</th>
+        </tr></thead>
+        <tbody id="bookings-tbody"></tbody>
+      </table>
+    </div>
+
+    <!-- VEHICLES -->
+    <div id="view-vehicles">
+      <div class="vh"><h2>Vehículos</h2></div>
+      <div class="v-grid" id="v-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- BOOKING MODAL -->
+<div class="overlay" id="modal-booking">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h3 id="modal-title">Nueva Reserva</h3>
+      <button class="close-btn" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="sdiv">Detalle del Tour</div>
+      <div class="form-2">
+        <div class="field" style="grid-column:1/-1">
+          <label>Tour</label>
+          <select id="f-tour" onchange="onTourChange()"><option value="">Seleccionar tour…</option></select>
+        </div>
+        <div class="field">
+          <label>Fecha</label>
+          <input type="date" id="f-date" onchange="onDateChange()">
+        </div>
+        <div class="field">
+          <label>Hora de salida</label>
+          <input type="time" id="f-time" value="08:00">
+        </div>
+        <div class="field" style="grid-column:1/-1">
+          <label>Vehículo</label>
+          <select id="f-vehicle-sel" onchange="onVehicleChange()"><option value="">Seleccionar vehículo…</option></select>
+          <div class="avail-warn" id="avail-warn">⚠ Este vehículo ya está reservado o no está disponible en esa fecha.</div>
+        </div>
+      </div>
+      <div class="sdiv">Precio</div>
+      <div class="form-2">
+        <div class="field" style="grid-column:1/-1">
+          <label>Precio Total (USD)</label>
+          <input type="number" id="f-price" placeholder="0.00" step="0.01">
+          <div class="price-hint" id="price-hint"></div>
+        </div>
+      </div>
+      <div class="sdiv">Datos del Cliente</div>
+      <div class="form-2">
+        <div class="field"><label>Nombre *</label><input type="text" id="f-name" placeholder="Nombre completo"></div>
+        <div class="field"><label>Teléfono</label><input type="text" id="f-phone" placeholder="+52 624…"></div>
+        <div class="field" style="grid-column:1/-1"><label>Email</label><input type="email" id="f-email" placeholder="cliente@email.com"></div>
+        <div class="field"><label>Número de personas</label><input type="number" id="f-guests" value="1" min="1"></div>
+        <div class="field"><label>Estado</label>
+          <select id="f-status-sel">
+            <option value="confirmed">Confirmada</option>
+            <option value="pending">Pendiente</option>
+            <option value="completed">Completada</option>
+          </select>
+        </div>
+        <div class="field" style="grid-column:1/-1"><label>Notas</label><textarea id="f-notes" placeholder="Instrucciones especiales, alergias, etc."></textarea></div>
+      </div>
+      <div class="sdiv">Concierge / Property (opcional)</div>
+      <div class="form-2">
+        <div class="field"><label>Concierge / Property</label><input type="text" id="f-concierge" placeholder="Nombre del concierge"></div>
+        <div class="field"><label>Comisión %</label><input type="number" id="f-commission" placeholder="0" min="0" max="100" oninput="calcCommission()"></div>
+      </div>
+      <input type="hidden" id="f-booking-id">
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sec" onclick="closeModal()">Cancelar</button>
+      <button class="btn-primary" style="width:auto;padding:9px 24px;" onclick="saveBooking()">Guardar Reserva</button>
+    </div>
+  </div>
+</div>
+
+<!-- BLACKOUT MODAL -->
+<div class="overlay" id="modal-blackout">
+  <div class="modal" style="width:360px;">
+    <div class="modal-hdr">
+      <h3>Bloquear Fecha</h3>
+      <button class="close-btn" onclick="closeBlackout()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="bl-vehicle-id">
+      <div class="field"><label>Vehículo</label><input type="text" id="bl-vehicle-name" readonly style="opacity:.6;cursor:default;"></div>
+      <div class="field"><label>Fecha</label><input type="date" id="bl-date"></div>
+      <div class="field"><label>Motivo (opcional)</label><input type="text" id="bl-reason" placeholder="Mantenimiento, reserva privada…"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sec" onclick="closeBlackout()">Cancelar</button>
+      <button class="btn-primary" style="width:auto;padding:9px 22px;" onclick="saveBlackout()">Bloquear</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SB_URL = 'https://tdcpxawarfgtgnfwdthh.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkY3B4YXdhcmZndGduZndkdGhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MTk4ODIsImV4cCI6MjA5NDA5NTg4Mn0.birNHYp_IIp2LlZ1x5L8QQTke_jtVtG12jf1jJcuCFE';
+const sb = window.supabase.createClient(SB_URL, SB_KEY);
+
+const VH_COLOR = {trail:'#22c55e', maverick_r:'#818cf8', ds_max:'#fb923c', el_zorro:'#ef4444'};
+const MONTHS_ES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+const S = {
+  user: null, view: 'calendar',
+  month: new Date(), selDate: null,
+  tours: [], vehicles: [],
+  mBookings: [], mBlackouts: [],
+  allBlackouts: []
+};
+
+// ── AUTH ──────────────────────────────────────────
+async function init() {
+  const {data:{session}} = await sb.auth.getSession();
+  if (session) { S.user = session.user; await boot(); }
+  else showLogin();
+  sb.auth.onAuthStateChange((e, ses) => {
+    if (e === 'SIGNED_IN') { S.user = ses.user; boot(); }
+    if (e === 'SIGNED_OUT') { S.user = null; showLogin(); }
+  });
+}
+async function login() {
+  const em = $('email').value.trim(), pw = $('pwd').value;
+  $('login-err').textContent = '';
+  const {error} = await sb.auth.signInWithPassword({email:em, password:pw});
+  if (error) $('login-err').textContent = 'Credenciales incorrectas. Verifica tu correo y contraseña.';
+}
+async function logout() {
+  await sb.auth.signOut();
+}
+function showLogin() {
+  $('login-screen').style.display = 'flex';
+  $('app').classList.remove('visible');
+}
+async function boot() {
+  $('login-screen').style.display = 'none';
+  $('app').classList.add('visible');
+  $('user-email').textContent = S.user.email;
+  await loadStatic();
+  populateTourSelect();
+  populateVehicleFilters();
+  await loadMonthData();
+  renderCalendar();
+  updateStats();
+}
+
+// ── DATA ──────────────────────────────────────────
+async function loadStatic() {
+  const [tr, vr] = await Promise.all([
+    sb.from('bc_tours').select('*').order('sort_order'),
+    sb.from('bc_vehicles').select('*').order('sort_order')
+  ]);
+  S.tours = tr.data || [];
+  S.vehicles = vr.data || [];
+}
+async function loadMonthData() {
+  const y = S.month.getFullYear(), m = S.month.getMonth();
+  const s = ymd(new Date(y,m,1)), e = ymd(new Date(y,m+1,0));
+  const [br, blo] = await Promise.all([
+    sb.from('bc_bookings').select('*,bc_tours(name),bc_vehicles(name,type)').gte('booking_date',s).lte('booking_date',e).neq('status','cancelled'),
+    sb.from('bc_blackouts').select('*,bc_vehicles(name,type)').gte('blackout_date',s).lte('blackout_date',e)
+  ]);
+  S.mBookings = br.data || [];
+  S.mBlackouts = blo.data || [];
+}
+async function loadAllBookings() {
+  let q = sb.from('bc_bookings').select('*,bc_tours(name),bc_vehicles(name,type)').order('booking_date',{ascending:false});
+  const st = $('f-status').value, vh = $('f-vehicle').value;
+  const fr = $('f-from').value, to = $('f-to').value;
+  if (st) q = q.eq('status', st);
+  if (vh) q = q.eq('vehicle_id', vh);
+  if (fr) q = q.gte('booking_date', fr);
+  if (to) q = q.lte('booking_date', to);
+  const {data} = await q;
+  renderBookingsTable(data || []);
+}
+async function loadAllBlackouts() {
+  const {data} = await sb.from('bc_blackouts').select('*,bc_vehicles(name,type)').order('blackout_date');
+  S.allBlackouts = data || [];
+}
+
+// ── CALENDAR ──────────────────────────────────────
+function renderCalendar() {
+  const y = S.month.getFullYear(), m = S.month.getMonth();
+  $('cal-month-label').textContent = `${MONTHS_ES[m]} ${y}`;
+  const first = new Date(y,m,1), last = new Date(y,m+1,0);
+  const startDow = first.getDay();
+  const totalCells = Math.ceil((startDow + last.getDate()) / 7) * 7;
+  const today = ymd(new Date());
+
+  // Group bookings/blackouts by date
+  const bkByDate = {};
+  S.mBookings.forEach(b => { (bkByDate[b.booking_date] = bkByDate[b.booking_date]||[]).push(b); });
+  const blByDate = {};
+  S.mBlackouts.forEach(b => { (blByDate[b.blackout_date] = blByDate[b.blackout_date]||[]).push(b); });
+
+  let html = '';
+  for (let i = 0; i < totalCells; i++) {
+    const d = new Date(y, m, i - startDow + 1);
+    const dm = ymd(d);
+    const inMonth = d.getMonth() === m;
+    let cls = 'cal-day';
+    if (!inMonth) cls += ' other';
+    if (dm === today) cls += ' today';
+    if (dm === S.selDate) cls += ' selected';
+
+    let dots = '';
+    if (inMonth) {
+      (bkByDate[dm]||[]).forEach(b => {
+        const t = b.bc_vehicles?.type || '';
+        dots += `<div class="dot" style="background:${VH_COLOR[t]||'#666'}" title="${b.bc_vehicles?.name}: ${b.bc_tours?.name}"></div>`;
+      });
+      (blByDate[dm]||[]).forEach(b => {
+        const t = b.bc_vehicles?.type || '';
+        dots += `<div class="dot bl" style="background:${VH_COLOR[t]||'#666'}" title="${b.bc_vehicles?.name}: Bloqueado"></div>`;
+      });
+    }
+    html += `<div class="${cls}" onclick="${inMonth?`selectDay('${dm}')`:''}">
+      <div class="dn">${d.getDate()}</div>
+      <div class="dots">${dots}</div>
+    </div>`;
+  }
+  $('cal-days').innerHTML = html;
+}
+
+function selectDay(dateStr) {
+  S.selDate = dateStr;
+  renderCalendar();
+  renderDayDetail(dateStr);
+  $('dp-date').textContent = fmtDate(dateStr);
+  $('dp-add-btn').style.display = '';
+}
+
+function renderDayDetail(dateStr) {
+  const bks = S.mBookings.filter(b => b.booking_date === dateStr);
+  const bls = S.mBlackouts.filter(b => b.blackout_date === dateStr);
+
+  // Availability chips
+  let chips = '<div class="sec-label">Disponibilidad</div><div class="avail-chips">';
+  S.vehicles.forEach(v => {
+    const booked = bks.find(b => b.vehicle_id === v.id);
+    const blacked = bls.find(b => b.vehicle_id === v.id);
+    let cls = 'avail-chip free', st = 'Disponible';
+    if (booked) { cls='avail-chip busy'; st=booked.bc_tours?.name||'Ocupado'; }
+    if (blacked) { cls='avail-chip out'; st='Bloqueado'; }
+    if (v.status !== 'active') { cls='avail-chip out'; st=v.status==='maintenance'?'Mantenimiento':'Inactivo'; }
+    chips += `<div class="${cls}"><div class="av-dot" style="background:${VH_COLOR[v.type]||'#666'}"></div><div class="av-name">${v.name}</div><div class="av-st">${st}</div></div>`;
+  });
+  chips += '</div>';
+
+  // Bookings
+  let bkHTML = '<div class="sec-label" style="margin-top:14px">Reservas</div>';
+  if (!bks.length) {
+    bkHTML += '<div class="no-items">Sin reservas este día</div>';
+  } else {
+    bks.forEach(b => {
+      const vtype = b.bc_vehicles?.type||'';
+      const color = VH_COLOR[vtype]||'#666';
+      bkHTML += `<div class="bk-card">
+        <div class="bk-top">
+          <div class="vbadge" style="background:${color}">${b.bc_vehicles?.name||'—'}</div>
+          <div class="bk-badge st-${b.status}">${b.status}</div>
+        </div>
+        <div class="bk-tour">${b.bc_tours?.name||'—'}</div>
+        <div class="bk-client">${b.client_name}${b.client_phone?' · '+b.client_phone:''}</div>
+        <div class="bk-price">${b.total_price?'$'+Number(b.total_price).toLocaleString()+' USD':''}</div>
+        <div class="bk-ref">${b.booking_ref}</div>
+        <div class="bk-acts">
+          <button class="btn-xs edit" onclick="openBookingModal(null,'${b.id}')">Editar</button>
+          <button class="btn-xs del" onclick="cancelBooking('${b.id}','${dateStr}')">Cancelar</button>
+        </div>
+      </div>`;
+    });
+  }
+
+  // Blackouts
+  if (bls.length) {
+    bkHTML += '<div class="sec-label" style="margin-top:10px">Bloqueado</div>';
+    bls.forEach(b => {
+      bkHTML += `<div class="bk-card" style="border-color:rgba(239,68,68,.2)">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:.78rem;color:var(--text2)">${b.bc_vehicles?.name} — ${b.reason||'Sin motivo'}</span>
+          <button class="btn-xs del" onclick="removeBlackout('${b.id}','${dateStr}')">✕</button>
+        </div>
+      </div>`;
+    });
+  }
+
+  $('dp-body').innerHTML = chips + bkHTML;
+}
+
+function prevMonth() {
+  S.month = new Date(S.month.getFullYear(), S.month.getMonth()-1, 1);
+  S.selDate = null; $('dp-date').textContent = 'Selecciona un día';
+  $('dp-add-btn').style.display = 'none';
+  $('dp-body').innerHTML = '<div class="dp-placeholder">← Toca un día para ver disponibilidad y reservas</div>';
+  loadMonthData().then(()=>{renderCalendar();updateStats();});
+}
+function nextMonth() {
+  S.month = new Date(S.month.getFullYear(), S.month.getMonth()+1, 1);
+  S.selDate = null; $('dp-date').textContent = 'Selecciona un día';
+  $('dp-add-btn').style.display = 'none';
+  $('dp-body').innerHTML = '<div class="dp-placeholder">← Toca un día para ver disponibilidad y reservas</div>';
+  loadMonthData().then(()=>{renderCalendar();updateStats();});
+}
+
+function updateStats() {
+  const count = S.mBookings.filter(b=>b.status!=='cancelled').length;
+  const rev = S.mBookings.filter(b=>b.status!=='cancelled').reduce((a,b)=>a+(Number(b.total_price)||0),0);
+  $('stat-count').textContent = count;
+  $('stat-rev').textContent = rev?'$'+rev.toLocaleString()+' USD':'—';
+}
+
+// ── BOOKINGS TABLE ─────────────────────────────────
+function renderBookingsTable(data) {
+  const tbody = $('bookings-tbody');
+  if (!data.length) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:24px">Sin resultados</td></tr>'; return; }
+  tbody.innerHTML = data.map(b => {
+    const vtype = b.bc_vehicles?.type||'';
+    const color = VH_COLOR[vtype]||'#666';
+    return `<tr>
+      <td class="ref-cell">${b.booking_ref}</td>
+      <td class="date-cell">${fmtDate(b.booking_date)}</td>
+      <td>${b.bc_tours?.name||'—'}</td>
+      <td><span class="vbadge" style="background:${color};padding:2px 7px;border-radius:3px;font-size:.68rem;font-weight:700;color:#000">${b.bc_vehicles?.name||'—'}</span></td>
+      <td>${b.client_name}</td>
+      <td class="price-cell">${b.total_price?'$'+Number(b.total_price).toLocaleString():''}</td>
+      <td><span class="st-badge st-${b.status}">${b.status}</span></td>
+      <td class="act-cell">
+        <button class="btn-xs edit" onclick="openBookingModal(null,'${b.id}')">Editar</button>
+        <button class="btn-xs del" onclick="cancelBooking('${b.id}',null)">Cancelar</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ── VEHICLES VIEW ──────────────────────────────────
+async function renderVehiclesView() {
+  await loadAllBlackouts();
+  const grid = $('v-grid');
+  grid.innerHTML = S.vehicles.map(v => {
+    const color = VH_COLOR[v.type]||'#666';
+    const bls = S.allBlackouts.filter(b=>b.vehicle_id===v.id);
+    const blTags = bls.map(b=>`<div class="bl-tag">${b.blackout_date}${b.reason?' · '+b.reason:''}<span class="bl-rm" onclick="removeBlackout('${b.id}',null)">✕</span></div>`).join('');
+    return `<div class="v-card">
+      ${v.can_be_guide?'<div class="guide-badge">Guía</div>':''}
+      <div class="vc-hdr">
+        <div class="vc-icon" style="background:${color}">${v.name[0]}</div>
+        <div><div class="vc-name">${v.name}</div><div class="vc-type">${v.type.replace('_',' ')}</div></div>
+      </div>
+      <div class="vc-status-row">
+        <div class="vc-st-label">Estado:</div>
+        <div class="st-btns">
+          <button class="st-btn ${v.status==='active'?'sel active':''}" onclick="setVehicleStatus('${v.id}','active',this)">Activo</button>
+          <button class="st-btn ${v.status==='maintenance'?'sel maintenance':''}" onclick="setVehicleStatus('${v.id}','maintenance',this)">Mantenimiento</button>
+          <button class="st-btn ${v.status==='inactive'?'sel inactive':''}" onclick="setVehicleStatus('${v.id}','inactive',this)">Inactivo</button>
+        </div>
+      </div>
+      <div class="bl-sec">
+        <div class="sec-label">Fechas Bloqueadas</div>
+        <div class="bl-tags" id="bltags-${v.id}">${blTags||'<span style="color:var(--text3);font-size:.72rem">Ninguna</span>'}</div>
+        <button class="btn-add-bl" onclick="openBlackout('${v.id}','${v.name}')">+ Bloquear fecha</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function setVehicleStatus(id, status, btn) {
+  await sb.from('bc_vehicles').update({status}).eq('id',id);
+  S.vehicles = S.vehicles.map(v=>v.id===id?{...v,status}:v);
+  const card = btn.closest('.v-card');
+  card.querySelectorAll('.st-btn').forEach(b=>{ b.classList.remove('sel','active','maintenance','inactive'); });
+  btn.classList.add('sel', status);
+}
+
+// ── BOOKING MODAL ──────────────────────────────────
+function populateTourSelect() {
+  const sel = $('f-tour');
+  sel.innerHTML = '<option value="">Seleccionar tour…</option>' +
+    S.tours.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
+}
+function populateVehicleFilters() {
+  const sel = $('f-vehicle');
+  sel.innerHTML = '<option value="">Todos los vehículos</option>' +
+    S.vehicles.map(v=>`<option value="${v.id}">${v.name}</option>`).join('');
+}
+
+function populateVehicleSelect(selVehicleId) {
+  const sel = $('f-vehicle-sel');
+  sel.innerHTML = '<option value="">Seleccionar vehículo…</option>' +
+    S.vehicles.map(v=>`<option value="${v.id}" data-type="${v.type}">${v.name}</option>`).join('');
+  if (selVehicleId) sel.value = selVehicleId;
+}
+
+async function openBookingModal(dateStr, bookingId) {
+  clearModalForm();
+  $('f-booking-id').value = '';
+  if (bookingId) {
+    $('modal-title').textContent = 'Editar Reserva';
+    const {data:b} = await sb.from('bc_bookings').select('*').eq('id',bookingId).single();
+    if (b) {
+      $('f-booking-id').value = b.id;
+      $('f-tour').value = b.tour_id||'';
+      $('f-date').value = b.booking_date||'';
+      $('f-time').value = b.start_time||'08:00';
+      populateVehicleSelect(b.vehicle_id);
+      $('f-price').value = b.total_price||'';
+      $('f-name').value = b.client_name||'';
+      $('f-phone').value = b.client_phone||'';
+      $('f-email').value = b.client_email||'';
+      $('f-guests').value = b.num_guests||1;
+      $('f-status-sel').value = b.status||'confirmed';
+      $('f-notes').value = b.notes||'';
+      $('f-concierge').value = b.concierge_name||'';
+      $('f-commission').value = b.commission_pct||'';
+    }
+  } else {
+    $('modal-title').textContent = 'Nueva Reserva';
+    if (dateStr) $('f-date').value = dateStr;
+    populateVehicleSelect('');
+  }
+  $('modal-booking').classList.add('open');
+}
+function closeModal() { $('modal-booking').classList.remove('open'); }
+
+function clearModalForm() {
+  ['f-tour','f-date','f-time','f-vehicle-sel','f-price','f-name','f-phone','f-email','f-notes','f-concierge','f-commission'].forEach(id=>{
+    const el=$(id); if(el){ if(el.tagName==='SELECT') el.selectedIndex=0; else el.value=''; }
+  });
+  $('f-guests').value = 1;
+  $('f-status-sel').value = 'confirmed';
+  $('f-time').value = '08:00';
+  $('price-hint').classList.remove('show');
+  $('avail-warn').classList.remove('show');
+}
+
+function onTourChange() { updatePriceHint(); }
+function onVehicleChange() { updatePriceHint(); checkVehicleAvailability(); }
+function onDateChange() { checkVehicleAvailability(); }
+
+function updatePriceHint() {
+  const tourId = $('f-tour').value;
+  const vSel = $('f-vehicle-sel');
+  const vOpt = vSel.options[vSel.selectedIndex];
+  const vtype = vOpt ? vOpt.getAttribute('data-type') : '';
+  const tour = S.tours.find(t=>t.id===tourId);
+  if (!tour || !vtype) { $('price-hint').classList.remove('show'); return; }
+  let price = null;
+  if (vtype==='trail') price = tour.price_trail;
+  else if (vtype==='maverick_r') price = tour.price_maverick_r;
+  else if (vtype==='ds_max') price = tour.price_ds_max;
+  else if (vtype==='el_zorro') price = tour.price_special;
+  if (price) {
+    $('price-hint').textContent = `Precio sugerido: $${Number(price).toLocaleString()} USD`;
+    $('price-hint').classList.add('show');
+    if (!$('f-price').value) $('f-price').value = price;
+  } else {
+    $('price-hint').classList.remove('show');
+  }
+}
+
+async function checkVehicleAvailability() {
+  const vId = $('f-vehicle-sel').value;
+  const date = $('f-date').value;
+  const editId = $('f-booking-id').value;
+  $('avail-warn').classList.remove('show');
+  if (!vId || !date) return;
+  let q = sb.from('bc_bookings').select('id').eq('vehicle_id',vId).eq('booking_date',date).neq('status','cancelled');
+  if (editId) q = q.neq('id', editId);
+  const {data:bks} = await q;
+  const {data:bls} = await sb.from('bc_blackouts').select('id').eq('vehicle_id',vId).eq('blackout_date',date);
+  const v = S.vehicles.find(v=>v.id===vId);
+  if ((bks&&bks.length) || (bls&&bls.length) || (v&&v.status!=='active')) {
+    $('avail-warn').classList.add('show');
+  }
+}
+
+function calcCommission() {
+  const price = parseFloat($('f-price').value)||0;
+  const pct = parseFloat($('f-commission').value)||0;
+}
+
+async function saveBooking() {
+  const name = $('f-name').value.trim();
+  if (!name) { alert('El nombre del cliente es requerido'); return; }
+  const tourId = $('f-tour').value;
+  if (!tourId) { alert('Selecciona un tour'); return; }
+  const vehicleId = $('f-vehicle-sel').value;
+  const date = $('f-date').value;
+  if (!date) { alert('Selecciona una fecha'); return; }
+
+  const price = parseFloat($('f-price').value)||null;
+  const commPct = parseFloat($('f-commission').value)||null;
+  const commAmt = (price && commPct) ? Math.round(price * commPct / 100 * 100)/100 : null;
+  const vSel = $('f-vehicle-sel');
+  const vOpt = vSel.options[vSel.selectedIndex];
+  const vtype = vOpt ? vOpt.getAttribute('data-type') : '';
+
+  const payload = {
+    tour_id: tourId||null,
+    vehicle_id: vehicleId||null,
+    vehicle_type: vtype||null,
+    booking_date: date,
+    start_time: $('f-time').value||null,
+    client_name: name,
+    client_email: $('f-email').value.trim()||null,
+    client_phone: $('f-phone').value.trim()||null,
+    num_guests: parseInt($('f-guests').value)||1,
+    total_price: price,
+    status: $('f-status-sel').value,
+    notes: $('f-notes').value.trim()||null,
+    concierge_name: $('f-concierge').value.trim()||null,
+    commission_pct: commPct,
+    commission_amount: commAmt,
+    updated_at: new Date().toISOString()
+  };
+
+  const editId = $('f-booking-id').value;
+  let err;
+  if (editId) {
+    ({error:err} = await sb.from('bc_bookings').update(payload).eq('id',editId));
+  } else {
+    const ref = 'BC-'+ymd(new Date()).replace(/-/g,'')+'-'+String(Math.floor(Math.random()*900+100));
+    ({error:err} = await sb.from('bc_bookings').insert({...payload, booking_ref:ref}));
+  }
+
+  if (err) { alert('Error al guardar: '+err.message); return; }
+  closeModal();
+  await loadMonthData();
+  renderCalendar();
+  updateStats();
+  if (S.selDate) renderDayDetail(S.selDate);
+  if (S.view==='bookings') loadAllBookings();
+}
+
+async function cancelBooking(id, dateStr) {
+  if (!confirm('¿Cancelar esta reserva?')) return;
+  await sb.from('bc_bookings').update({status:'cancelled',updated_at:new Date().toISOString()}).eq('id',id);
+  await loadMonthData();
+  renderCalendar();
+  updateStats();
+  if (dateStr||S.selDate) renderDayDetail(dateStr||S.selDate);
+  if (S.view==='bookings') loadAllBookings();
+}
+
+// ── BLACKOUTS ─────────────────────────────────────
+function openBlackout(vehicleId, vehicleName) {
+  $('bl-vehicle-id').value = vehicleId;
+  $('bl-vehicle-name').value = vehicleName;
+  $('bl-date').value = '';
+  $('bl-reason').value = '';
+  $('modal-blackout').classList.add('open');
+}
+function closeBlackout() { $('modal-blackout').classList.remove('open'); }
+
+async function saveBlackout() {
+  const vehicleId = $('bl-vehicle-id').value;
+  const date = $('bl-date').value;
+  if (!date) { alert('Selecciona una fecha'); return; }
+  const {error} = await sb.from('bc_blackouts').insert({vehicle_id:vehicleId, blackout_date:date, reason:$('bl-reason').value.trim()||null});
+  if (error) { alert('Error: '+error.message); return; }
+  closeBlackout();
+  await loadAllBlackouts();
+  await loadMonthData();
+  renderCalendar();
+  if (S.selDate) renderDayDetail(S.selDate);
+  if (S.view==='vehicles') renderVehiclesView();
+}
+
+async function removeBlackout(id, dateStr) {
+  if (!confirm('¿Eliminar este bloqueo?')) return;
+  await sb.from('bc_blackouts').delete().eq('id',id);
+  await loadAllBlackouts();
+  await loadMonthData();
+  renderCalendar();
+  if (dateStr||S.selDate) renderDayDetail(dateStr||S.selDate);
+  if (S.view==='vehicles') renderVehiclesView();
+}
+
+// ── VIEWS ─────────────────────────────────────────
+function showView(name) {
+  S.view = name;
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-item')[['calendar','bookings','vehicles'].indexOf(name)].classList.add('active');
+  $('view-calendar').style.display = name==='calendar'?'flex':'none';
+  $('view-bookings').style.display = name==='bookings'?'block':'none';
+  $('view-vehicles').style.display = name==='vehicles'?'block':'none';
+  const titles = {calendar:'Calendario', bookings:'Reservaciones', vehicles:'Vehículos'};
+  $('view-title').textContent = titles[name];
+  if (name==='bookings') loadAllBookings();
+  if (name==='vehicles') renderVehiclesView();
+}
+
+// ── UTILS ─────────────────────────────────────────
+function $(id){ return document.getElementById(id); }
+function ymd(d){ return d.toISOString().split('T')[0]; }
+function fmtDate(s){ if(!s)return''; const [y,m,d]=s.split('-'); return `${d} ${MONTHS_ES[parseInt(m)-1]} ${y}`; }
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if (e.key==='Escape') { closeModal(); closeBlackout(); }
+  if (e.key==='Enter' && $('login-screen').style.display!=='none') login();
+});
+
+init();
+</script>
+</body>
+</html>
