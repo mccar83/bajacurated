@@ -920,23 +920,62 @@ function updateStats() {
 function renderBookingsTable(data) {
   const tbody = $('bookings-tbody');
   if (!data.length) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:24px">Sin resultados</td></tr>'; return; }
-  tbody.innerHTML = data.map(b => {
-    const vtype = b.bc_vehicles?.type||'';
-    const color = VH_COLOR[vtype]||'#666';
+  // group by reservation (group_ref), fallback to booking_ref/id
+  const groups = {};
+  data.forEach(b => { const k = b.group_ref || b.booking_ref || b.id; (groups[k] = groups[k] || []).push(b); });
+  const groupList = Object.keys(groups).map(k => groups[k]);
+  // keep newest first by date
+  groupList.sort((a,b) => (b[0].booking_date||'').localeCompare(a[0].booking_date||''));
+  tbody.innerHTML = groupList.map(g => {
+    const f = g[0];
+    const grpKey = f.group_ref || f.booking_ref;
+    const vehicles = g.map(b => {
+      const vt = b.bc_vehicles?.type || b.vehicle_type || '';
+      const color = VH_COLOR[vt] || '#666';
+      return `<span class="vbadge" style="background:${color};padding:2px 7px;border-radius:3px;font-size:.68rem;font-weight:700;color:#000;display:inline-block;margin:1px 2px 1px 0">${b.bc_vehicles?.name || vt || '—'}</span>`;
+    }).join('');
+    const total = g.reduce((s,b)=>s+Number(b.total_price||0),0);
+    const comm = g.reduce((s,b)=>s+Number(b.commission_amount||0),0);
+    const commPaid = comm>0 && g.every(b=>b.commission_paid);
+    const statuses = [...new Set(g.map(b=>b.status))];
+    const status = statuses.length===1 ? statuses[0] : 'mixto';
+    const anyPending = g.some(b=>b.status==='pending');
+    const tourName = f.custom_tour_name ? `<span>${f.custom_tour_name}</span><span style="font-size:.6rem;color:var(--yellow);margin-left:4px">ESPECIAL</span>` : (f.bc_tours?.name||'—');
     return `<tr>
-      <td class="ref-cell">${b.booking_ref}</td>
-      <td class="date-cell">${fmtDate(b.booking_date)}${b.start_time?'<br><span style="font-size:.7rem;color:var(--text3)">⏰ '+b.start_time.slice(0,5)+(b.end_time?' → '+b.end_time.slice(0,5):'')+'</span>':''}</td>
-      <td>${b.custom_tour_name?`<span>${b.custom_tour_name}</span><span style="font-size:.6rem;color:var(--yellow);margin-left:4px">ESPECIAL</span>`:b.bc_tours?.name||'—'}</td>
-      <td><span class="vbadge" style="background:${color};padding:2px 7px;border-radius:3px;font-size:.68rem;font-weight:700;color:#000">${b.bc_vehicles?.name||'—'}</span></td>
-      <td>${b.client_name}</td>
-      <td class="price-cell">${b.total_price?'$'+Number(b.total_price).toLocaleString():''}</td>
-      <td><span class="st-badge st-${b.status}">${b.status}</span></td>
+      <td class="ref-cell">${f.booking_ref}${g.length>1?`<br><span style="font-size:.58rem;color:var(--text3)">+${g.length-1} más · ${grpKey}</span>`:''}</td>
+      <td class="date-cell">${fmtDate(f.booking_date)}${f.start_time?'<br><span style="font-size:.7rem;color:var(--text3)">⏰ '+f.start_time.slice(0,5)+(f.end_time?' → '+f.end_time.slice(0,5):'')+'</span>':''}</td>
+      <td>${tourName}</td>
+      <td>${vehicles}${g.length>1?`<br><span style="font-size:.58rem;color:var(--text3)">${g.length} vehículos</span>`:''}</td>
+      <td>${f.client_name}${f.concierge_name?`<br><span style="font-size:.62rem;color:#818cf8">🤝 ${f.concierge_name}</span>`:''}${comm>0?`<br><span style="font-size:.62rem;color:${commPaid?'#22c55e':'var(--yellow)'}">Com: $${Math.round(comm).toLocaleString()}${commPaid?' ✓':''}</span>`:''}</td>
+      <td class="price-cell">${total?'$'+Number(total).toLocaleString():''}</td>
+      <td><span class="st-badge st-${status==='mixto'?'pending':status}">${status}</span></td>
       <td class="act-cell">
-        <button class="btn-xs edit" onclick="openBookingModal(null,'${b.id}')">Editar</button>
-        <button class="btn-xs del" onclick="cancelBooking('${b.id}',null)">Cancelar</button>
+        ${anyPending?`<button class="btn-xs" style="background:#22c55e;color:#000;border:none" onclick="setGroupStatus('${grpKey}','confirmed')">Confirmar</button>`:''}
+        <button class="btn-xs edit" onclick="openBookingModal(null,'${f.id}')">Editar</button>
+        ${comm>0&&!commPaid?`<button class="btn-xs" onclick="toggleGroupCommission('${grpKey}',true)">Com. pagada</button>`:''}
+        <button class="btn-xs del" onclick="cancelGroup('${grpKey}')">Cancelar</button>
       </td>
     </tr>`;
   }).join('');
+}
+
+async function setGroupStatus(grpRef, status) {
+  const {error} = await sb.from('bc_bookings').update({status, updated_at:new Date().toISOString()}).eq('group_ref', grpRef);
+  if (error) { alert('Error: '+error.message); return; }
+  await loadMonthData(); renderCalendar(); updateStats(); loadAllBookings(); refreshPendingBadge();
+}
+
+async function cancelGroup(grpRef) {
+  if (!confirm('¿Cancelar toda la reserva (todos sus vehículos)?')) return;
+  const {error} = await sb.from('bc_bookings').update({status:'cancelled', updated_at:new Date().toISOString()}).eq('group_ref', grpRef);
+  if (error) { alert('Error: '+error.message); return; }
+  await loadMonthData(); renderCalendar(); updateStats(); loadAllBookings(); refreshPendingBadge();
+}
+
+async function toggleGroupCommission(grpRef, paid) {
+  const {error} = await sb.from('bc_bookings').update({commission_paid:paid, commission_paid_at: paid?new Date().toISOString():null}).eq('group_ref', grpRef);
+  if (error) { alert('Error: '+error.message); return; }
+  loadAllBookings();
 }
 
 // ── VEHICLES VIEW ──────────────────────────────────
@@ -1240,6 +1279,7 @@ async function saveBooking() {
         vehicle_type: v.type,
         total_price: price,
         commission_amount: commAmt,
+        group_ref: baseRef,
         booking_ref: selected.length>1 ? `${baseRef}-${String.fromCharCode(65+i)}` : baseRef
       };
     });
@@ -1350,22 +1390,33 @@ function populateConciergeSelect() {
     ).join('');
 }
 
+async function markConciergePaid(id, nameEnc, amount) {
+  const name = decodeURIComponent(nameEnc);
+  if (!confirm('¿Marcar como PAGADAS todas las comisiones pendientes de ' + name + ' ($' + Number(amount).toLocaleString() + ' USD)?\nEl saldo pendiente quedará en cero.')) return;
+  const {error} = await sb.from('bc_bookings').update({commission_paid:true, commission_paid_at:new Date().toISOString()})
+    .eq('concierge_id', id).eq('commission_paid', false).neq('status','cancelled');
+  if (error) { alert('Error: ' + error.message); return; }
+  renderConciergesView();
+}
+
 async function renderConciergesView() {
   await loadConcierges();
   populateConciergeSelect();
 
   // Stats por concierge
   const {data:bks} = await sb.from('bc_bookings')
-    .select('concierge_id,total_price,commission_amount,status')
+    .select('concierge_id,total_price,commission_amount,status,commission_paid')
     .not('concierge_id','is',null);
   const stats = {};
   (bks||[]).forEach(b => {
     if (!b.concierge_id) return;
-    if (!stats[b.concierge_id]) stats[b.concierge_id]={count:0,total:0,commission:0,pending:0};
+    if (!stats[b.concierge_id]) stats[b.concierge_id]={count:0,total:0,commission:0,pending:0,commPaid:0,commUnpaid:0};
     if (b.status !== 'cancelled') {
       stats[b.concierge_id].count++;
       stats[b.concierge_id].total += Number(b.total_price||0);
-      stats[b.concierge_id].commission += Number(b.commission_amount||0);
+      const cm = Number(b.commission_amount||0);
+      stats[b.concierge_id].commission += cm;
+      if (b.commission_paid) stats[b.concierge_id].commPaid += cm; else stats[b.concierge_id].commUnpaid += cm;
     }
     if (b.status === 'pending') stats[b.concierge_id].pending++;
   });
@@ -1377,7 +1428,7 @@ async function renderConciergesView() {
   }
   const base = window.location.origin.replace('/panel','');
   grid.innerHTML = S.concierges.map(c => {
-    const st = stats[c.id] || {count:0,total:0,commission:0,pending:0};
+    const st = stats[c.id] || {count:0,total:0,commission:0,pending:0,commPaid:0,commUnpaid:0};
     const portalUrl = base + '/portal/?t=' + c.portal_token;
     const bookingUrl = base + '/book/?c=' + c.portal_token;
     return `<div class="co-card ${c.is_active?'':'inactive-co'}">
@@ -1396,7 +1447,8 @@ async function renderConciergesView() {
         </div>
         <div class="co-stats">
           <div class="co-stat">Reservas<span>${st.count}${st.pending?' ('+st.pending+' pend.)':''}</span></div>
-          <div class="co-stat">Comisión ganada<span>$${Math.round(st.commission).toLocaleString()} USD</span></div>
+          <div class="co-stat">Comisión pendiente<span style="color:${st.commUnpaid>0?'var(--yellow)':'var(--text2)'}">$${Math.round(st.commUnpaid).toLocaleString()} USD</span></div>
+          <div class="co-stat">Comisión pagada<span style="color:#22c55e">$${Math.round(st.commPaid).toLocaleString()} USD</span></div>
         </div>
       </div>
       <div style="font-size:.58rem;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;margin-top:12px;margin-bottom:4px;">📱 Link para clientes (folleto)</div>
@@ -1410,6 +1462,7 @@ async function renderConciergesView() {
       <div class="co-actions">
         <button class="btn-link" onclick="showQRModal('${encodeURIComponent(c.name+' · Reservas')}','${encodeURIComponent(bookingUrl)}')">📱 QR Clientes</button>
         <button class="btn-link" onclick="copyPortalLink('${encodeURIComponent(bookingUrl)}')">📋 Copiar Folleto</button>
+        ${st.commUnpaid>0?`<button class="btn-link" style="color:#22c55e" onclick="markConciergePaid('${c.id}','${encodeURIComponent(c.name)}',${Math.round(st.commUnpaid)})">💵 Liquidar comisiones</button>`:''}
         <button class="btn-link" onclick="openConciergeModal('${c.id}')">✏️ Editar</button>
       </div>
     </div>`;
