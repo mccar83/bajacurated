@@ -979,7 +979,7 @@ let _allTours = [];
 
 async function initBookingForm() {
   // Fetch tours
-  const { data: tours } = await _sb.from('bc_tours').select('id,name,price_from,duration_h,description_en,description_es').eq('is_active', true).order('sort_order');
+  const { data: tours } = await _sb.from('bc_tours').select('*').eq('is_active', true).order('sort_order');
   _allTours = tours || [];
   const tSel = document.getElementById('tour-select');
   if (!tSel) return;
@@ -987,17 +987,28 @@ async function initBookingForm() {
   _allTours.forEach(t => {
     const opt = document.createElement('option');
     opt.value = t.id;
-    const label = t.name + (t.duration_h ? ' ' + t.duration_h + 'H' : '') + (t.price_from ? ' — ' + (lang==='es' ? 'Desde' : 'From') + ' $' + t.price_from : '');
+    const fromPrice = t.price_trail || t.price_special || t.price_maverick_r || t.price_ds_max;
+    const tName = (lang==='es' && t.name_es) ? t.name_es : t.name;
+    const label = tName + (t.duration_hours ? ' ' + t.duration_hours + 'H' : '') + (fromPrice ? ' — ' + (lang==='es' ? 'Desde' : 'From') + ' $' + fromPrice : '');
     opt.textContent = label;
     opt.dataset.tourId = t.id;
+    opt.dataset.tourName = t.name;
     tSel.appendChild(opt);
   });
 
   // Fetch vehicles
-  const { data: vehs } = await _sb.from('bc_vehicles').select('id,name,slug,max_riders,color').eq('is_active', true).order('sort_order');
+  const { data: vehs } = await _sb.from('bc_vehicles').select('*').eq('status', 'active').order('sort_order');
   _allVehicles = vehs || [];
 
   tSel.addEventListener('change', () => populateVehicles(tSel.value));
+
+  // Auto-preselect tour on tour pages (section carries data-preselect-tour)
+  const sec = document.getElementById('book');
+  const pre = sec && sec.getAttribute('data-preselect-tour');
+  if (pre) {
+    const match = _allTours.find(t => t.name === pre);
+    if (match) { tSel.value = match.id; populateVehicles(match.id); }
+  }
 }
 
 function populateVehicles(tourId) {
@@ -1009,11 +1020,13 @@ function populateVehicles(tourId) {
   vSel.innerHTML = '<option value="">' + (lang==='es' ? 'Selecciona un vehículo' : 'Select a vehicle') + '</option>';
   _allVehicles.forEach(v => {
     // el_zorro only for El Zorro tour
-    if (v.slug === 'el_zorro' && tour && !tour.name.toLowerCase().includes('zorro')) return;
+    if (v.type === 'el_zorro' && tour && !tour.name.toLowerCase().includes('zorro')) return;
+    // non-zorro vehicles hidden on El Zorro tour
+    if (v.type !== 'el_zorro' && tour && tour.name.toLowerCase().includes('zorro')) return;
     const opt = document.createElement('option');
     opt.value = v.id;
-    const color = v.color || VH_COLORS[v.slug] || '#888';
-    opt.textContent = v.name + (v.max_riders ? ' (máx ' + v.max_riders + ')' : '');
+    const color = v.color || VH_COLORS[v.type] || '#888';
+    opt.textContent = v.name;
     opt.style.color = color;
     vSel.appendChild(opt);
   });
