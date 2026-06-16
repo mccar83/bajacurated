@@ -1,6 +1,5 @@
 backend:
-  name: github
-  repo: mccar83/bajacurated
+  name: git-gateway
   branch: main
 
 media_library:
