@@ -86,6 +86,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
 .dots{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px;}
 .dot{width:7px;height:7px;border-radius:50%;}
 .dot.bl{border-radius:2px;opacity:.35;}
+#cal-days{display:contents;}
 
 /* ── DAY DETAIL PANEL ── */
 .day-panel{width:290px;flex-shrink:0;background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
@@ -312,9 +313,9 @@ tbody tr:hover td{background:rgba(255,255,255,.015);}
           <input type="time" id="f-time" value="08:00">
         </div>
         <div class="field" style="grid-column:1/-1">
-          <label>Vehículo</label>
-          <select id="f-vehicle-sel" onchange="onVehicleChange()"><option value="">Seleccionar vehículo…</option></select>
-          <div class="avail-warn" id="avail-warn">⚠ Este vehículo ya está reservado o no está disponible en esa fecha.</div>
+          <label>Vehículos</label>
+          <div id="f-vehicles-list" style="display:flex;flex-direction:column;gap:6px;margin-top:2px;"></div>
+          <div class="avail-warn" id="avail-warn">⚠ Uno o más vehículos ya están reservados o no disponibles en esa fecha.</div>
         </div>
       </div>
       <div class="sdiv">Precio</div>
@@ -323,6 +324,7 @@ tbody tr:hover td{background:rgba(255,255,255,.015);}
           <label>Precio Total (USD)</label>
           <input type="number" id="f-price" placeholder="0.00" step="0.01">
           <div class="price-hint" id="price-hint"></div>
+          <div id="price-total" style="font-size:.72rem;color:var(--text3);margin-top:4px;display:none;"></div>
         </div>
       </div>
       <div class="sdiv">Datos del Cliente</div>
@@ -668,11 +670,23 @@ function populateVehicleFilters() {
     S.vehicles.map(v=>`<option value="${v.id}">${v.name}</option>`).join('');
 }
 
-function populateVehicleSelect(selVehicleId) {
-  const sel = $('f-vehicle-sel');
-  sel.innerHTML = '<option value="">Seleccionar vehículo…</option>' +
-    S.vehicles.map(v=>`<option value="${v.id}" data-type="${v.type}">${v.name}</option>`).join('');
-  if (selVehicleId) sel.value = selVehicleId;
+function renderVehicleCheckboxes(selVehicleIds=[]) {
+  const list = $('f-vehicles-list');
+  list.innerHTML = S.vehicles.map(v=>`
+    <label style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;cursor:pointer;">
+      <input type="checkbox" class="vh-chk" value="${v.id}" data-type="${v.type}" data-name="${v.name}"
+        ${selVehicleIds.includes(v.id)?'checked':''}
+        onchange="onVehicleChange()" style="width:15px;height:15px;accent-color:var(--yellow);cursor:pointer;">
+      <div class="av-dot" style="background:${VH_COLOR[v.type]||'#666'};width:8px;height:8px;border-radius:50%;flex-shrink:0;"></div>
+      <span style="flex:1;font-size:.82rem;">${v.name}</span>
+      <span class="vh-price-${v.id}" style="font-size:.75rem;color:var(--text3);"></span>
+    </label>`).join('');
+}
+
+function getSelectedVehicles() {
+  return [...document.querySelectorAll('.vh-chk:checked')].map(c=>({
+    id: c.value, type: c.getAttribute('data-type'), name: c.getAttribute('data-name')
+  }));
 }
 
 async function openBookingModal(dateStr, bookingId) {
@@ -686,7 +700,7 @@ async function openBookingModal(dateStr, bookingId) {
       $('f-tour').value = b.tour_id||'';
       $('f-date').value = b.booking_date||'';
       $('f-time').value = b.start_time||'08:00';
-      populateVehicleSelect(b.vehicle_id);
+      renderVehicleCheckboxes(b.vehicle_id?[b.vehicle_id]:[]);
       $('f-price').value = b.total_price||'';
       $('f-name').value = b.client_name||'';
       $('f-phone').value = b.client_phone||'';
@@ -700,14 +714,15 @@ async function openBookingModal(dateStr, bookingId) {
   } else {
     $('modal-title').textContent = 'Nueva Reserva';
     if (dateStr) $('f-date').value = dateStr;
-    populateVehicleSelect('');
+    renderVehicleCheckboxes([]);
   }
   $('modal-booking').classList.add('open');
 }
 function closeModal() { $('modal-booking').classList.remove('open'); }
 
 function clearModalForm() {
-  ['f-tour','f-date','f-time','f-vehicle-sel','f-price','f-name','f-phone','f-email','f-notes','f-concierge','f-commission'].forEach(id=>{
+  document.querySelectorAll('.vh-chk').forEach(c=>c.checked=false);
+  ['f-tour','f-date','f-time','f-price','f-name','f-phone','f-email','f-notes','f-concierge','f-commission'].forEach(id=>{
     const el=$(id); if(el){ if(el.tagName==='SELECT') el.selectedIndex=0; else el.value=''; }
   });
   $('f-guests').value = 1;
@@ -721,41 +736,61 @@ function onTourChange() { updatePriceHint(); }
 function onVehicleChange() { updatePriceHint(); checkVehicleAvailability(); }
 function onDateChange() { checkVehicleAvailability(); }
 
+function getVehiclePrice(vtype, tour) {
+  if (!tour) return null;
+  if (vtype==='trail') return tour.price_trail;
+  if (vtype==='maverick_r') return tour.price_maverick_r;
+  if (vtype==='ds_max') return tour.price_ds_max;
+  if (vtype==='el_zorro') return tour.price_special;
+  return null;
+}
+
 function updatePriceHint() {
-  const tourId = $('f-tour').value;
-  const vSel = $('f-vehicle-sel');
-  const vOpt = vSel.options[vSel.selectedIndex];
-  const vtype = vOpt ? vOpt.getAttribute('data-type') : '';
-  const tour = S.tours.find(t=>t.id===tourId);
-  if (!tour || !vtype) { $('price-hint').classList.remove('show'); return; }
-  let price = null;
-  if (vtype==='trail') price = tour.price_trail;
-  else if (vtype==='maverick_r') price = tour.price_maverick_r;
-  else if (vtype==='ds_max') price = tour.price_ds_max;
-  else if (vtype==='el_zorro') price = tour.price_special;
-  if (price) {
-    $('price-hint').textContent = `Precio sugerido: $${Number(price).toLocaleString()} USD`;
-    $('price-hint').classList.add('show');
-    if (!$('f-price').value) $('f-price').value = price;
-  } else {
+  const tour = S.tours.find(t=>t.id===$('f-tour').value);
+  const selected = getSelectedVehicles();
+  // Update per-vehicle price labels
+  S.vehicles.forEach(v=>{
+    const el = document.querySelector(`.vh-price-${v.id}`);
+    if (!el) return;
+    const p = getVehiclePrice(v.type, tour);
+    el.textContent = p ? `$${Number(p).toLocaleString()}` : '';
+  });
+  if (!tour || !selected.length) {
     $('price-hint').classList.remove('show');
+    $('price-total').style.display='none';
+    return;
   }
+  // Show breakdown and total
+  const breakdown = selected.map(v=>{
+    const p = getVehiclePrice(v.type, tour);
+    return `${v.name}: $${p?Number(p).toLocaleString():'—'}`;
+  }).join(' · ');
+  const total = selected.reduce((sum,v)=> sum + (getVehiclePrice(v.type,tour)||0), 0);
+  $('price-hint').textContent = breakdown;
+  $('price-hint').classList.add('show');
+  $('price-total').textContent = `Total: $${Number(total).toLocaleString()} USD`;
+  $('price-total').style.display='block';
+  if (!$('f-price').value) $('f-price').value = total||'';
 }
 
 async function checkVehicleAvailability() {
-  const vId = $('f-vehicle-sel').value;
+  const selected = getSelectedVehicles();
   const date = $('f-date').value;
   const editId = $('f-booking-id').value;
   $('avail-warn').classList.remove('show');
-  if (!vId || !date) return;
-  let q = sb.from('bc_bookings').select('id').eq('vehicle_id',vId).eq('booking_date',date).neq('status','cancelled');
-  if (editId) q = q.neq('id', editId);
-  const {data:bks} = await q;
-  const {data:bls} = await sb.from('bc_blackouts').select('id').eq('vehicle_id',vId).eq('blackout_date',date);
-  const v = S.vehicles.find(v=>v.id===vId);
-  if ((bks&&bks.length) || (bls&&bls.length) || (v&&v.status!=='active')) {
-    $('avail-warn').classList.add('show');
+  if (!selected.length || !date) return;
+  let hasConflict = false;
+  for (const v of selected) {
+    let q = sb.from('bc_bookings').select('id').eq('vehicle_id',v.id).eq('booking_date',date).neq('status','cancelled');
+    if (editId) q = q.neq('id', editId);
+    const {data:bks} = await q;
+    const {data:bls} = await sb.from('bc_blackouts').select('id').eq('vehicle_id',v.id).eq('blackout_date',date);
+    const vObj = S.vehicles.find(vv=>vv.id===v.id);
+    if ((bks&&bks.length)||(bls&&bls.length)||(vObj&&vObj.status!=='active')) {
+      hasConflict=true; break;
+    }
   }
+  if (hasConflict) $('avail-warn').classList.add('show');
 }
 
 function calcCommission() {
@@ -768,43 +803,55 @@ async function saveBooking() {
   if (!name) { alert('El nombre del cliente es requerido'); return; }
   const tourId = $('f-tour').value;
   if (!tourId) { alert('Selecciona un tour'); return; }
-  const vehicleId = $('f-vehicle-sel').value;
+  const selected = getSelectedVehicles();
   const date = $('f-date').value;
   if (!date) { alert('Selecciona una fecha'); return; }
+  if (!selected.length) { alert('Selecciona al menos un vehículo'); return; }
 
-  const price = parseFloat($('f-price').value)||null;
+  const tour = S.tours.find(t=>t.id===tourId);
   const commPct = parseFloat($('f-commission').value)||null;
-  const commAmt = (price && commPct) ? Math.round(price * commPct / 100 * 100)/100 : null;
-  const vSel = $('f-vehicle-sel');
-  const vOpt = vSel.options[vSel.selectedIndex];
-  const vtype = vOpt ? vOpt.getAttribute('data-type') : '';
-
-  const payload = {
+  const editId = $('f-booking-id').value;
+  const baseRef = 'BC-'+ymd(new Date()).replace(/-/g,'')+'-'+String(Math.floor(Math.random()*900+100));
+  const commonFields = {
     tour_id: tourId||null,
-    vehicle_id: vehicleId||null,
-    vehicle_type: vtype||null,
     booking_date: date,
     start_time: $('f-time').value||null,
     client_name: name,
     client_email: $('f-email').value.trim()||null,
     client_phone: $('f-phone').value.trim()||null,
     num_guests: parseInt($('f-guests').value)||1,
-    total_price: price,
     status: $('f-status-sel').value,
     notes: $('f-notes').value.trim()||null,
     concierge_name: $('f-concierge').value.trim()||null,
     commission_pct: commPct,
-    commission_amount: commAmt,
     updated_at: new Date().toISOString()
   };
 
-  const editId = $('f-booking-id').value;
   let err;
-  if (editId) {
-    ({error:err} = await sb.from('bc_bookings').update(payload).eq('id',editId));
+  if (editId && selected.length === 1) {
+    // Edit mode: update single booking
+    const v = selected[0];
+    const price = getVehiclePrice(v.type, tour) || parseFloat($('f-price').value)||null;
+    const commAmt = (price&&commPct) ? Math.round(price*commPct/100*100)/100 : null;
+    ({error:err} = await sb.from('bc_bookings').update({
+      ...commonFields, vehicle_id:v.id, vehicle_type:v.type,
+      total_price:price, commission_amount:commAmt
+    }).eq('id',editId));
   } else {
-    const ref = 'BC-'+ymd(new Date()).replace(/-/g,'')+'-'+String(Math.floor(Math.random()*900+100));
-    ({error:err} = await sb.from('bc_bookings').insert({...payload, booking_ref:ref}));
+    // Create one booking per vehicle
+    const rows = selected.map((v,i)=>{
+      const price = getVehiclePrice(v.type, tour) || parseFloat($('f-price').value)||null;
+      const commAmt = (price&&commPct) ? Math.round(price*commPct/100*100)/100 : null;
+      return {
+        ...commonFields,
+        vehicle_id: v.id,
+        vehicle_type: v.type,
+        total_price: price,
+        commission_amount: commAmt,
+        booking_ref: selected.length>1 ? `${baseRef}-${String.fromCharCode(65+i)}` : baseRef
+      };
+    });
+    ({error:err} = await sb.from('bc_bookings').insert(rows));
   }
 
   if (err) { alert('Error al guardar: '+err.message); return; }
