@@ -1136,6 +1136,16 @@ function bkHighlight(id) {
   setTimeout(() => { el.style.borderColor = ''; }, 1500);
 }
 
+function bkNotify(info) {
+  try {
+    fetch('https://formspree.io/f/mjgjbool', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(Object.assign({ _subject: 'Nueva solicitud de reserva — ' + (info.ref || ''), source: location.pathname }, info))
+    }).catch(function(){});
+  } catch (e) {}
+}
+
 async function bkSubmit() {
   const tourId = document.getElementById('f-tour').value;
   const date = document.getElementById('f-date').value;
@@ -1162,6 +1172,7 @@ async function bkSubmit() {
       p_client_name: name, p_client_email: email || null, p_client_phone: phone, p_num_guests: guests, p_notes: notes
     });
     if (error) throw error;
+    bkNotify({ ref: data, tour: (_allTours.find(function(t){return t.id===tourId;})||{}).name, date: date, time: startTime, vehicles: vehicleIds.length, name: name, phone: phone, email: email, guests: guests, notes: notes });
     document.getElementById('bk-success-ref').textContent = data;
     document.getElementById('bk-form-wrap').style.display = 'none';
     document.getElementById('bk-success').style.display = 'block';
@@ -1212,7 +1223,7 @@ document.addEventListener('DOMContentLoaded', initBookingForm);
   // Netlify Identity — redirect to /admin/ after login
   if(window.netlifyIdentity){
     window.netlifyIdentity.on('init', user => {
-      if(!user){ window.netlifyIdentity.on('login', () => { document.location.href='/admin/'; }); }
+      if(!user){ window.netlifyIdentity.on('login', () => { document.location.href='/cms/'; }); }
     });
   }
 </script>

@@ -46,3 +46,8 @@
   for = "/book/*"
   [headers.values]
     X-Robots-Tag = "noindex"
+
+[[headers]]
+  for = "/cms/*"
+  [headers.values]
+    X-Robots-Tag = "noindex"

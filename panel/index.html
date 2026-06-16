@@ -252,6 +252,9 @@ tbody tr:hover td{background:rgba(255,255,255,.015);}
 .btn-link:hover{border-color:var(--yellow);color:var(--yellow);}
 .qr-modal-body{text-align:center;padding:8px 0;}
 .qr-url-txt{font-size:.65rem;color:var(--text3);font-family:monospace;word-break:break-all;margin-top:10px;line-height:1.5;}
+.nav-badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;margin-left:6px;background:#ef4444;color:#fff;border-radius:9px;font-size:.62rem;font-weight:800;vertical-align:middle;line-height:1;}
+.nav-item.has-pending{color:var(--yellow);}
+.nav-item.has-pending .ni{filter:drop-shadow(0 0 4px rgba(245,197,24,.6));}
 </style>
 </head>
 <body>
@@ -260,7 +263,7 @@ tbody tr:hover td{background:rgba(255,255,255,.015);}
 <div id="login-screen">
   <div class="login-box">
     <div class="login-logo">
-      <img src="https://bajacurated.com/baja-curated-main.svg" alt="Baja Curated" style="height:64px;width:auto;margin:0 auto 8px;">
+      <img src="https://bajacurated.com/baja-curated-main.svg" alt="Baja Curated" style="height:92px;width:auto;margin:0 auto 10px;">
       <div class="sub">Panel de Administración</div>
     </div>
     <div class="err-msg" id="login-err"></div>
@@ -275,12 +278,12 @@ tbody tr:hover td{background:rgba(255,255,255,.015);}
 <div id="app">
   <aside id="sidebar">
     <div class="s-logo">
-      <img src="https://bajacurated.com/baja-curated-main.svg" alt="Baja Curated" style="height:36px;width:auto;display:block;margin-bottom:4px;">
+      <img src="https://bajacurated.com/baja-curated-main.svg" alt="Baja Curated" style="height:64px;width:auto;display:block;margin-bottom:6px;">
       <div class="sub">Admin</div>
     </div>
     <nav class="s-nav">
       <div class="nav-item active" onclick="showView('calendar')"><span class="ni">📅</span> Calendario</div>
-      <div class="nav-item" onclick="showView('bookings')"><span class="ni">📋</span> Reservaciones</div>
+      <div class="nav-item" onclick="showView('bookings')"><span class="ni">📋</span> Reservaciones <span class="nav-badge" id="pending-badge" style="display:none"></span></div>
       <div class="nav-item" onclick="showView('tours')"><span class="ni">🗺️</span> Tours</div>
       <div class="nav-item" onclick="showView('galeria')"><span class="ni">🖼️</span> Galería</div>
       <div class="nav-item" onclick="showView('vehicles')"><span class="ni">🚙</span> Vehículos</div>
@@ -557,7 +560,7 @@ tbody tr:hover td{background:rgba(255,255,255,.015);}
         <div class="field"><label>Orden visual</label><input type="number" id="t-sort" value="0" min="0"></div>
         <div class="field" style="grid-column:1/-1"><label>Descripción Español</label><textarea id="t-desc-es" placeholder="Descripción en español del tour…" style="min-height:64px;"></textarea></div>
         <div class="field" style="grid-column:1/-1"><label>Descripción English</label><textarea id="t-desc-en" placeholder="Tour description in English…" style="min-height:64px;"></textarea></div>
-        <div class="field" style="grid-column:1/-1"><label>URL de imagen</label><input type="url" id="t-img" placeholder="https://i.imgur.com/…"></div>
+        <div class="field" style="grid-column:1/-1"><label>URL de imagen</label><input type="url" id="t-img" placeholder="Pega una URL o sube una foto ↓"></div><div class="field" style="grid-column:1/-1"><label>📤 Subir foto (se guarda en nuestra BD)</label><input type="file" id="t-file" accept="image/*" onchange="uploadImg(this,'t-img',null,'tours')"></div>
       </div>
       <div class="sdiv">Precios por vehículo (USD)</div>
       <div class="form-2">
@@ -590,7 +593,7 @@ tbody tr:hover td{background:rgba(255,255,255,.015);}
       <button class="close-btn" onclick="closeGaleriaModal()">✕</button>
     </div>
     <div class="modal-body">
-      <div class="field"><label>URL de imagen *</label><input type="url" id="g-url" placeholder="https://i.imgur.com/…" oninput="previewGalImg()"></div>
+      <div class="field"><label>URL de imagen *</label><input type="url" id="g-url" placeholder="Pega una URL o sube una foto ↓" oninput="previewGalImg()"></div><div class="field"><label>📤 Subir foto (se guarda en nuestra BD)</label><input type="file" id="g-file" accept="image/*" onchange="uploadImg(this,'g-url','g-preview','gallery')"></div>
       <img id="g-preview" src="" alt="preview" style="display:none;width:100%;height:180px;object-fit:cover;border-radius:6px;margin-bottom:12px;background:var(--bg3);">
       <div class="form-2">
         <div class="field"><label>Caption Español</label><input type="text" id="g-cap-es" placeholder="Descripción en español"></div>
@@ -717,6 +720,23 @@ async function boot() {
   await loadMonthData();
   renderCalendar();
   updateStats();
+  refreshPendingBadge();
+  if (!window._pendTimer) window._pendTimer = setInterval(refreshPendingBadge, 60000);
+}
+
+async function refreshPendingBadge() {
+  try {
+    const { count } = await sb.from('bc_bookings').select('id', { count:'exact', head:true }).eq('status','pending');
+    const b = $('pending-badge'); if (!b) return;
+    if (count && count > 0) {
+      b.textContent = count; b.style.display = 'inline-flex';
+      b.parentElement.classList.add('has-pending');
+      document.title = '(' + count + ') Baja Curated · Admin';
+    } else {
+      b.style.display = 'none'; b.parentElement.classList.remove('has-pending');
+      document.title = 'Baja Curated · Admin';
+    }
+  } catch (e) {}
 }
 
 // ── DATA ──────────────────────────────────────────
@@ -737,6 +757,7 @@ async function loadMonthData() {
   ]);
   S.mBookings = br.data || [];
   S.mBlackouts = blo.data || [];
+  if (typeof refreshPendingBadge === 'function') refreshPendingBadge();
 }
 async function loadAllBookings() {
   let q = sb.from('bc_bookings').select('*,bc_tours(name),bc_vehicles(name,type)').order('booking_date',{ascending:false});
@@ -1166,12 +1187,12 @@ async function saveBooking() {
   const date = $('f-date').value;
   if (!date) { alert('Selecciona una fecha'); return; }
   if (!selected.length) { alert('Selecciona al menos un vehículo'); return; }
-  if (isCustomTour && !customTourName) { alert('Escribe el nombre del evento'); return; }
 
   const isCustomTour = tourId === '__custom__';
   const tour = isCustomTour ? null : S.tours.find(t=>t.id===tourId);
   const customTourName = isCustomTour ? ($('f-custom-name').value.trim()||'Evento especial') : null;
   const customDurationHours = isCustomTour ? (parseFloat($('f-custom-hours').value)||null) : null;
+  if (isCustomTour && !customTourName) { alert('Escribe el nombre del evento'); return; }
   const commPct = parseFloat($('f-commission').value)||null;
   const conciergeId = $('f-concierge-id').value||null;
   const concierge = conciergeId ? S.concierges.find(c=>c.id===conciergeId) : null;
@@ -1600,6 +1621,24 @@ function openGaleriaModal(id) {
   $('modal-galeria').classList.add('open');
 }
 function closeGaleriaModal() { $('modal-galeria').classList.remove('open'); }
+
+async function uploadImg(input, targetId, previewId, folder) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  if (file.size > 12*1024*1024) { alert('La imagen es muy grande (máx 12 MB).'); input.value=''; return; }
+  const tgt = $(targetId);
+  const ext = (file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'');
+  const path = (folder||'misc') + '/' + Date.now() + '-' + Math.random().toString(36).slice(2,8) + '.' + ext;
+  const prev = tgt.value;
+  tgt.value = '⏳ Subiendo...'; tgt.disabled = true; input.disabled = true;
+  const { error } = await sb.storage.from('bc-media').upload(path, file, { cacheControl:'3600', upsert:false, contentType:file.type });
+  tgt.disabled = false; input.disabled = false;
+  if (error) { tgt.value = prev; alert('Error al subir la imagen: ' + error.message); return; }
+  const { data } = sb.storage.from('bc-media').getPublicUrl(path);
+  tgt.value = data.publicUrl;
+  if (previewId) { const pv = $(previewId); if (pv) { pv.src = data.publicUrl; pv.style.display = 'block'; } }
+  if (targetId === 'g-url' && typeof previewGalImg === 'function') previewGalImg();
+}
 
 function previewGalImg() {
   const url = $('g-url').value.trim();

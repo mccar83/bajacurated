@@ -161,7 +161,7 @@ html,body{font-family:'Barlow',sans-serif;}
 <body>
 
 <div id="loading-screen">
-  <img src="https://bajacurated.com/baja-curated-main.svg" alt="Baja Curated" style="height:52px;width:auto;">
+  <img src="https://bajacurated.com/baja-curated-main.svg" alt="Baja Curated" style="height:88px;width:auto;">
   <div class="spinner"></div>
 </div>
 
@@ -173,7 +173,7 @@ html,body{font-family:'Barlow',sans-serif;}
 
 <nav>
   <div class="nav-brand">
-    <img src="https://bajacurated.com/baja-curated-main.svg" alt="Baja Curated" style="height:38px;width:auto;">
+    <img src="https://bajacurated.com/baja-curated-main.svg" alt="Baja Curated" style="height:72px;width:auto;">
   </div>
   <div class="nav-right">
     <button class="btn-lang" id="btn-lang" onclick="toggleLang()">EN</button>
@@ -304,7 +304,7 @@ html,body{font-family:'Barlow',sans-serif;}
 </section>
 
 <footer>
-  <img src="https://bajacurated.com/baja-curated-main.svg" alt="Baja Curated" style="height:40px;width:auto;margin:0 auto 8px;">
+  <img src="https://bajacurated.com/baja-curated-main.svg" alt="Baja Curated" style="height:60px;width:auto;margin:0 auto 10px;">
   <div class="footer-sub" id="footer-sub" data-es="Off-Road Expeditions · Los Cabos, BCS, México" data-en="Off-Road Expeditions · Los Cabos, BCS, Mexico">Off-Road Expeditions · Los Cabos, BCS, México</div>
   <div class="footer-links">
     <a href="https://bajacurated.com" target="_blank">bajacurated.com</a>
@@ -618,6 +618,13 @@ async function submitBooking() {
     return;
   }
 
+  try {
+    const _tn = (S.tours.find(t => t.id === tourId) || {}).name;
+    fetch('https://formspree.io/f/mjgjbool', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ _subject: 'Nueva solicitud de concierge — ' + (data || ''), ref: data, tour: _tn, date: date, time: startTime, name: name, phone: phone, email: email, guests: guests, notes: notes, concierge: (S.concierge||{}).name, property: (S.concierge||{}).property_name, source: 'book' })
+    }).catch(function(){});
+  } catch (e) {}
   document.getElementById('success-ref').textContent = data;
   document.getElementById('form-wrap').style.display = 'none';
   document.getElementById('success-screen').style.display = 'block';
