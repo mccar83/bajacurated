@@ -142,6 +142,25 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
 .bk-comm{font-size:.72rem;color:var(--text2);}
 .no-items{text-align:center;color:var(--text3);padding:40px;font-size:.82rem;}
 
+/* ── LINK VIEW ── */
+.link-section{margin-bottom:22px;}
+.link-sec-label{font-size:.58rem;letter-spacing:2.5px;color:var(--text3);text-transform:uppercase;margin-bottom:8px;}
+.link-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px;}
+.link-card-title{font-size:.78rem;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:7px;}
+.link-card-desc{font-size:.72rem;color:var(--text3);margin-bottom:14px;line-height:1.5;}
+.link-url-row{background:var(--bg3);border:1px solid var(--border2);border-radius:7px;padding:9px 12px;font-size:.68rem;color:var(--text2);font-family:monospace;word-break:break-all;margin-bottom:10px;line-height:1.5;}
+.link-btns{display:flex;gap:8px;flex-wrap:wrap;}
+.btn-copy-lnk{padding:8px 16px;background:var(--yellow);color:#000;border:none;border-radius:var(--radius);font-size:.72rem;font-weight:700;letter-spacing:.5px;cursor:pointer;transition:background .2s;text-transform:uppercase;}
+.btn-copy-lnk:hover{background:var(--yellow2);}
+.btn-wa-lnk{padding:8px 16px;background:#25d366;color:#fff;border:none;border-radius:var(--radius);font-size:.72rem;font-weight:700;cursor:pointer;transition:background .2s;}
+.btn-wa-lnk:hover{background:#1da851;}
+.btn-qr-lnk{padding:8px 14px;background:transparent;border:1px solid var(--border2);color:var(--text2);border-radius:var(--radius);font-size:.72rem;cursor:pointer;transition:all .15s;}
+.btn-qr-lnk:hover{border-color:var(--yellow);color:var(--yellow);}
+.qr-wrap{text-align:center;margin-top:14px;}
+.qr-wrap img{border-radius:8px;border:6px solid #fff;display:inline-block;}
+.link-copied{font-size:.7rem;color:#22c55e;margin-left:8px;opacity:0;transition:opacity .3s;}
+.link-copied.show{opacity:1;}
+
 /* ── COMISIONES ── */
 .comm-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;}
 @media(max-width:420px){.comm-stats{grid-template-columns:1fr;}}
@@ -198,6 +217,9 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
     </div>
     <div class="nav-tab" onclick="showTab('commissions')" id="tab-commissions">
       <span class="tab-icon">💰</span>Comisiones
+    </div>
+    <div class="nav-tab" onclick="showTab('link')" id="tab-link">
+      <span class="tab-icon">🔗</span>Mi Enlace
     </div>
   </nav>
 
@@ -318,6 +340,16 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
       </table>
     </div>
 
+    <!-- ── MI ENLACE ── -->
+    <div class="view" id="view-link">
+      <div class="sec-hdr">
+        <h2>Mi Enlace de Reservas</h2>
+      </div>
+      <div id="link-view-content">
+        <div style="font-size:.8rem;color:var(--text3);text-align:center;padding:24px;">Cargando…</div>
+      </div>
+    </div>
+
   </div><!-- /main-content -->
 </div><!-- /app -->
 
@@ -398,6 +430,7 @@ function showTab(name) {
   $('view-'+name).classList.add('active');
   if (name === 'bookings') loadMyBookings();
   if (name === 'commissions') loadCommissions();
+  if (name === 'link') renderLinkView();
 }
 
 // ── CALENDAR ──────────────────────────────────────
@@ -687,6 +720,54 @@ async function loadCommissions() {
     <td class="${b.status==='pending'?'comm-pending':'comm-paid'}">${b.commission_pct?b.commission_pct+'% = $'+Number(b.commission_amount||0).toLocaleString():''}</td>
     <td><span class="st-badge st-${b.status}">${stLabel(b.status)}</span></td>
   </tr>`).join('');
+}
+
+// ── MI ENLACE ─────────────────────────────────────
+function renderLinkView() {
+  if (!S.concierge) return;
+  const base = window.location.origin;
+  const bookUrl = base + '/book/?c=' + S.token;
+  const portalUrl = base + '/portal/?t=' + S.token;
+
+  $('link-view-content').innerHTML = `
+    <div class="link-card">
+      <div class="link-card-title">📱 Folleto Digital para Clientes</div>
+      <div class="link-card-desc">Comparte este enlace con tus clientes. Verán los tours disponibles y podrán hacer una solicitud de reserva directamente. No se muestran tus datos de comisión.</div>
+      <div class="link-url-row" id="book-url-txt">${bookUrl}</div>
+      <div class="qr-wrap">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(bookUrl)}&bgcolor=ffffff&color=000000&margin=1" width="200" height="200" alt="QR Folleto">
+      </div>
+      <div class="link-btns" style="margin-top:14px;">
+        <button class="btn-copy-lnk" onclick="copyLink('book-url-txt','copy-book-ok')">📋 Copiar Link</button>
+        <button class="btn-wa-lnk" onclick="shareWhatsApp('${encodeURIComponent(bookUrl)}')">💬 WhatsApp</button>
+        <span class="link-copied" id="copy-book-ok">✓ Copiado</span>
+      </div>
+    </div>
+
+    <div class="link-card" style="opacity:.8;">
+      <div class="link-card-title">🔐 Tu Portal Personal</div>
+      <div class="link-card-desc">Este es tu portal privado. Aquí puedes ver disponibilidad, hacer solicitudes de reserva y revisar tus comisiones. No compartas este enlace con clientes.</div>
+      <div class="link-url-row" id="portal-url-txt">${portalUrl}</div>
+      <div class="link-btns">
+        <button class="btn-copy-lnk" style="background:var(--bg3);color:var(--text2);border:1px solid var(--border2);" onclick="copyLink('portal-url-txt','copy-portal-ok')">📋 Copiar</button>
+        <span class="link-copied" id="copy-portal-ok">✓ Copiado</span>
+      </div>
+    </div>`;
+}
+
+async function copyLink(urlElemId, feedbackId) {
+  const url = $('link-view-content') ? document.getElementById(urlElemId)?.textContent?.trim() : '';
+  if (!url) return;
+  try { await navigator.clipboard.writeText(url); }
+  catch(e) { prompt('Copia este link:', url); return; }
+  const fb = document.getElementById(feedbackId);
+  if (fb) { fb.classList.add('show'); setTimeout(() => fb.classList.remove('show'), 2000); }
+}
+
+function shareWhatsApp(encodedUrl) {
+  const url = decodeURIComponent(encodedUrl);
+  const msg = encodeURIComponent('¡Hola! Te comparto el enlace para reservar un tour de aventura en Los Cabos con Baja Curated: ' + url);
+  window.open('https://wa.me/?text=' + msg, '_blank');
 }
 
 // ── UTILS ─────────────────────────────────────────

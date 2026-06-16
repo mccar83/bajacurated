@@ -190,6 +190,43 @@ tbody tr:hover td{background:rgba(255,255,255,.015);}
 .custom-tour-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-top:8px;display:none;}
 .custom-tour-box.show{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 
+/* ── TOURS VIEW ── */
+#view-tours{flex:1;overflow-y:auto;padding:20px 24px;display:none;}
+#view-tours .vh{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.tours-mgmt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;}
+.tm-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;position:relative;}
+.tm-card.inactive-tour{opacity:.5;}
+.tm-img{width:100%;height:140px;object-fit:cover;background:var(--bg3);}
+.tm-body{padding:14px;}
+.tm-name{font-size:.9rem;font-weight:700;margin-bottom:4px;}
+.tm-dur{font-size:.68rem;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;}
+.tm-prices{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
+.tm-price-chip{font-size:.65rem;padding:2px 8px;border-radius:3px;background:rgba(245,197,24,.08);border:1px solid rgba(245,197,24,.15);color:var(--yellow);}
+.tm-acts{display:flex;gap:6px;}
+.tm-active-badge{position:absolute;top:8px;right:8px;font-size:.6rem;padding:2px 7px;border-radius:3px;text-transform:uppercase;letter-spacing:.5px;}
+.tm-active-badge.on{background:rgba(34,197,94,.12);color:#22c55e;}
+.tm-active-badge.off{background:rgba(239,68,68,.12);color:#ef4444;}
+
+/* ── GALERÍA VIEW ── */
+#view-galeria{flex:1;overflow-y:auto;padding:20px 24px;display:none;}
+#view-galeria .vh{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.gal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
+.gal-item{background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden;position:relative;}
+.gal-item.inactive-gal{opacity:.5;}
+.gal-img{width:100%;height:140px;object-fit:cover;background:var(--bg3);}
+.gal-info{padding:9px 11px;}
+.gal-caption{font-size:.72rem;color:var(--text2);margin-bottom:6px;}
+.gal-order{font-size:.62rem;color:var(--text3);margin-bottom:6px;}
+.gal-acts{display:flex;gap:5px;}
+.gal-active-pill{position:absolute;top:6px;right:6px;font-size:.58rem;padding:2px 6px;border-radius:3px;text-transform:uppercase;}
+.gal-active-pill.on{background:rgba(34,197,94,.85);color:#000;}
+.gal-active-pill.off{background:rgba(239,68,68,.75);color:#fff;}
+
+/* ── VEHICLE ENHANCED ── */
+.btn-edit-vehicle{padding:5px 12px;background:transparent;border:1px solid var(--border2);border-radius:var(--radius);color:var(--text2);font-size:.72rem;cursor:pointer;transition:all .15s;margin-top:8px;}
+.btn-edit-vehicle:hover{border-color:var(--yellow);color:var(--yellow);}
+.color-preview{width:14px;height:14px;border-radius:50%;display:inline-block;margin-right:6px;vertical-align:middle;flex-shrink:0;}
+
 /* ── CONCIERGES VIEW ── */
 #view-concierges{flex:1;overflow-y:auto;padding:20px 24px;display:none;}
 #view-concierges .vh{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
@@ -244,6 +281,8 @@ tbody tr:hover td{background:rgba(255,255,255,.015);}
     <nav class="s-nav">
       <div class="nav-item active" onclick="showView('calendar')"><span class="ni">📅</span> Calendario</div>
       <div class="nav-item" onclick="showView('bookings')"><span class="ni">📋</span> Reservaciones</div>
+      <div class="nav-item" onclick="showView('tours')"><span class="ni">🗺️</span> Tours</div>
+      <div class="nav-item" onclick="showView('galeria')"><span class="ni">🖼️</span> Galería</div>
       <div class="nav-item" onclick="showView('vehicles')"><span class="ni">🚙</span> Vehículos</div>
       <div class="nav-item" onclick="showView('concierges')"><span class="ni">🤝</span> Concierges</div>
     </nav>
@@ -313,9 +352,30 @@ tbody tr:hover td{background:rgba(255,255,255,.015);}
       </table>
     </div>
 
+    <!-- TOURS -->
+    <div id="view-tours">
+      <div class="vh">
+        <h2>Tours / Expediciones</h2>
+        <button class="btn-new" onclick="openTourModal()">+ Agregar Tour</button>
+      </div>
+      <div class="tours-mgmt-grid" id="tours-mgmt-grid"></div>
+    </div>
+
+    <!-- GALERÍA -->
+    <div id="view-galeria">
+      <div class="vh">
+        <h2>Galería de Fotos</h2>
+        <button class="btn-new" onclick="openGaleriaModal()">+ Agregar Foto</button>
+      </div>
+      <div class="gal-grid" id="gal-grid"></div>
+    </div>
+
     <!-- VEHICLES -->
     <div id="view-vehicles">
-      <div class="vh"><h2>Vehículos</h2></div>
+      <div class="vh">
+        <h2>Vehículos</h2>
+        <button class="btn-new" onclick="openVehicleModal()">+ Agregar Vehículo</button>
+      </div>
       <div class="v-grid" id="v-grid"></div>
     </div>
 
@@ -479,6 +539,113 @@ tbody tr:hover td{background:rgba(255,255,255,.015);}
       <button class="btn-primary" style="width:auto;padding:9px 24px;" onclick="saveConcierge()">Guardar</button>
     </div>
     <input type="hidden" id="co-id">
+  </div>
+</div>
+
+<!-- TOUR MODAL -->
+<div class="overlay" id="modal-tour">
+  <div class="modal" style="width:560px;">
+    <div class="modal-hdr">
+      <h3 id="tour-modal-title">Nuevo Tour</h3>
+      <button class="close-btn" onclick="closeTourModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-2">
+        <div class="field"><label>Nombre (EN) *</label><input type="text" id="t-name" placeholder="Desert Intro 3H"></div>
+        <div class="field"><label>Duración (horas)</label><input type="number" id="t-hours" placeholder="3" min="0.5" max="24" step="0.5"></div>
+        <div class="field"><label>Badge / Etiqueta</label><input type="text" id="t-badge" placeholder="Más popular, Exclusivo…"></div>
+        <div class="field"><label>Orden visual</label><input type="number" id="t-sort" value="0" min="0"></div>
+        <div class="field" style="grid-column:1/-1"><label>Descripción Español</label><textarea id="t-desc-es" placeholder="Descripción en español del tour…" style="min-height:64px;"></textarea></div>
+        <div class="field" style="grid-column:1/-1"><label>Descripción English</label><textarea id="t-desc-en" placeholder="Tour description in English…" style="min-height:64px;"></textarea></div>
+        <div class="field" style="grid-column:1/-1"><label>URL de imagen</label><input type="url" id="t-img" placeholder="https://i.imgur.com/…"></div>
+      </div>
+      <div class="sdiv">Precios por vehículo (USD)</div>
+      <div class="form-2">
+        <div class="field"><label style="display:flex;align-items:center;gap:6px;"><span class="color-preview" style="background:#22c55e"></span>Trail</label><input type="number" id="t-price-trail" placeholder="0" step="0.01" min="0"></div>
+        <div class="field"><label style="display:flex;align-items:center;gap:6px;"><span class="color-preview" style="background:#818cf8"></span>Maverick R</label><input type="number" id="t-price-mav" placeholder="0" step="0.01" min="0"></div>
+        <div class="field"><label style="display:flex;align-items:center;gap:6px;"><span class="color-preview" style="background:#fb923c"></span>DS Max</label><input type="number" id="t-price-dsmax" placeholder="0" step="0.01" min="0"></div>
+        <div class="field"><label style="display:flex;align-items:center;gap:6px;"><span class="color-preview" style="background:#ef4444"></span>Especial / El Zorro</label><input type="number" id="t-price-special" placeholder="0" step="0.01" min="0"></div>
+      </div>
+      <div class="sdiv" style="margin-top:10px;">Estado</div>
+      <div class="field"><label>Visibilidad</label>
+        <select id="t-active">
+          <option value="true">Activo (visible a clientes)</option>
+          <option value="false">Inactivo (oculto)</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sec" onclick="closeTourModal()">Cancelar</button>
+      <button class="btn-primary" style="width:auto;padding:9px 24px;" onclick="saveTour()">Guardar Tour</button>
+    </div>
+    <input type="hidden" id="t-id">
+  </div>
+</div>
+
+<!-- GALERÍA MODAL -->
+<div class="overlay" id="modal-galeria">
+  <div class="modal" style="width:440px;">
+    <div class="modal-hdr">
+      <h3 id="gal-modal-title">Agregar Foto</h3>
+      <button class="close-btn" onclick="closeGaleriaModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field"><label>URL de imagen *</label><input type="url" id="g-url" placeholder="https://i.imgur.com/…" oninput="previewGalImg()"></div>
+      <img id="g-preview" src="" alt="preview" style="display:none;width:100%;height:180px;object-fit:cover;border-radius:6px;margin-bottom:12px;background:var(--bg3);">
+      <div class="form-2">
+        <div class="field"><label>Caption Español</label><input type="text" id="g-cap-es" placeholder="Descripción en español"></div>
+        <div class="field"><label>Caption English</label><input type="text" id="g-cap-en" placeholder="Description in English"></div>
+        <div class="field"><label>Orden visual</label><input type="number" id="g-sort" value="0" min="0"></div>
+        <div class="field"><label>Estado</label>
+          <select id="g-active">
+            <option value="true">Activo</option>
+            <option value="false">Inactivo</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sec" onclick="closeGaleriaModal()">Cancelar</button>
+      <button class="btn-primary" style="width:auto;padding:9px 22px;" onclick="saveGaleria()">Guardar</button>
+    </div>
+    <input type="hidden" id="g-id">
+  </div>
+</div>
+
+<!-- VEHICLE EDIT MODAL -->
+<div class="overlay" id="modal-vehicle">
+  <div class="modal" style="width:400px;">
+    <div class="modal-hdr">
+      <h3 id="vh-modal-title">Editar Vehículo</h3>
+      <button class="close-btn" onclick="closeVehicleModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-2">
+        <div class="field"><label>Nombre *</label><input type="text" id="vh-name" placeholder="Trail #1"></div>
+        <div class="field"><label>Tipo</label>
+          <select id="vh-type">
+            <option value="trail">Trail</option>
+            <option value="maverick_r">Maverick R</option>
+            <option value="ds_max">DS Max</option>
+            <option value="el_zorro">El Zorro 14</option>
+          </select>
+        </div>
+        <div class="field" style="grid-column:1/-1"><label>Descripción corta</label><input type="text" id="vh-desc" placeholder="Modelo, año, características…"></div>
+        <div class="field"><label>Color (hex)</label><input type="text" id="vh-color" placeholder="#22c55e" oninput="previewVhColor()"></div>
+        <div class="field"><label>Orden visual</label><input type="number" id="vh-sort" value="0" min="0"></div>
+        <div class="field" style="grid-column:1/-1">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+            <input type="checkbox" id="vh-guide" style="width:16px;height:16px;accent-color:var(--yellow);">
+            Puede ser vehículo guía
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sec" onclick="closeVehicleModal()">Cancelar</button>
+      <button class="btn-primary" style="width:auto;padding:9px 22px;" onclick="saveVehicle()">Guardar</button>
+    </div>
+    <input type="hidden" id="vh-id">
   </div>
 </div>
 
@@ -777,6 +944,7 @@ async function renderVehiclesView() {
         <div class="bl-tags" id="bltags-${v.id}">${blTags||'<span style="color:var(--text3);font-size:.72rem">Ninguna</span>'}</div>
         <button class="btn-add-bl" onclick="openBlackout('${v.id}','${v.name}')">+ Bloquear fecha</button>
       </div>
+      <button class="btn-edit-vehicle" onclick="openVehicleModal('${v.id}')">✏️ Editar vehículo</button>
     </div>`;
   }).join('');
 }
@@ -1128,15 +1296,19 @@ async function removeBlackout(id, dateStr) {
 function showView(name) {
   S.view = name;
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
-  const ni = ['calendar','bookings','vehicles','concierges'].indexOf(name);
+  const ni = ['calendar','bookings','tours','galeria','vehicles','concierges'].indexOf(name);
   if (ni>=0) document.querySelectorAll('.nav-item')[ni].classList.add('active');
   $('view-calendar').style.display = name==='calendar'?'flex':'none';
   $('view-bookings').style.display = name==='bookings'?'block':'none';
+  $('view-tours').style.display = name==='tours'?'block':'none';
+  $('view-galeria').style.display = name==='galeria'?'block':'none';
   $('view-vehicles').style.display = name==='vehicles'?'block':'none';
   $('view-concierges').style.display = name==='concierges'?'block':'none';
-  const titles = {calendar:'Calendario', bookings:'Reservaciones', vehicles:'Vehículos', concierges:'Concierges'};
+  const titles = {calendar:'Calendario', bookings:'Reservaciones', tours:'Tours', galeria:'Galería', vehicles:'Vehículos', concierges:'Concierges'};
   $('view-title').textContent = titles[name]||name;
   if (name==='bookings') loadAllBookings();
+  if (name==='tours') renderToursView();
+  if (name==='galeria') renderGaleriaView();
   if (name==='vehicles') renderVehiclesView();
   if (name==='concierges') renderConciergesView();
 }
@@ -1287,6 +1459,233 @@ async function copyQRLink() {
   catch(e) { prompt('Copia este link:', _qrCurrentUrl); }
 }
 
+// ── TOURS MANAGEMENT ──────────────────────────────
+async function renderToursView() {
+  const {data} = await sb.from('bc_tours').select('*').order('sort_order');
+  S.tours = data || [];
+  populateTourSelect();
+  const grid = $('tours-mgmt-grid');
+  if (!S.tours.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text3);padding:48px;font-size:.85rem;">No hay tours. Agrega el primero arriba.</div>';
+    return;
+  }
+  grid.innerHTML = S.tours.map(t => {
+    const img = t.image_url || 'https://i.imgur.com/xAjYxLd.jpeg';
+    const prices = [];
+    if (t.price_trail) prices.push(`<span class="tm-price-chip" style="border-color:rgba(34,197,94,.3);color:#22c55e">Trail $${Number(t.price_trail).toLocaleString()}</span>`);
+    if (t.price_maverick_r) prices.push(`<span class="tm-price-chip" style="border-color:rgba(129,140,248,.3);color:#818cf8">Mav. $${Number(t.price_maverick_r).toLocaleString()}</span>`);
+    if (t.price_ds_max) prices.push(`<span class="tm-price-chip" style="border-color:rgba(251,146,60,.3);color:#fb923c">DS $${Number(t.price_ds_max).toLocaleString()}</span>`);
+    if (t.price_special) prices.push(`<span class="tm-price-chip" style="border-color:rgba(239,68,68,.3);color:#ef4444">Esp. $${Number(t.price_special).toLocaleString()}</span>`);
+    return `<div class="tm-card ${t.is_active?'':'inactive-tour'}">
+      <span class="tm-active-badge ${t.is_active?'on':'off'}">${t.is_active?'Activo':'Inactivo'}</span>
+      <img class="tm-img" src="${img}" alt="${t.name}" loading="lazy" onerror="this.src='https://i.imgur.com/xAjYxLd.jpeg'">
+      <div class="tm-body">
+        <div class="tm-name">${t.name}</div>
+        <div class="tm-dur">${t.duration_hours?t.duration_hours+'h':''} ${t.badge?'· '+t.badge:''}</div>
+        <div class="tm-prices">${prices.join('')}</div>
+        <div class="tm-acts">
+          <button class="btn-xs edit" onclick="openTourModal('${t.id}')">✏️ Editar</button>
+          <button class="btn-xs" style="background:${t.is_active?'rgba(239,68,68,.1)':'rgba(34,197,94,.1)'};color:${t.is_active?'#ef4444':'#22c55e'}" onclick="toggleTourActive('${t.id}',${!t.is_active})">${t.is_active?'🔒 Ocultar':'👁 Mostrar'}</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openTourModal(id) {
+  ['t-name','t-badge','t-img','t-desc-es','t-desc-en','t-price-trail','t-price-mav','t-price-dsmax','t-price-special'].forEach(i=>{const el=$(i);if(el)el.value='';});
+  $('t-hours').value=''; $('t-sort').value='0'; $('t-active').value='true'; $('t-id').value='';
+  $('tour-modal-title').textContent = 'Nuevo Tour';
+  if (id) {
+    const t = S.tours.find(x=>x.id===id);
+    if (t) {
+      $('t-id').value = t.id;
+      $('tour-modal-title').textContent = 'Editar Tour';
+      $('t-name').value = t.name||'';
+      $('t-hours').value = t.duration_hours||'';
+      $('t-badge').value = t.badge||'';
+      $('t-sort').value = t.sort_order||0;
+      $('t-img').value = t.image_url||'';
+      $('t-desc-es').value = t.description_es||'';
+      $('t-desc-en').value = t.description_en||'';
+      $('t-price-trail').value = t.price_trail||'';
+      $('t-price-mav').value = t.price_maverick_r||'';
+      $('t-price-dsmax').value = t.price_ds_max||'';
+      $('t-price-special').value = t.price_special||'';
+      $('t-active').value = String(t.is_active);
+    }
+  }
+  $('modal-tour').classList.add('open');
+}
+function closeTourModal() { $('modal-tour').classList.remove('open'); }
+
+async function saveTour() {
+  const name = $('t-name').value.trim();
+  if (!name) { alert('El nombre del tour es requerido'); return; }
+  const payload = {
+    name,
+    duration_hours: parseFloat($('t-hours').value)||null,
+    badge: $('t-badge').value.trim()||null,
+    sort_order: parseInt($('t-sort').value)||0,
+    image_url: $('t-img').value.trim()||null,
+    description_es: $('t-desc-es').value.trim()||null,
+    description_en: $('t-desc-en').value.trim()||null,
+    price_trail: parseFloat($('t-price-trail').value)||null,
+    price_maverick_r: parseFloat($('t-price-mav').value)||null,
+    price_ds_max: parseFloat($('t-price-dsmax').value)||null,
+    price_special: parseFloat($('t-price-special').value)||null,
+    is_active: $('t-active').value === 'true'
+  };
+  const editId = $('t-id').value;
+  let err;
+  if (editId) { ({error:err} = await sb.from('bc_tours').update(payload).eq('id', editId)); }
+  else { ({error:err} = await sb.from('bc_tours').insert(payload)); }
+  if (err) { alert('Error: ' + err.message); return; }
+  closeTourModal();
+  renderToursView();
+}
+
+async function toggleTourActive(id, active) {
+  await sb.from('bc_tours').update({is_active: active}).eq('id', id);
+  renderToursView();
+}
+
+// ── GALERÍA MANAGEMENT ────────────────────────────
+async function renderGaleriaView() {
+  const {data} = await sb.from('bc_gallery').select('*').order('sort_order');
+  const grid = $('gal-grid');
+  if (!data || !data.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text3);padding:48px;font-size:.85rem;">No hay fotos en la galería. Agrega la primera arriba.</div>';
+    return;
+  }
+  grid.innerHTML = data.map(g => {
+    return `<div class="gal-item ${g.is_active?'':'inactive-gal'}">
+      <span class="gal-active-pill ${g.is_active?'on':'off'}">${g.is_active?'✓':'✕'}</span>
+      <img class="gal-img" src="${g.image_url}" alt="${g.caption_es||''}" loading="lazy" onerror="this.style.background='var(--bg3)'">
+      <div class="gal-info">
+        ${g.caption_es?`<div class="gal-caption">${g.caption_es}</div>`:''}
+        <div class="gal-order">Orden: ${g.sort_order||0}</div>
+        <div class="gal-acts">
+          <button class="btn-xs edit" onclick="openGaleriaModal('${g.id}')">✏️</button>
+          <button class="btn-xs" style="background:${g.is_active?'rgba(239,68,68,.1)':'rgba(34,197,94,.1)'};color:${g.is_active?'#ef4444':'#22c55e'}" onclick="toggleGaleriaActive('${g.id}',${!g.is_active})">${g.is_active?'Ocultar':'Mostrar'}</button>
+          <button class="btn-xs del" onclick="deleteGaleriaItem('${g.id}')">🗑</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openGaleriaModal(id) {
+  ['g-url','g-cap-es','g-cap-en'].forEach(i=>{const el=$(i);if(el)el.value='';});
+  $('g-sort').value='0'; $('g-active').value='true'; $('g-id').value='';
+  $('g-preview').style.display='none'; $('g-preview').src='';
+  $('gal-modal-title').textContent = 'Agregar Foto';
+  if (id) {
+    // Load from existing rendered data
+    const btn = document.querySelector(`[onclick*="openGaleriaModal('${id}')"]`);
+    const card = btn?.closest('.gal-item');
+    // Re-fetch from Supabase for accurate edit
+    sb.from('bc_gallery').select('*').eq('id', id).single().then(({data:g}) => {
+      if (!g) return;
+      $('g-id').value = g.id;
+      $('gal-modal-title').textContent = 'Editar Foto';
+      $('g-url').value = g.image_url||'';
+      $('g-cap-es').value = g.caption_es||'';
+      $('g-cap-en').value = g.caption_en||'';
+      $('g-sort').value = g.sort_order||0;
+      $('g-active').value = String(g.is_active);
+      previewGalImg();
+    });
+  }
+  $('modal-galeria').classList.add('open');
+}
+function closeGaleriaModal() { $('modal-galeria').classList.remove('open'); }
+
+function previewGalImg() {
+  const url = $('g-url').value.trim();
+  const prev = $('g-preview');
+  if (url) { prev.src = url; prev.style.display = 'block'; }
+  else prev.style.display = 'none';
+}
+
+async function saveGaleria() {
+  const url = $('g-url').value.trim();
+  if (!url) { alert('La URL de imagen es requerida'); return; }
+  const payload = {
+    image_url: url,
+    caption_es: $('g-cap-es').value.trim()||null,
+    caption_en: $('g-cap-en').value.trim()||null,
+    sort_order: parseInt($('g-sort').value)||0,
+    is_active: $('g-active').value === 'true'
+  };
+  const editId = $('g-id').value;
+  let err;
+  if (editId) { ({error:err} = await sb.from('bc_gallery').update(payload).eq('id', editId)); }
+  else { ({error:err} = await sb.from('bc_gallery').insert(payload)); }
+  if (err) { alert('Error: ' + err.message); return; }
+  closeGaleriaModal();
+  renderGaleriaView();
+}
+
+async function toggleGaleriaActive(id, active) {
+  await sb.from('bc_gallery').update({is_active: active}).eq('id', id);
+  renderGaleriaView();
+}
+
+async function deleteGaleriaItem(id) {
+  if (!confirm('¿Eliminar esta foto de la galería?')) return;
+  await sb.from('bc_gallery').delete().eq('id', id);
+  renderGaleriaView();
+}
+
+// ── VEHICLE EDIT MODAL ────────────────────────────
+function openVehicleModal(id) {
+  ['vh-name','vh-desc','vh-color'].forEach(i=>{const el=$(i);if(el)el.value='';});
+  $('vh-sort').value='0'; $('vh-guide').checked=false; $('vh-id').value='';
+  $('vh-type').value='trail';
+  $('vh-modal-title').textContent = id ? 'Editar Vehículo' : 'Nuevo Vehículo';
+  if (id) {
+    const v = S.vehicles.find(x=>x.id===id);
+    if (v) {
+      $('vh-id').value = v.id;
+      $('vh-name').value = v.name||'';
+      $('vh-type').value = v.type||'trail';
+      $('vh-desc').value = v.description||'';
+      $('vh-color').value = v.color||'';
+      $('vh-sort').value = v.sort_order||0;
+      $('vh-guide').checked = !!v.can_be_guide;
+    }
+  }
+  $('modal-vehicle').classList.add('open');
+}
+function closeVehicleModal() { $('modal-vehicle').classList.remove('open'); }
+
+function previewVhColor() {
+  // No visual preview needed — the hex is stored as-is
+}
+
+async function saveVehicle() {
+  const name = $('vh-name').value.trim();
+  if (!name) { alert('El nombre es requerido'); return; }
+  const payload = {
+    name,
+    type: $('vh-type').value,
+    description: $('vh-desc').value.trim()||null,
+    color: $('vh-color').value.trim()||null,
+    sort_order: parseInt($('vh-sort').value)||0,
+    can_be_guide: $('vh-guide').checked
+  };
+  const editId = $('vh-id').value;
+  let err;
+  if (editId) { ({error:err} = await sb.from('bc_vehicles').update(payload).eq('id', editId)); }
+  else { ({error:err} = await sb.from('bc_vehicles').insert({...payload, status:'active'})); }
+  if (err) { alert('Error: ' + err.message); return; }
+  closeVehicleModal();
+  const [vr] = await Promise.all([sb.from('bc_vehicles').select('*').order('sort_order')]);
+  S.vehicles = vr.data || [];
+  renderVehiclesView();
+}
+
 // ── UTILS ─────────────────────────────────────────
 function $(id){ return document.getElementById(id); }
 function ymd(d){ return d.toISOString().split('T')[0]; }
@@ -1296,6 +1695,7 @@ function fmtDate(s){ if(!s)return''; const [y,m,d]=s.split('-'); return `${d} ${
 document.addEventListener('keydown', e => {
   if (e.key==='Escape') {
     closeModal(); closeBlackout(); closeConciergeModal();
+    closeTourModal(); closeGaleriaModal(); closeVehicleModal();
     $('modal-qr').classList.remove('open');
   }
 });

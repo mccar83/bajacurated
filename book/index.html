@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Baja Curated · Reserva tu Expedición</title>
-<meta name="description" content="Reserva tu tour de aventura en Los Cabos con Baja Curated Expeditions. Off-road, Can-Am, Baja California Sur.">
+<meta name="description" content="Book your Can-Am off-road adventure in Los Cabos. Off-road, Can-Am, Baja California Sur.">
 <meta name="robots" content="noindex">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
@@ -25,14 +25,15 @@ a{color:inherit;text-decoration:none;}
 
 /* ── NAV ── */
 nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to bottom,rgba(8,8,8,.95),transparent);backdrop-filter:blur(2px);}
-.nav-brand .brand{font-size:.75rem;letter-spacing:5px;color:var(--yellow);font-weight:800;text-transform:uppercase;}
-.nav-brand .sub{font-size:.52rem;letter-spacing:3px;color:rgba(255,255,255,.4);margin-top:2px;text-transform:uppercase;}
+.nav-right{display:flex;align-items:center;gap:10px;}
 .btn-nav{background:var(--yellow);color:#000;padding:9px 22px;border-radius:6px;font-size:.75rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;transition:background .2s;white-space:nowrap;}
 .btn-nav:hover{background:var(--yellow2);}
+.btn-lang{background:transparent;border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.7);padding:6px 14px;border-radius:6px;font-size:.7rem;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .2s;}
+.btn-lang:hover{border-color:var(--yellow);color:var(--yellow);}
 
 /* ── HERO ── */
 .hero{height:100svh;min-height:520px;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;}
-.hero-bg{position:absolute;inset:0;background-image:url('https://i.imgur.com/xAjYxLd.jpeg');background-size:cover;background-position:center;transform:scale(1.04);transition:transform 8s ease;}
+.hero-bg{position:absolute;inset:0;background-size:cover;background-position:center;transform:scale(1.04);transition:transform 8s ease;}
 .hero-bg.loaded{transform:scale(1);}
 .hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(8,8,8,.4) 0%,rgba(8,8,8,.15) 40%,rgba(8,8,8,.7) 100%);}
 .hero-content{position:relative;z-index:1;text-align:center;padding:0 24px;max-width:640px;}
@@ -56,9 +57,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:64px;d
 .tours-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;}
 .tour-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:transform .25s,border-color .25s,box-shadow .25s;position:relative;}
 .tour-card:hover{transform:translateY(-4px);border-color:var(--border2);box-shadow:0 12px 40px rgba(0,0,0,.5);}
+.tc-img-wrap{overflow:hidden;position:relative;}
 .tour-card-img{width:100%;height:210px;object-fit:cover;background:var(--bg3);transition:transform .4s;}
 .tour-card:hover .tour-card-img{transform:scale(1.04);}
-.tc-img-wrap{overflow:hidden;position:relative;}
 .tc-badges{position:absolute;top:12px;left:12px;display:flex;gap:6px;flex-wrap:wrap;}
 .tc-badge{font-size:.58rem;font-weight:800;letter-spacing:1.5px;padding:3px 9px;border-radius:4px;text-transform:uppercase;}
 .tc-badge.dur{background:rgba(8,8,8,.85);color:var(--yellow);border:1px solid rgba(245,197,24,.3);}
@@ -79,13 +80,11 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:64px;d
 .booking-section{background:var(--bg);padding:80px 24px 100px;}
 .booking-wrap{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start;max-width:960px;margin:0 auto;}
 @media(max-width:760px){.booking-wrap{grid-template-columns:1fr;gap:36px;}}
-.booking-info{}
 .booking-info h2{font-size:clamp(1.5rem,4vw,2.2rem);font-weight:800;letter-spacing:-.3px;margin-bottom:14px;}
 .booking-info p{color:var(--text2);font-size:.88rem;line-height:1.7;margin-bottom:24px;}
 .info-items{display:flex;flex-direction:column;gap:12px;}
 .info-item{display:flex;align-items:flex-start;gap:12px;font-size:.82rem;color:var(--text2);}
 .info-item .ii{font-size:1.1rem;flex-shrink:0;margin-top:1px;}
-
 .booking-form-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:28px;}
 .bf-title{font-size:.75rem;letter-spacing:3px;color:var(--yellow);text-transform:uppercase;margin-bottom:22px;font-weight:700;}
 .field{margin-bottom:16px;}
@@ -99,7 +98,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:64px;d
 .sdiv{font-size:.58rem;letter-spacing:2.5px;color:var(--text3);text-transform:uppercase;margin:20px 0 12px;padding-bottom:5px;border-bottom:1px solid var(--border);}
 .vehicle-list{display:flex;flex-direction:column;gap:7px;}
 .vehicle-opt{display:flex;align-items:center;gap:11px;padding:10px 13px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;cursor:pointer;transition:border-color .2s;}
-.vehicle-opt:hover{border-color:var(--border2);}
 .vehicle-opt input[type=radio],.vehicle-opt input[type=checkbox]{width:16px;height:16px;accent-color:var(--yellow);flex-shrink:0;cursor:pointer;}
 .vo-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
 .vo-info{flex:1;}
@@ -118,6 +116,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:64px;d
 .success-screen{display:none;text-align:center;padding:20px 0;}
 .success-icon{font-size:3rem;margin-bottom:16px;}
 .success-title{font-size:1.2rem;font-weight:800;color:var(--yellow);margin-bottom:8px;}
+.success-ref-lbl{font-size:.65rem;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin:6px 0 2px;}
 .success-ref{font-family:monospace;font-size:1.4rem;color:var(--text);font-weight:800;margin:14px 0;letter-spacing:2px;}
 .success-sub{font-size:.82rem;color:var(--text2);line-height:1.7;max-width:300px;margin:0 auto;}
 .btn-reset{margin-top:20px;padding:10px 24px;background:transparent;border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-size:.78rem;cursor:pointer;transition:all .2s;}
@@ -125,14 +124,12 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:64px;d
 
 /* ── FOOTER ── */
 footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 24px;text-align:center;}
-.footer-brand{font-size:.75rem;letter-spacing:5px;color:var(--yellow);font-weight:800;text-transform:uppercase;margin-bottom:8px;}
 .footer-sub{font-size:.7rem;color:var(--text3);letter-spacing:2px;margin-bottom:16px;text-transform:uppercase;}
 .footer-links{display:flex;justify-content:center;gap:24px;font-size:.75rem;color:var(--text3);}
 .footer-links a{transition:color .2s;}.footer-links a:hover{color:var(--yellow);}
 
 /* ── LOADING ── */
 #loading-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;z-index:9999;}
-.loading-brand{font-size:.72rem;letter-spacing:5px;color:var(--yellow);font-weight:800;text-transform:uppercase;}
 .spinner{width:28px;height:28px;border:2px solid var(--border2);border-top-color:var(--yellow);border-radius:50%;animation:spin .7s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
 #err-screen{position:fixed;inset:0;background:var(--bg);display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;text-align:center;padding:24px;z-index:9999;}
@@ -140,7 +137,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 24p
 .err-title{font-size:1rem;font-weight:700;}
 .err-sub{font-size:.8rem;color:var(--text3);max-width:280px;line-height:1.6;}
 
-/* ── MOBILE TWEAKS ── */
+/* ── MOBILE ── */
 @media(max-width:600px){
   .section{padding:60px 16px;}
   .booking-section{padding:60px 16px 80px;}
@@ -159,7 +156,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 24p
 
 <div id="err-screen">
   <div class="err-icon">🔒</div>
-  <div class="err-title">Enlace no válido</div>
+  <div class="err-title" id="err-title">Enlace no válido</div>
   <div class="err-sub" id="err-msg">Este enlace ya no está disponible. Contacta a tu concierge para obtener uno nuevo.</div>
 </div>
 
@@ -167,7 +164,10 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 24p
   <div class="nav-brand">
     <img src="https://bajacurated.com/baja-curated-main.svg" alt="Baja Curated" style="height:38px;width:auto;">
   </div>
-  <a href="#reservar" class="btn-nav">Reservar ahora</a>
+  <div class="nav-right">
+    <button class="btn-lang" id="btn-lang" onclick="toggleLang()">EN</button>
+    <a href="#reservar" class="btn-nav" id="nav-cta" data-es="Reservar ahora" data-en="Book Now">Reservar ahora</a>
+  </div>
 </nav>
 
 <!-- HERO -->
@@ -176,13 +176,13 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 24p
   <div class="hero-overlay"></div>
   <div class="hero-content">
     <p class="hero-pre">Can-Am · Off-Road · Baja California Sur</p>
-    <h1 class="hero-h1">Una aventura<br>que no olvidarás</h1>
+    <h1 class="hero-h1" id="hero-h1" data-es="Una aventura<br>que no olvidarás" data-en="An adventure<br>you'll never forget">Una aventura<br>que no olvidarás</h1>
     <p class="hero-sub">Los Cabos · México</p>
-    <a href="#tours" class="btn-hero">Explorar Tours</a>
+    <a href="#tours" class="btn-hero" id="hero-cta" data-es="Explorar Tours" data-en="Explore Tours">Explorar Tours</a>
   </div>
   <div class="scroll-hint">
     <div class="scroll-arrow"></div>
-    <span>Descubre más</span>
+    <span id="scroll-hint-txt" data-es="Descubre más" data-en="Discover more">Descubre más</span>
   </div>
 </section>
 
@@ -190,13 +190,11 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 24p
 <section class="section" id="tours">
   <div class="container">
     <div class="section-hdr">
-      <div class="pre">Nuestras Expediciones</div>
-      <h2>Elige tu aventura</h2>
-      <p>Desde 3 hasta 16 horas de adrenalina pura en los paisajes más espectaculares de Baja California.</p>
+      <div class="pre" id="sect-pre" data-es="Nuestras Expediciones" data-en="Our Expeditions">Nuestras Expediciones</div>
+      <h2 id="sect-h2" data-es="Elige tu aventura" data-en="Choose Your Adventure">Elige tu aventura</h2>
+      <p id="sect-p" data-es="Desde 3 hasta 16 horas de adrenalina pura en los paisajes más espectaculares de Baja California." data-en="From 3 to 16 hours of pure adrenaline through Baja California's most spectacular landscapes.">Desde 3 hasta 16 horas de adrenalina pura en los paisajes más espectaculares de Baja California.</p>
     </div>
-    <div class="tours-grid" id="tours-grid">
-      <!-- JS renders here -->
-    </div>
+    <div class="tours-grid" id="tours-grid"></div>
   </div>
 </section>
 
@@ -206,72 +204,89 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 24p
 <section class="booking-section" id="reservar">
   <div class="booking-wrap">
     <div class="booking-info">
-      <div style="font-size:.6rem;letter-spacing:4px;color:var(--yellow);text-transform:uppercase;margin-bottom:12px;font-weight:700;">Reservaciones</div>
-      <h2>Solicita tu reserva</h2>
-      <p>Completa el formulario y recibirás confirmación en menos de 24 horas. El pago se coordina directamente con nuestro equipo.</p>
+      <div style="font-size:.6rem;letter-spacing:4px;color:var(--yellow);text-transform:uppercase;margin-bottom:12px;font-weight:700;" id="book-pre" data-es="Reservaciones" data-en="Reservations">Reservaciones</div>
+      <h2 id="book-h2" data-es="Solicita tu reserva" data-en="Request Your Booking">Solicita tu reserva</h2>
+      <p id="book-p" data-es="Completa el formulario y recibirás confirmación en menos de 24 horas. El pago se coordina directamente con nuestro equipo." data-en="Fill out the form and receive confirmation within 24 hours. Payment is coordinated directly with our team.">Completa el formulario y recibirás confirmación en menos de 24 horas. El pago se coordina directamente con nuestro equipo.</p>
       <div class="info-items">
-        <div class="info-item"><span class="ii">✅</span><span>Confirmación en menos de 24 horas</span></div>
-        <div class="info-item"><span class="ii">🏁</span><span>Guías expertos en cada expedición</span></div>
-        <div class="info-item"><span class="ii">🚙</span><span>Vehículos Can-Am BRP oficiales</span></div>
-        <div class="info-item"><span class="ii">📍</span><span>Salida desde Los Cabos · Pick-up disponible</span></div>
-        <div class="info-item"><span class="ii">💬</span><span>Instrucciones y detalles por WhatsApp</span></div>
+        <div class="info-item"><span class="ii">✅</span><span id="ii1" data-es="Confirmación en menos de 24 horas" data-en="Confirmation within 24 hours">Confirmación en menos de 24 horas</span></div>
+        <div class="info-item"><span class="ii">🏁</span><span id="ii2" data-es="Guías expertos en cada expedición" data-en="Expert guides on every expedition">Guías expertos en cada expedición</span></div>
+        <div class="info-item"><span class="ii">🚙</span><span id="ii3" data-es="Vehículos Can-Am BRP oficiales" data-en="Official Can-Am BRP vehicles">Vehículos Can-Am BRP oficiales</span></div>
+        <div class="info-item"><span class="ii">📍</span><span id="ii4" data-es="Salida desde Los Cabos · Pick-up disponible" data-en="Depart from Los Cabos · Hotel pickup available">Salida desde Los Cabos · Pick-up disponible</span></div>
+        <div class="info-item"><span class="ii">💬</span><span id="ii5" data-es="Instrucciones y detalles por WhatsApp" data-en="Instructions and details via WhatsApp">Instrucciones y detalles por WhatsApp</span></div>
       </div>
     </div>
 
     <div class="booking-form-card">
       <div id="form-wrap">
-        <div class="bf-title">Datos de la Reserva</div>
+        <div class="bf-title" id="form-title" data-es="Datos de la Reserva" data-en="Booking Details">Datos de la Reserva</div>
 
-        <div class="sdiv">Tour y fecha</div>
+        <div class="sdiv" id="sdiv-tour" data-es="Tour y fecha" data-en="Tour &amp; Date">Tour y fecha</div>
         <div class="field">
-          <label>Tour *</label>
-          <select id="f-tour" onchange="onTourChange()"><option value="">Selecciona un tour…</option></select>
+          <label id="lbl-tour" data-es="Tour *" data-en="Tour *">Tour *</label>
+          <select id="f-tour" onchange="onTourChange()">
+            <option value="" id="opt-tour-ph">Selecciona un tour…</option>
+          </select>
         </div>
         <div class="form-row">
           <div class="field">
-            <label>Fecha *</label>
+            <label id="lbl-date" data-es="Fecha *" data-en="Date *">Fecha *</label>
             <input type="date" id="f-date">
           </div>
           <div class="field">
-            <label>Hora de salida *</label>
+            <label id="lbl-time" data-es="Hora de salida *" data-en="Departure time *">Hora de salida *</label>
             <input type="time" id="f-time" value="08:00" onchange="updateEndTime()">
           </div>
         </div>
         <div class="time-hint" id="time-hint"></div>
 
-        <div class="sdiv">Vehículo *</div>
+        <div class="sdiv" id="sdiv-vehicle" data-es="Vehículo *" data-en="Vehicle *">Vehículo *</div>
         <div class="vehicle-list" id="vehicle-list">
-          <div style="font-size:.8rem;color:var(--text3);padding:10px 0;">Selecciona un tour para ver los vehículos disponibles.</div>
+          <div id="vehicle-ph" style="font-size:.8rem;color:var(--text3);padding:10px 0;" data-es="Selecciona un tour para ver los vehículos disponibles." data-en="Select a tour to see available vehicles.">Selecciona un tour para ver los vehículos disponibles.</div>
         </div>
         <div class="vehicle-hint" id="vehicle-hint"></div>
 
-        <div class="sdiv">Tus datos</div>
-        <div class="field"><label>Nombre completo *</label><input type="text" id="f-name" placeholder="Tu nombre completo"></div>
+        <div class="sdiv" id="sdiv-data" data-es="Tus datos" data-en="Your Info">Tus datos</div>
+        <div class="field">
+          <label id="lbl-name" data-es="Nombre completo *" data-en="Full name *">Nombre completo *</label>
+          <input type="text" id="f-name">
+        </div>
         <div class="form-row">
-          <div class="field"><label>Teléfono / WhatsApp *</label><input type="text" id="f-phone" placeholder="+1 (555)…"></div>
-          <div class="field"><label>Email</label><input type="email" id="f-email" placeholder="tu@email.com"></div>
+          <div class="field">
+            <label id="lbl-phone" data-es="Teléfono / WhatsApp *" data-en="Phone / WhatsApp *">Teléfono / WhatsApp *</label>
+            <input type="text" id="f-phone" placeholder="+1 (555)…">
+          </div>
+          <div class="field">
+            <label id="lbl-email" data-es="Email" data-en="Email">Email</label>
+            <input type="email" id="f-email">
+          </div>
         </div>
         <div class="field">
-          <label>Número de personas</label>
+          <label id="lbl-guests" data-es="Número de personas" data-en="Number of guests">Número de personas</label>
           <select id="f-guests">
-            <option value="1">1 persona</option><option value="2">2 personas</option>
-            <option value="3">3 personas</option><option value="4">4 personas</option>
-            <option value="5">5 personas</option><option value="6">6+ personas</option>
+            <option value="1" data-es="1 persona" data-en="1 person">1 persona</option>
+            <option value="2" data-es="2 personas" data-en="2 persons">2 personas</option>
+            <option value="3" data-es="3 personas" data-en="3 persons">3 personas</option>
+            <option value="4" data-es="4 personas" data-en="4 persons">4 personas</option>
+            <option value="5" data-es="5 personas" data-en="5 persons">5 personas</option>
+            <option value="6" data-es="6+ personas" data-en="6+ persons">6+ personas</option>
           </select>
         </div>
-        <div class="field"><label>Notas o solicitudes especiales</label><textarea id="f-notes" placeholder="Hotel o punto de encuentro, alergias, preferencias, etc."></textarea></div>
+        <div class="field">
+          <label id="lbl-notes" data-es="Notas o solicitudes especiales" data-en="Notes or special requests">Notas o solicitudes especiales</label>
+          <textarea id="f-notes"></textarea>
+        </div>
 
-        <button class="btn-submit" id="btn-submit" onclick="submitBooking()">Enviar Solicitud</button>
-        <p class="form-note">Al enviar, nuestro equipo revisará tu solicitud y te contactará para confirmar disponibilidad y coordinar el pago.</p>
+        <button class="btn-submit" id="btn-submit" onclick="submitBooking()" data-es="Enviar Solicitud" data-en="Send Request">Enviar Solicitud</button>
+        <p class="form-note" id="form-note" data-es="Al enviar, nuestro equipo revisará tu solicitud y te contactará para confirmar disponibilidad y coordinar el pago." data-en="Once sent, our team will review your request and contact you to confirm availability and arrange payment.">Al enviar, nuestro equipo revisará tu solicitud y te contactará para confirmar disponibilidad y coordinar el pago.</p>
       </div>
 
       <div class="success-screen" id="success-screen">
         <div class="success-icon">🏁</div>
-        <div class="success-title">¡Solicitud recibida!</div>
-        <div style="font-size:.65rem;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin:6px 0 2px;">Número de referencia</div>
+        <div class="success-title" id="success-title" data-es="¡Solicitud recibida!" data-en="Request received!">¡Solicitud recibida!</div>
+        <div class="success-ref-lbl" id="success-ref-lbl" data-es="Número de referencia" data-en="Reference number">Número de referencia</div>
         <div class="success-ref" id="success-ref">—</div>
-        <div class="success-sub">Nuestro equipo revisará tu solicitud y te contactará en menos de 24 horas para confirmar la reserva y coordinar los detalles.</div>
-        <button class="btn-reset" onclick="resetForm()">Hacer otra solicitud</button>
+        <div class="success-sub" id="success-sub" data-es="Nuestro equipo revisará tu solicitud y te contactará en menos de 24 horas para confirmar la reserva y coordinar los detalles." data-en="Our team will review your request and contact you within 24 hours to confirm the booking and coordinate the details.">Nuestro equipo revisará tu solicitud y te contactará en menos de 24 horas para confirmar la reserva y coordinar los detalles.</div>
+        <button class="btn-reset" id="btn-reset" onclick="resetForm()" data-es="Hacer otra solicitud" data-en="Make another request">Hacer otra solicitud</button>
       </div>
     </div>
   </div>
@@ -279,7 +294,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 24p
 
 <footer>
   <img src="https://bajacurated.com/baja-curated-main.svg" alt="Baja Curated" style="height:40px;width:auto;margin:0 auto 8px;">
-  <div class="footer-sub">Off-Road Expeditions · Los Cabos, BCS, México</div>
+  <div class="footer-sub" id="footer-sub" data-es="Off-Road Expeditions · Los Cabos, BCS, México" data-en="Off-Road Expeditions · Los Cabos, BCS, Mexico">Off-Road Expeditions · Los Cabos, BCS, México</div>
   <div class="footer-links">
     <a href="https://bajacurated.com" target="_blank">bajacurated.com</a>
     <a href="https://wa.me/526241234567" target="_blank">WhatsApp</a>
@@ -292,41 +307,79 @@ const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 const sb = window.supabase.createClient(SB_URL, SB_KEY);
 
 const VH_COLOR = {trail:'#22c55e', maverick_r:'#818cf8', ds_max:'#fb923c', el_zorro:'#ef4444'};
-const VH_LABEL = {trail:'Trail', maverick_r:'Maverick R', ds_max:'DS Max', el_zorro:'El Zorro 14'};
-const VH_DESC  = {
-  trail:      'El más accesible · Ideal para principiantes',
-  maverick_r: 'Alto desempeño · Experiencia de carreras',
-  ds_max:     'Hasta 4 pasajeros · Máxima comodidad',
-  el_zorro:   'Buggy de carreras · Solo tour Zorro 14'
+const VH_DESCS = {
+  es: { trail:'El más accesible · Ideal para principiantes', maverick_r:'Alto desempeño · Experiencia de carreras', ds_max:'Hasta 4 pasajeros · Máxima comodidad', el_zorro:'Buggy de carreras · Solo tour Zorro 14' },
+  en: { trail:'Most accessible · Ideal for beginners', maverick_r:'High performance · Racing experience', ds_max:'Up to 4 passengers · Maximum comfort', el_zorro:'Race buggy · El Zorro 14 tour only' }
 };
 const MONTHS_ES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
+// Default fallback images per tour name
 const TOUR_IMGS = {
-  'Desert Intro 3H':       'https://i.imgur.com/1uCKOwh.jpeg',
-  'Explorer 6H':           'https://i.imgur.com/OYTI5MB.jpeg',
-  'Cabo Pulmo Expedition': 'https://i.imgur.com/1IA8gZq.jpeg',
-  'Challenger 10H':        'https://i.imgur.com/6PQoPnn.jpeg',
-  'Extreme 16H':           'https://i.imgur.com/k3eUmx8.jpeg',
-  'El Zorro 14':           'https://i.imgur.com/v7KZ8Pw.jpeg'
-};
-const TOUR_DESCS = {
-  'Desert Intro 3H':       'Tu primer contacto con el desierto de Baja. Rutas perfectas para iniciarte en el off-road con paisajes increíbles.',
-  'Explorer 6H':           'Media jornada explorando los mejores senderos de Los Cabos. Ideal para quienes quieren ir más allá del resort.',
-  'Cabo Pulmo Expedition': 'Expedición completa hasta el Parque Nacional Cabo Pulmo, Patrimonio de la Humanidad UNESCO. Una experiencia única.',
-  'Challenger 10H':        'Un día completo de aventura para quienes buscan ir más lejos. Rutas desafiantes y vistas que no existen en ningún tour.',
-  'Extreme 16H':           'La expedición definitiva de Baja California. Solo para los más aventureros. Un día que recordarás toda la vida.',
-  'El Zorro 14':           'Sube al buggy de carreras más exclusivo de Los Cabos. Una experiencia de adrenalina pura solo disponible en este tour.'
+  'Desert Intro 3H':'https://i.imgur.com/1uCKOwh.jpeg',
+  'Explorer 6H':'https://i.imgur.com/OYTI5MB.jpeg',
+  'Cabo Pulmo Expedition':'https://i.imgur.com/1IA8gZq.jpeg',
+  'Challenger 10H':'https://i.imgur.com/6PQoPnn.jpeg',
+  'Extreme 16H':'https://i.imgur.com/k3eUmx8.jpeg',
+  'El Zorro 14':'https://i.imgur.com/v7KZ8Pw.jpeg'
 };
 
-const S = {
-  token: null,
-  concierge: null,
-  tours: [],
-  vehicles: []
-};
+let lang = localStorage.getItem('bc_book_lang') || 'es';
+const S = { token: null, concierge: null, tours: [], vehicles: [] };
+
+// ── BILINGUAL ─────────────────────────────────────
+function toggleLang() {
+  lang = lang === 'es' ? 'en' : 'es';
+  localStorage.setItem('bc_book_lang', lang);
+  applyLang();
+}
+
+function applyLang() {
+  document.getElementById('btn-lang').textContent = lang === 'es' ? 'EN' : 'ES';
+  document.documentElement.lang = lang;
+
+  // Static data-es / data-en elements (innerHTML)
+  document.querySelectorAll('[data-es]').forEach(el => {
+    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT') return;
+    const val = el.getAttribute('data-' + lang);
+    if (val !== null) el.innerHTML = val;
+  });
+
+  // Select <option> elements
+  document.querySelectorAll('option[data-es]').forEach(opt => {
+    const val = opt.getAttribute('data-' + lang);
+    if (val !== null) opt.textContent = val;
+  });
+
+  // Placeholders
+  const phs = { 'f-name': {es:'Tu nombre completo', en:'Your full name'}, 'f-email': {es:'tu@email.com', en:'you@email.com'}, 'f-notes': {es:'Hotel o punto de encuentro, alergias, preferencias, etc.', en:'Hotel or meeting point, allergies, preferences, etc.'} };
+  Object.entries(phs).forEach(([id, t]) => { const el = document.getElementById(id); if (el) el.placeholder = t[lang]; });
+  document.getElementById('opt-tour-ph').textContent = lang === 'es' ? 'Selecciona un tour…' : 'Select a tour…';
+
+  // Re-render dynamic content if data is loaded
+  if (S.tours.length) {
+    renderTourCards();
+    populateTourSelect();
+  }
+  // Re-render vehicle list if tour is selected
+  const tour = S.tours.find(t => t.id === document.getElementById('f-tour').value);
+  if (tour) renderVehicleList(tour);
+  else {
+    const ph = document.getElementById('vehicle-ph');
+    if (ph) ph.textContent = lang === 'es' ? 'Selecciona un tour para ver los vehículos disponibles.' : 'Select a tour to see available vehicles.';
+  }
+  // Update end time hint
+  if (document.getElementById('f-tour').value) updateEndTime();
+  // Update vehicle hint
+  const hint = document.getElementById('vehicle-hint');
+  if (hint.classList.contains('show') && hint.dataset.hintType === 'multi') {
+    hint.textContent = lang === 'es' ? '💡 Puedes seleccionar más de un vehículo si viajan en grupo.' : '💡 You can select more than one vehicle if traveling as a group.';
+  }
+}
 
 // ── INIT ──────────────────────────────────────────
 async function init() {
+  applyLang();
+
   const params = new URLSearchParams(window.location.search);
   const token = params.get('c');
 
@@ -336,29 +389,34 @@ async function init() {
   img.onload = () => { heroBg.style.backgroundImage = "url('https://i.imgur.com/xAjYxLd.jpeg')"; heroBg.classList.add('loaded'); };
   img.src = 'https://i.imgur.com/xAjYxLd.jpeg';
 
-  if (!token) { showErr('Enlace inválido. Solicita un nuevo link a tu concierge.'); return; }
+  if (!token) {
+    showErr(lang === 'es' ? 'Enlace inválido. Solicita un nuevo link a tu concierge.' : 'Invalid link. Ask your concierge for a new one.');
+    return;
+  }
 
   try {
     const {data, error} = await sb.rpc('get_concierge_by_token', {p_token: token});
-    if (error || !data || !data.length) { showErr('Este enlace ya no es válido. Solicita uno nuevo a tu concierge.'); return; }
+    if (error || !data || !data.length) {
+      showErr(lang === 'es' ? 'Este enlace ya no es válido. Solicita uno nuevo a tu concierge.' : 'This link is no longer valid. Request a new one from your concierge.');
+      return;
+    }
     S.token = token;
     S.concierge = data[0];
     await loadData();
     hideLoading();
   } catch(e) {
-    showErr('Error de conexión. Intenta de nuevo más tarde.');
+    showErr(lang === 'es' ? 'Error de conexión. Intenta de nuevo más tarde.' : 'Connection error. Please try again later.');
   }
 }
 
 function showErr(msg) {
   document.getElementById('loading-screen').style.display = 'none';
-  const err = document.getElementById('err-screen');
-  err.style.display = 'flex';
+  document.getElementById('err-screen').style.display = 'flex';
   document.getElementById('err-msg').textContent = msg;
+  document.getElementById('err-title').textContent = lang === 'es' ? 'Enlace no válido' : 'Invalid Link';
 }
 function hideLoading() {
   document.getElementById('loading-screen').style.display = 'none';
-  document.body.style.overflow = '';
 }
 
 async function loadData() {
@@ -368,7 +426,6 @@ async function loadData() {
   ]);
   S.tours = tr.data || [];
   S.vehicles = vr.data || [];
-
   renderTourCards();
   populateTourSelect();
   setMinDate();
@@ -378,27 +435,27 @@ async function loadData() {
 function renderTourCards() {
   const grid = document.getElementById('tours-grid');
   grid.innerHTML = S.tours.map(t => {
-    const img = TOUR_IMGS[t.name] || 'https://i.imgur.com/xAjYxLd.jpeg';
-    const desc = TOUR_DESCS[t.name] || '';
-    const minPrice = Math.min(
-      ...[t.price_trail, t.price_maverick_r, t.price_ds_max, t.price_special]
-        .filter(p => p && p > 0)
-    );
-    const dur = t.duration_hours ? (t.duration_hours >= 1 ? t.duration_hours+'H' : Math.round(t.duration_hours*60)+'min') : '';
+    const img = t.image_url || TOUR_IMGS[t.name] || 'https://i.imgur.com/xAjYxLd.jpeg';
+    const desc = lang === 'en'
+      ? (t.description_en || t.description_es || '')
+      : (t.description_es || t.description_en || '');
+    const prices = [t.price_trail, t.price_maverick_r, t.price_ds_max, t.price_special].filter(p => p && p > 0);
+    const minPrice = prices.length ? Math.min(...prices) : null;
+    const dur = t.duration_hours ? t.duration_hours + 'H' : '';
     return `<div class="tour-card" onclick="selectTour('${t.id}')">
       <div class="tc-img-wrap">
         <img class="tour-card-img" src="${img}" alt="${t.name}" loading="lazy">
         <div class="tc-badges">
-          ${dur?`<span class="tc-badge dur">${dur}</span>`:''}
-          ${t.badge?`<span class="tc-badge lbl">${t.badge}</span>`:''}
+          ${dur ? `<span class="tc-badge dur">${dur}</span>` : ''}
+          ${t.badge ? `<span class="tc-badge lbl">${t.badge}</span>` : ''}
         </div>
       </div>
       <div class="tour-card-body">
         <div class="tc-name">${t.name}</div>
         <div class="tc-desc">${desc}</div>
         <div class="tc-footer">
-          <div class="tc-price">desde <strong>$${minPrice?Number(minPrice).toLocaleString():'—'}</strong> USD</div>
-          <button class="btn-tc">Reservar →</button>
+          <div class="tc-price">${lang === 'es' ? 'desde' : 'from'} <strong>$${minPrice ? Number(minPrice).toLocaleString() : '—'}</strong> USD</div>
+          <button class="btn-tc">${lang === 'es' ? 'Reservar →' : 'Book →'}</button>
         </div>
       </div>
     </div>`;
@@ -408,21 +465,22 @@ function renderTourCards() {
 function selectTour(tourId) {
   document.getElementById('f-tour').value = tourId;
   onTourChange();
-  const reservar = document.getElementById('reservar');
-  reservar.scrollIntoView({behavior:'smooth', block:'start'});
+  document.getElementById('reservar').scrollIntoView({behavior:'smooth', block:'start'});
 }
 
 // ── FORM ──────────────────────────────────────────
 function populateTourSelect() {
   const sel = document.getElementById('f-tour');
-  sel.innerHTML = '<option value="">Selecciona un tour…</option>' +
-    S.tours.map(t => `<option value="${t.id}">${t.name}${t.duration_hours?' ('+t.duration_hours+'h)':''}</option>`).join('');
+  const cur = sel.value;
+  const ph = lang === 'es' ? 'Selecciona un tour…' : 'Select a tour…';
+  sel.innerHTML = `<option value="" id="opt-tour-ph">${ph}</option>` +
+    S.tours.map(t => `<option value="${t.id}" ${t.id === cur ? 'selected' : ''}>${t.name}${t.duration_hours ? ' (' + t.duration_hours + 'h)' : ''}</option>`).join('');
 }
 
 function setMinDate() {
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  document.getElementById('f-date').min = tomorrow.toISOString().split('T')[0];
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  document.getElementById('f-date').min = d.toISOString().split('T')[0];
 }
 
 function onTourChange() {
@@ -440,53 +498,47 @@ function updateEndTime() {
   const endMin = h * 60 + m + (tour.duration_hours || 0) * 60;
   const endStr = String(Math.floor(endMin / 60) % 24).padStart(2, '0') + ':' + String(endMin % 60).padStart(2, '0');
   document.getElementById('f-time').dataset.endTime = endStr;
-  hint.textContent = `⏰ Regreso aproximado: ${endStr} hrs`;
+  hint.textContent = `⏰ ${lang === 'es' ? 'Regreso aproximado' : 'Estimated return'}: ${endStr} hrs`;
 }
 
 function renderVehicleList(tour) {
   const list = document.getElementById('vehicle-list');
   const hint = document.getElementById('vehicle-hint');
   if (!tour) {
-    list.innerHTML = '<div style="font-size:.8rem;color:var(--text3);padding:10px 0;">Selecciona un tour para ver los vehículos disponibles.</div>';
+    list.innerHTML = `<div id="vehicle-ph" style="font-size:.8rem;color:var(--text3);padding:10px 0;" data-es="Selecciona un tour para ver los vehículos disponibles." data-en="Select a tour to see available vehicles.">${lang === 'es' ? 'Selecciona un tour para ver los vehículos disponibles.' : 'Select a tour to see available vehicles.'}</div>`;
     hint.classList.remove('show');
     return;
   }
-
-  // For El Zorro 14 tour, only show el_zorro; otherwise show trail, maverick_r, ds_max
-  const eligible = S.vehicles.filter(v => {
-    if (tour.name === 'El Zorro 14') return v.type === 'el_zorro';
-    return v.type !== 'el_zorro';
-  });
-
-  const multiOk = tour.name !== 'El Zorro 14';
+  const isZorro = tour.name === 'El Zorro 14';
+  const eligible = S.vehicles.filter(v => isZorro ? v.type === 'el_zorro' : v.type !== 'el_zorro');
+  const multiOk = !isZorro;
 
   list.innerHTML = eligible.map((v, i) => {
     const price = getVehiclePrice(v.type, tour);
+    const desc = VH_DESCS[lang][v.type] || '';
     return `<label class="vehicle-opt">
-      <input type="${multiOk ? 'checkbox' : 'radio'}" name="vehicle" class="veh-input" value="${v.id}" data-type="${v.type}" ${i === 0 && !multiOk ? 'checked' : ''} onchange="updatePriceHint(tour_${tour.id.replace(/-/g,'')})">
-      <div class="vo-dot" style="background:${VH_COLOR[v.type]||'#888'}"></div>
+      <input type="${multiOk ? 'checkbox' : 'radio'}" name="vehicle" class="veh-input" value="${v.id}" data-type="${v.type}" ${i === 0 && !multiOk ? 'checked' : ''}>
+      <div class="vo-dot" style="background:${VH_COLOR[v.type] || '#888'}"></div>
       <div class="vo-info">
         <div class="vo-name">${v.name}</div>
-        <div class="vo-desc">${VH_DESC[v.type]||''}</div>
+        <div class="vo-desc">${desc}</div>
       </div>
-      <div class="vo-price">${price ? '$' + Number(price).toLocaleString() : '—'}</div>
+      <div class="vo-price">${price ? '$' + Number(price).toLocaleString() : ''}</div>
     </label>`;
   }).join('');
 
-  // Attach event listeners for price hint
   document.querySelectorAll('.veh-input').forEach(inp => {
     inp.addEventListener('change', () => updatePriceHint(tour));
   });
 
   if (multiOk) {
-    hint.textContent = '💡 Puedes seleccionar más de un vehículo si viajan en grupo.';
+    hint.textContent = lang === 'es' ? '💡 Puedes seleccionar más de un vehículo si viajan en grupo.' : '💡 You can select more than one vehicle if traveling as a group.';
+    hint.dataset.hintType = 'multi';
     hint.classList.add('show');
   } else {
     hint.classList.remove('show');
+    if (eligible.length) updatePriceHint(tour);
   }
-
-  // Pre-select first if radio
-  if (!multiOk && eligible.length) updatePriceHint(tour);
 }
 
 function getVehiclePrice(vtype, tour) {
@@ -501,36 +553,37 @@ function updatePriceHint(tour) {
   if (!tour) return;
   const selected = [...document.querySelectorAll('.veh-input:checked')];
   if (!selected.length) return;
-  const total = selected.reduce((s, el) => s + (getVehiclePrice(el.getAttribute('data-type'), tour) || 0), 0);
-  const breakdown = selected.map(el => VH_LABEL[el.getAttribute('data-type')] || el.getAttribute('data-type')).join(' + ');
+  const total = selected.reduce((s, el) => s + (Number(getVehiclePrice(el.getAttribute('data-type'), tour)) || 0), 0);
   const hint = document.getElementById('vehicle-hint');
   if (selected.length > 1) {
-    hint.textContent = `${breakdown} · Total: $${Number(total).toLocaleString()} USD`;
+    hint.textContent = `Total: $${Number(total).toLocaleString()} USD`;
+    hint.dataset.hintType = 'total';
     hint.classList.add('show');
   }
 }
 
 async function submitBooking() {
-  const tourId   = document.getElementById('f-tour').value;
-  const date     = document.getElementById('f-date').value;
+  const tourId = document.getElementById('f-tour').value;
+  const date = document.getElementById('f-date').value;
   const startTime = document.getElementById('f-time').value;
-  const endTime  = document.getElementById('f-time').dataset.endTime || null;
-  const name     = document.getElementById('f-name').value.trim();
-  const phone    = document.getElementById('f-phone').value.trim();
-  const email    = document.getElementById('f-email').value.trim();
-  const guests   = parseInt(document.getElementById('f-guests').value) || 1;
-  const notes    = document.getElementById('f-notes').value.trim() || null;
+  const endTime = document.getElementById('f-time').dataset.endTime || null;
+  const name = document.getElementById('f-name').value.trim();
+  const phone = document.getElementById('f-phone').value.trim();
+  const email = document.getElementById('f-email').value.trim();
+  const guests = parseInt(document.getElementById('f-guests').value) || 1;
+  const notes = document.getElementById('f-notes').value.trim() || null;
   const vehicleIds = [...document.querySelectorAll('.veh-input:checked')].map(el => el.value);
 
-  if (!tourId)            { shake('f-tour');  alert('Por favor selecciona un tour'); return; }
-  if (!date)              { shake('f-date');  alert('Por favor selecciona una fecha'); return; }
-  if (!name)              { shake('f-name');  alert('Por favor ingresa tu nombre'); return; }
-  if (!phone)             { shake('f-phone'); alert('Por favor ingresa tu teléfono'); return; }
-  if (!vehicleIds.length) { alert('Por favor selecciona al menos un vehículo'); return; }
+  const es = lang === 'es';
+  if (!tourId)            { highlight('f-tour');  alert(es ? 'Por favor selecciona un tour' : 'Please select a tour'); return; }
+  if (!date)              { highlight('f-date');  alert(es ? 'Por favor selecciona una fecha' : 'Please select a date'); return; }
+  if (!name)              { highlight('f-name');  alert(es ? 'Por favor ingresa tu nombre' : 'Please enter your name'); return; }
+  if (!phone)             { highlight('f-phone'); alert(es ? 'Por favor ingresa tu teléfono' : 'Please enter your phone number'); return; }
+  if (!vehicleIds.length) { alert(es ? 'Por favor selecciona al menos un vehículo' : 'Please select at least one vehicle'); return; }
 
   const btn = document.getElementById('btn-submit');
   btn.disabled = true;
-  btn.textContent = 'Enviando…';
+  btn.textContent = es ? 'Enviando…' : 'Sending…';
 
   const {data, error} = await sb.rpc('create_concierge_request', {
     p_token:        S.token,
@@ -547,11 +600,10 @@ async function submitBooking() {
   });
 
   btn.disabled = false;
-  btn.textContent = 'Enviar Solicitud';
+  btn.textContent = es ? 'Enviar Solicitud' : 'Send Request';
 
   if (error) {
-    alert('Hubo un error al enviar tu solicitud. Por favor intenta de nuevo o contáctanos por WhatsApp.');
-    console.error(error);
+    alert(es ? 'Error al enviar tu solicitud. Por favor intenta de nuevo o contáctanos por WhatsApp.' : 'Error submitting your request. Please try again or contact us via WhatsApp.');
     return;
   }
 
@@ -565,20 +617,20 @@ function resetForm() {
   document.getElementById('form-wrap').style.display = 'block';
   document.getElementById('success-screen').style.display = 'none';
   ['f-tour','f-date','f-name','f-phone','f-email','f-notes'].forEach(id => {
-    const el = document.getElementById(id); if(el) { if(el.tagName==='SELECT') el.selectedIndex=0; else el.value=''; }
+    const el = document.getElementById(id);
+    if (el) { if (el.tagName === 'SELECT') el.selectedIndex = 0; else el.value = ''; }
   });
   document.getElementById('f-time').value = '08:00';
   document.getElementById('f-time').dataset.endTime = '';
   document.getElementById('time-hint').textContent = '';
-  document.getElementById('vehicle-list').innerHTML = '<div style="font-size:.8rem;color:var(--text3);padding:10px 0;">Selecciona un tour para ver los vehículos disponibles.</div>';
+  document.getElementById('vehicle-list').innerHTML = `<div id="vehicle-ph" style="font-size:.8rem;color:var(--text3);padding:10px 0;">${lang === 'es' ? 'Selecciona un tour para ver los vehículos disponibles.' : 'Select a tour to see available vehicles.'}</div>`;
   document.getElementById('vehicle-hint').classList.remove('show');
   document.getElementById('f-guests').value = '1';
 }
 
-function shake(id) {
+function highlight(id) {
   const el = document.getElementById(id);
   if (!el) return;
-  el.style.animation = 'none';
   el.style.borderColor = '#ef4444';
   setTimeout(() => { el.style.borderColor = ''; }, 1500);
 }
