@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Baja Curated · Portal Concierge</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#080808;--bg2:#111;--bg3:#1a1a1a;--bg4:#222;
+  --border:#252525;--border2:#333;
+  --text:#f4f1eb;--text2:#999;--text3:#555;
+  --yellow:#F5C518;--yellow2:#c9a100;
+  --trail:#22c55e;--mav:#818cf8;--dsmax:#fb923c;--zorro:#ef4444;
+  --radius:8px;
+}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:14px;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+
+/* ── UNAUTH / LOADING ── */
+.full-center{display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:16px;padding:24px;text-align:center;}
+.brand-badge{font-size:.72rem;letter-spacing:4px;color:var(--yellow);font-weight:700;text-transform:uppercase;}
+.unauth-icon{font-size:2.5rem;margin-bottom:8px;}
+.unauth-title{font-size:1.1rem;font-weight:700;margin-bottom:4px;}
+.unauth-sub{font-size:.82rem;color:var(--text3);max-width:280px;line-height:1.5;}
+.spinner{width:32px;height:32px;border:3px solid var(--border2);border-top-color:var(--yellow);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── HEADER ── */
+#app{display:none;flex-direction:column;min-height:100vh;}
+#app.visible{display:flex;}
+.app-header{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.hdr-brand{font-size:.75rem;letter-spacing:3px;color:var(--yellow);font-weight:700;text-transform:uppercase;}
+.hdr-sub{font-size:.6rem;letter-spacing:2px;color:var(--text3);margin-top:3px;text-transform:uppercase;}
+.hdr-user{text-align:right;}
+.hdr-name{font-size:.82rem;font-weight:600;}
+.hdr-prop{font-size:.65rem;color:var(--text3);margin-top:2px;}
+
+/* ── NAV TABS ── */
+.nav-tabs{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto;}
+.nav-tab{flex:1;min-width:80px;padding:11px 8px;text-align:center;font-size:.7rem;letter-spacing:.5px;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;text-transform:uppercase;white-space:nowrap;}
+.nav-tab:hover{color:var(--text2);}
+.nav-tab.active{color:var(--yellow);border-bottom-color:var(--yellow);background:rgba(245,197,24,.03);}
+.tab-icon{font-size:.95rem;display:block;margin-bottom:2px;}
+
+/* ── MAIN CONTENT ── */
+#main-content{flex:1;overflow-y:auto;}
+.view{display:none;padding:18px;}
+.view.active{display:block;}
+
+/* ── SECTION HEADER ── */
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.sec-hdr h2{font-size:.9rem;font-weight:600;letter-spacing:1px;}
+
+/* ── CALENDAR ── */
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.cal-nav h3{font-size:.82rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;}
+.cal-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text2);padding:4px 12px;border-radius:var(--radius);cursor:pointer;font-size:.75rem;transition:all .15s;}
+.cal-btn:hover{border-color:var(--yellow);color:var(--yellow);}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:14px;}
+.cal-hdr{text-align:center;font-size:.58rem;letter-spacing:2px;color:var(--text3);padding:4px 0;text-transform:uppercase;}
+.cal-day{min-height:60px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:5px 6px;cursor:pointer;transition:all .15s;}
+.cal-day:hover{border-color:var(--border2);background:var(--bg3);}
+.cal-day.today{border-color:var(--yellow);}
+.cal-day.selected{border-color:var(--yellow);background:rgba(245,197,24,.08);}
+.cal-day.other{opacity:.15;pointer-events:none;}
+.cal-day.past{opacity:.4;}
+.cal-day .dn{font-size:.72rem;font-weight:600;color:var(--text3);}
+.cal-day.today .dn{color:var(--yellow);}
+.dots{display:flex;flex-wrap:wrap;gap:2px;margin-top:3px;}
+.dot{width:6px;height:6px;border-radius:50%;}
+#cal-days-portal{display:contents;}
+
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:.68rem;color:var(--text3);}
+.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+.day-detail{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px;margin-top:2px;}
+.day-detail h4{font-size:.78rem;font-weight:600;margin-bottom:10px;color:var(--text2);}
+.avail-chip{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:5px;border:1px solid var(--border);margin-bottom:5px;font-size:.78rem;}
+.avail-chip.free{border-color:rgba(34,197,94,.3);background:rgba(34,197,94,.05);}
+.avail-chip.busy{border-color:rgba(255,255,255,.06);background:rgba(255,255,255,.02);}
+.av-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.av-name{flex:1;}
+.av-st{font-size:.65rem;color:var(--text3);}
+.btn-book-day{margin-top:10px;width:100%;padding:9px;background:var(--yellow);color:#000;border:none;border-radius:var(--radius);font-size:.78rem;font-weight:700;letter-spacing:1px;cursor:pointer;text-transform:uppercase;transition:background .2s;}
+.btn-book-day:hover{background:var(--yellow2);}
+
+/* ── FORM ── */
+.form-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px;max-width:560px;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:.68rem;letter-spacing:1.5px;color:var(--text2);margin-bottom:6px;text-transform:uppercase;}
+.field input,.field select,.field textarea{width:100%;padding:10px 13px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-size:.875rem;outline:none;transition:border-color .2s;font-family:inherit;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--yellow);}
+.field select option{background:var(--bg3);}
+.field textarea{resize:vertical;min-height:60px;}
+.form-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+@media(max-width:480px){.form-2{grid-template-columns:1fr;}}
+.sdiv{font-size:.6rem;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin:16px 0 10px;padding-bottom:4px;border-bottom:1px solid var(--border);}
+.vehicle-checks{display:flex;flex-direction:column;gap:5px;}
+.vehicle-check-label{display:flex;align-items:center;gap:10px;padding:8px 11px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;cursor:pointer;}
+.vehicle-check-label:hover{border-color:var(--border2);}
+.vehicle-check-label input[type=checkbox]{width:15px;height:15px;accent-color:var(--yellow);cursor:pointer;flex-shrink:0;}
+.vh-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.vh-label-name{flex:1;font-size:.82rem;}
+.vh-price-tag{font-size:.73rem;color:var(--text3);}
+.price-hint{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:7px 12px;margin-top:6px;font-size:.82rem;color:var(--yellow);display:none;}
+.price-hint.show{display:block;}
+.end-time-hint{font-size:.7rem;color:var(--text3);margin-top:4px;}
+.btn-submit{width:100%;padding:12px;background:var(--yellow);color:#000;border:none;border-radius:var(--radius);font-size:.82rem;font-weight:700;letter-spacing:1.5px;cursor:pointer;transition:background .2s;text-transform:uppercase;margin-top:6px;}
+.btn-submit:hover{background:var(--yellow2);}
+.btn-submit:disabled{opacity:.5;cursor:not-allowed;}
+.note-box{background:rgba(245,197,24,.06);border:1px solid rgba(245,197,24,.18);border-radius:var(--radius);padding:9px 12px;font-size:.75rem;color:var(--text2);margin-bottom:14px;line-height:1.5;}
+
+/* ── SUCCESS CARD ── */
+.success-card{background:var(--bg2);border:1px solid rgba(34,197,94,.3);border-radius:10px;padding:24px;text-align:center;max-width:420px;margin:0 auto;}
+.success-icon{font-size:2.5rem;margin-bottom:12px;}
+.success-title{font-size:1rem;font-weight:700;color:#22c55e;margin-bottom:6px;}
+.success-ref{font-family:monospace;font-size:1.1rem;color:var(--yellow);font-weight:700;margin:10px 0;}
+.success-sub{font-size:.78rem;color:var(--text2);line-height:1.6;}
+.btn-new-req{margin-top:16px;padding:9px 22px;background:transparent;border:1px solid var(--border2);border-radius:var(--radius);color:var(--text2);font-size:.78rem;cursor:pointer;transition:all .15s;}
+.btn-new-req:hover{border-color:var(--yellow);color:var(--yellow);}
+
+/* ── RESERVACIONES ── */
+.bk-list{display:flex;flex-direction:column;gap:10px;}
+.bk-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:13px 15px;}
+.bk-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}
+.bk-ref{font-family:monospace;font-size:.68rem;color:var(--text3);}
+.st-badge{font-size:.62rem;padding:2px 7px;border-radius:3px;text-transform:uppercase;letter-spacing:.5px;}
+.st-confirmed{background:rgba(34,197,94,.15);color:#22c55e;}
+.st-pending{background:rgba(245,197,24,.15);color:#F5C518;}
+.st-completed{background:rgba(129,140,248,.15);color:#818cf8;}
+.st-cancelled{background:rgba(239,68,68,.15);color:#ef4444;}
+.bk-date{font-size:.88rem;font-weight:700;margin-bottom:2px;}
+.bk-tour{font-size:.8rem;color:var(--text2);margin-bottom:2px;}
+.bk-client{font-size:.75rem;color:var(--text3);}
+.bk-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);}
+.bk-price{font-size:.82rem;color:var(--yellow);font-weight:700;}
+.bk-comm{font-size:.72rem;color:var(--text2);}
+.no-items{text-align:center;color:var(--text3);padding:40px;font-size:.82rem;}
+
+/* ── COMISIONES ── */
+.comm-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;}
+@media(max-width:420px){.comm-stats{grid-template-columns:1fr;}}
+.comm-stat{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px;}
+.comm-stat-val{font-size:1.3rem;font-weight:800;color:var(--yellow);letter-spacing:-1px;}
+.comm-stat-label{font-size:.62rem;letter-spacing:1px;color:var(--text3);text-transform:uppercase;margin-top:3px;}
+.comm-table{width:100%;border-collapse:collapse;}
+.comm-table thead th{text-align:left;font-size:.6rem;letter-spacing:2px;color:var(--text3);text-transform:uppercase;padding:7px 10px;border-bottom:1px solid var(--border);}
+.comm-table tbody td{padding:9px 10px;border-bottom:1px solid var(--border);font-size:.78rem;vertical-align:middle;}
+.comm-table tbody tr:hover td{background:rgba(255,255,255,.01);}
+.comm-pending{color:var(--yellow);}
+.comm-paid{color:#22c55e;}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div class="full-center" id="screen-loading">
+  <div class="brand-badge">Baja Curated</div>
+  <div class="spinner"></div>
+  <div style="font-size:.75rem;color:var(--text3);">Verificando acceso…</div>
+</div>
+
+<!-- UNAUTHORIZED -->
+<div class="full-center" id="screen-unauth" style="display:none;">
+  <div class="brand-badge">Baja Curated</div>
+  <div class="unauth-icon">🔒</div>
+  <div class="unauth-title">Acceso no autorizado</div>
+  <div class="unauth-sub" id="unauth-msg">El enlace no es válido o ya no está activo. Contacta a Baja Curated para obtener tu link personal.</div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header class="app-header">
+    <div>
+      <div class="hdr-brand">Baja Curated</div>
+      <div class="hdr-sub">Portal Concierge</div>
+    </div>
+    <div class="hdr-user">
+      <div class="hdr-name" id="hdr-name">—</div>
+      <div class="hdr-prop" id="hdr-prop"></div>
+    </div>
+  </header>
+
+  <nav class="nav-tabs">
+    <div class="nav-tab active" onclick="showTab('calendar')" id="tab-calendar">
+      <span class="tab-icon">📅</span>Disponibilidad
+    </div>
+    <div class="nav-tab" onclick="showTab('request')" id="tab-request">
+      <span class="tab-icon">✏️</span>Nueva Solicitud
+    </div>
+    <div class="nav-tab" onclick="showTab('bookings')" id="tab-bookings">
+      <span class="tab-icon">📋</span>Mis Reservas
+    </div>
+    <div class="nav-tab" onclick="showTab('commissions')" id="tab-commissions">
+      <span class="tab-icon">💰</span>Comisiones
+    </div>
+  </nav>
+
+  <div id="main-content">
+
+    <!-- ── DISPONIBILIDAD ── -->
+    <div class="view active" id="view-calendar">
+      <div class="sec-hdr">
+        <h2>Disponibilidad</h2>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--trail)"></div>Trail</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--mav)"></div>Maverick R</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--dsmax)"></div>DS Max</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--zorro)"></div>El Zorro 14</div>
+      </div>
+      <div class="cal-nav">
+        <button class="cal-btn" onclick="prevMonthPortal()">← Anterior</button>
+        <h3 id="portal-month-label"></h3>
+        <button class="cal-btn" onclick="nextMonthPortal()">Siguiente →</button>
+      </div>
+      <div class="cal-grid">
+        <div class="cal-hdr">Dom</div><div class="cal-hdr">Lun</div><div class="cal-hdr">Mar</div>
+        <div class="cal-hdr">Mié</div><div class="cal-hdr">Jue</div><div class="cal-hdr">Vie</div><div class="cal-hdr">Sáb</div>
+        <div id="cal-days-portal"></div>
+      </div>
+      <div id="portal-day-detail" style="display:none;"></div>
+    </div>
+
+    <!-- ── NUEVA SOLICITUD ── -->
+    <div class="view" id="view-request">
+      <div class="sec-hdr">
+        <h2>Nueva Solicitud de Reserva</h2>
+      </div>
+      <div id="request-form-wrap">
+        <div class="note-box">
+          📌 Las solicitudes quedan en estado <strong>Pendiente</strong> hasta que el equipo de Baja Curated las confirme. Te notificaremos por email.
+        </div>
+        <div class="form-card">
+          <div class="sdiv">Tour y Fecha</div>
+          <div class="form-2">
+            <div class="field" style="grid-column:1/-1">
+              <label>Tour *</label>
+              <select id="r-tour" onchange="onPortalTourChange()"><option value="">Seleccionar tour…</option></select>
+            </div>
+            <div class="field">
+              <label>Fecha *</label>
+              <input type="date" id="r-date" onchange="onPortalDateChange()">
+            </div>
+            <div class="field">
+              <label>Hora de salida *</label>
+              <input type="time" id="r-time" value="08:00" onchange="updatePortalEndTime()">
+            </div>
+          </div>
+          <div class="end-time-hint" id="r-end-hint"></div>
+
+          <div class="sdiv">Vehículos *</div>
+          <div class="vehicle-checks" id="r-vehicles"></div>
+          <div class="price-hint" id="r-price-hint"></div>
+
+          <div class="sdiv">Datos del Cliente</div>
+          <div class="form-2">
+            <div class="field"><label>Nombre completo *</label><input type="text" id="r-name" placeholder="Nombre completo"></div>
+            <div class="field"><label>Teléfono</label><input type="text" id="r-phone" placeholder="+1 (555)…"></div>
+            <div class="field" style="grid-column:1/-1"><label>Email</label><input type="email" id="r-email" placeholder="cliente@email.com"></div>
+            <div class="field"><label>Número de personas</label><input type="number" id="r-guests" value="1" min="1" max="20"></div>
+          </div>
+          <div class="field"><label>Notas / Instrucciones especiales</label><textarea id="r-notes" placeholder="Alergias, preferencias, llegada desde hotel…"></textarea></div>
+
+          <button class="btn-submit" onclick="submitRequest()" id="r-submit">Enviar Solicitud</button>
+        </div>
+      </div>
+      <div id="request-success" style="display:none;margin-top:20px;">
+        <div class="success-card">
+          <div class="success-icon">✅</div>
+          <div class="success-title">¡Solicitud enviada!</div>
+          <div class="success-ref" id="success-ref">BC-YYYYMMDD-001</div>
+          <div class="success-sub">El equipo de Baja Curated revisará tu solicitud y la confirmará a la brevedad. Puedes seguir el estado en la pestaña "Mis Reservas".</div>
+          <button class="btn-new-req" onclick="newRequest()">+ Otra solicitud</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MIS RESERVACIONES ── -->
+    <div class="view" id="view-bookings">
+      <div class="sec-hdr">
+        <h2>Mis Reservaciones</h2>
+      </div>
+      <div class="bk-list" id="portal-bk-list">
+        <div class="no-items">Cargando…</div>
+      </div>
+    </div>
+
+    <!-- ── COMISIONES ── -->
+    <div class="view" id="view-commissions">
+      <div class="sec-hdr">
+        <h2>Mis Comisiones</h2>
+      </div>
+      <div class="comm-stats">
+        <div class="comm-stat">
+          <div class="comm-stat-val" id="cs-total">—</div>
+          <div class="comm-stat-label">Total generado</div>
+        </div>
+        <div class="comm-stat">
+          <div class="comm-stat-val" id="cs-pending" style="color:var(--yellow)">—</div>
+          <div class="comm-stat-label">Por confirmar</div>
+        </div>
+        <div class="comm-stat">
+          <div class="comm-stat-val" id="cs-confirmed" style="color:#22c55e">—</div>
+          <div class="comm-stat-label">Confirmado</div>
+        </div>
+      </div>
+      <table class="comm-table">
+        <thead><tr>
+          <th>Fecha</th><th>Tour</th><th>Cliente</th><th>Precio</th><th>Comisión</th><th>Estado</th>
+        </tr></thead>
+        <tbody id="comm-tbody"></tbody>
+      </table>
+    </div>
+
+  </div><!-- /main-content -->
+</div><!-- /app -->
+
+<script>
+const SB_URL = 'https://tdcpxawarfgtgnfwdthh.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkY3B4YXdhcmZndGduZndkdGhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MTk4ODIsImV4cCI6MjA5NDA5NTg4Mn0.birNHYp_IIp2LlZ1x5L8QQTke_jtVtG12jf1jJcuCFE';
+const sb = window.supabase.createClient(SB_URL, SB_KEY);
+
+const VH_COLOR = {trail:'#22c55e', maverick_r:'#818cf8', ds_max:'#fb923c', el_zorro:'#ef4444'};
+const MONTHS_ES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+const S = {
+  token: null,
+  concierge: null,
+  tours: [],
+  vehicles: [],
+  month: new Date(),
+  monthBookings: [],
+  selDate: null,
+  myBookings: []
+};
+
+// ── INIT & AUTH ────────────────────────────────────
+async function init() {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('t');
+  if (!token) { showUnauth('No se encontró token de acceso.'); return; }
+
+  try {
+    const {data, error} = await sb.rpc('get_concierge_by_token', {p_token: token});
+    if (error || !data || !data.length) {
+      showUnauth('Link inválido o cuenta inactiva. Contacta a Baja Curated para obtener tu link actualizado.');
+      return;
+    }
+    S.token = token;
+    S.concierge = data[0];
+    // Store token in sessionStorage for this session
+    sessionStorage.setItem('bc_portal_token', token);
+    await boot();
+  } catch(e) {
+    showUnauth('Error de conexión. Intenta de nuevo más tarde.');
+  }
+}
+
+function showUnauth(msg) {
+  $('screen-loading').style.display = 'none';
+  $('screen-unauth').style.display = 'flex';
+  $('unauth-msg').textContent = msg;
+}
+
+async function boot() {
+  $('screen-loading').style.display = 'none';
+  $('app').classList.add('visible');
+
+  // Header
+  $('hdr-name').textContent = S.concierge.name;
+  $('hdr-prop').textContent = S.concierge.property_name || 'Portal Concierge';
+
+  // Load static data
+  const [tr, vr] = await Promise.all([
+    sb.from('bc_tours').select('*').eq('is_active', true).order('sort_order'),
+    sb.from('bc_vehicles').select('*').eq('status','active').order('sort_order')
+  ]);
+  S.tours = tr.data || [];
+  S.vehicles = vr.data || [];
+
+  populatePortalTourSelect();
+  renderPortalVehicles([]);
+  await loadPortalMonth();
+  renderPortalCalendar();
+}
+
+// ── TABS ──────────────────────────────────────────
+function showTab(name) {
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  $('tab-'+name).classList.add('active');
+  $('view-'+name).classList.add('active');
+  if (name === 'bookings') loadMyBookings();
+  if (name === 'commissions') loadCommissions();
+}
+
+// ── CALENDAR ──────────────────────────────────────
+async function loadPortalMonth() {
+  const y = S.month.getFullYear(), m = S.month.getMonth();
+  const s = ymd(new Date(y,m,1)), e = ymd(new Date(y,m+1,0));
+  const {data} = await sb.rpc('get_availability_for_portal', {
+    p_token: S.token,
+    p_month_start: s,
+    p_month_end: e
+  });
+  S.monthBookings = data || [];
+}
+
+function renderPortalCalendar() {
+  const y = S.month.getFullYear(), m = S.month.getMonth();
+  $('portal-month-label').textContent = `${MONTHS_ES[m]} ${y}`;
+  const first = new Date(y,m,1), last = new Date(y,m+1,0);
+  const startDow = first.getDay();
+  const totalCells = Math.ceil((startDow + last.getDate()) / 7) * 7;
+  const today = ymd(new Date());
+
+  // Group bookings by date
+  const bkByDate = {};
+  S.monthBookings.forEach(b => {
+    (bkByDate[b.booking_date] = bkByDate[b.booking_date]||[]).push(b);
+  });
+
+  let html = '';
+  for (let i = 0; i < totalCells; i++) {
+    const d = new Date(y, m, i - startDow + 1);
+    const dm = ymd(d);
+    const inMonth = d.getMonth() === m;
+    const isPast = dm < today;
+    let cls = 'cal-day';
+    if (!inMonth) cls += ' other';
+    else if (isPast) cls += ' past';
+    if (dm === today) cls += ' today';
+    if (dm === S.selDate) cls += ' selected';
+
+    let dots = '';
+    if (inMonth) {
+      (bkByDate[dm]||[]).forEach(b => {
+        dots += `<div class="dot" style="background:${VH_COLOR[b.vehicle_type]||'#666'}"></div>`;
+      });
+    }
+    const clickable = inMonth && !isPast;
+    html += `<div class="${cls}" ${clickable?`onclick="selectPortalDay('${dm}')"`:''}">
+      <div class="dn">${d.getDate()}</div>
+      <div class="dots">${dots}</div>
+    </div>`;
+  }
+  $('cal-days-portal').innerHTML = html;
+}
+
+function selectPortalDay(dateStr) {
+  S.selDate = dateStr;
+  renderPortalCalendar();
+  renderPortalDayDetail(dateStr);
+  const detail = $('portal-day-detail');
+  detail.style.display = 'block';
+  detail.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function renderPortalDayDetail(dateStr) {
+  const bks = S.monthBookings.filter(b => b.booking_date === dateStr);
+  // Group taken by vehicle_id
+  const takenVehicleIds = new Set(bks.map(b=>b.vehicle_id));
+
+  let chips = '';
+  S.vehicles.forEach(v => {
+    const taken = bks.filter(b=>b.vehicle_id===v.id);
+    if (taken.length) {
+      taken.forEach(b => {
+        const t = b.start_time ? b.start_time.slice(0,5) + (b.end_time?' → '+b.end_time.slice(0,5):'') : 'Todo el día';
+        chips += `<div class="avail-chip busy"><div class="av-dot" style="background:${VH_COLOR[v.type]||'#666'}"></div><div class="av-name">${v.name}</div><div class="av-st">${t}</div></div>`;
+      });
+    } else {
+      chips += `<div class="avail-chip free"><div class="av-dot" style="background:${VH_COLOR[v.type]||'#666'}"></div><div class="av-name">${v.name}</div><div class="av-st">Disponible</div></div>`;
+    }
+  });
+
+  $('portal-day-detail').innerHTML = `<div class="day-detail">
+    <h4>${fmtDate(dateStr)}</h4>
+    ${chips}
+    <button class="btn-book-day" onclick="goToRequest('${dateStr}')">+ Solicitar para este día</button>
+  </div>`;
+}
+
+function goToRequest(dateStr) {
+  $('r-date').value = dateStr;
+  showTab('request');
+}
+
+async function prevMonthPortal() {
+  S.month = new Date(S.month.getFullYear(), S.month.getMonth()-1, 1);
+  S.selDate = null; $('portal-day-detail').style.display='none';
+  await loadPortalMonth(); renderPortalCalendar();
+}
+async function nextMonthPortal() {
+  S.month = new Date(S.month.getFullYear(), S.month.getMonth()+1, 1);
+  S.selDate = null; $('portal-day-detail').style.display='none';
+  await loadPortalMonth(); renderPortalCalendar();
+}
+
+// ── REQUEST FORM ───────────────────────────────────
+function populatePortalTourSelect() {
+  $('r-tour').innerHTML = '<option value="">Seleccionar tour…</option>' +
+    S.tours.map(t=>`<option value="${t.id}" data-hours="${t.duration_hours||0}">${t.name}${t.badge?' ('+t.badge+')':''}</option>`).join('');
+}
+
+function renderPortalVehicles(selIds=[]) {
+  const tour = S.tours.find(t=>t.id===$('r-tour').value);
+  $('r-vehicles').innerHTML = S.vehicles.map(v=>{
+    const price = getVehiclePrice(v.type, tour);
+    return `<label class="vehicle-check-label">
+      <input type="checkbox" class="pv-chk" value="${v.id}" data-type="${v.type}" data-name="${v.name}" ${selIds.includes(v.id)?'checked':''} onchange="updatePortalPrice()">
+      <div class="vh-dot" style="background:${VH_COLOR[v.type]||'#666'}"></div>
+      <span class="vh-label-name">${v.name}</span>
+      <span class="vh-price-tag">${price?'$'+Number(price).toLocaleString()+' USD':''}</span>
+    </label>`;
+  }).join('');
+}
+
+function getVehiclePrice(vtype, tour) {
+  if (!tour) return null;
+  if (vtype==='trail') return tour.price_trail;
+  if (vtype==='maverick_r') return tour.price_maverick_r;
+  if (vtype==='ds_max') return tour.price_ds_max;
+  return tour.price_special;
+}
+
+function onPortalTourChange() {
+  renderPortalVehicles([]);
+  updatePortalEndTime();
+  updatePortalPrice();
+}
+
+function onPortalDateChange() {
+  // Refresh availability for selected date from current month data
+  const d = $('r-date').value;
+  if (d) {
+    const y = new Date(d).getFullYear(), m = new Date(d).getMonth();
+    if (y !== S.month.getFullYear() || m !== S.month.getMonth()) {
+      S.month = new Date(y, m, 1);
+      loadPortalMonth().then(renderPortalCalendar);
+    }
+  }
+}
+
+function updatePortalEndTime() {
+  const tour = S.tours.find(t=>t.id===$('r-tour').value);
+  const startVal = $('r-time').value;
+  const hint = $('r-end-hint');
+  if (!tour || !startVal) { hint.textContent=''; return; }
+  const [h,min] = startVal.split(':').map(Number);
+  const endMin = h*60 + min + (tour.duration_hours||0)*60;
+  const endStr = String(Math.floor(endMin/60)%24).padStart(2,'0')+':'+String(endMin%60).padStart(2,'0');
+  hint.textContent = `⏰ Hora de regreso aproximada: ${endStr}`;
+  hint.dataset.endTime = endStr;
+}
+
+function updatePortalPrice() {
+  const tour = S.tours.find(t=>t.id===$('r-tour').value);
+  const selected = [...document.querySelectorAll('.pv-chk:checked')];
+  if (!tour || !selected.length) { $('r-price-hint').classList.remove('show'); return; }
+  const breakdown = selected.map(c=>{
+    const p = getVehiclePrice(c.getAttribute('data-type'), tour);
+    return `${c.getAttribute('data-name')}: $${p?Number(p).toLocaleString():'—'}`;
+  }).join(' · ');
+  const total = selected.reduce((s,c)=>{
+    const p = getVehiclePrice(c.getAttribute('data-type'), tour);
+    return s + (p||0);
+  }, 0);
+  const commAmt = Math.round(total * (S.concierge.commission_pct||0) / 100);
+  $('r-price-hint').textContent = `${breakdown} · Total: $${Number(total).toLocaleString()} USD · Tu comisión (${S.concierge.commission_pct}%): $${commAmt.toLocaleString()} USD`;
+  $('r-price-hint').classList.add('show');
+}
+
+async function submitRequest() {
+  const tourId = $('r-tour').value;
+  const date = $('r-date').value;
+  const startTime = $('r-time').value;
+  const endTime = $('r-end-hint').dataset.endTime||null;
+  const clientName = $('r-name').value.trim();
+  const vehicleIds = [...document.querySelectorAll('.pv-chk:checked')].map(c=>c.value);
+
+  if (!tourId) { alert('Selecciona un tour'); return; }
+  if (!date) { alert('Selecciona una fecha'); return; }
+  if (!startTime) { alert('Selecciona la hora de salida'); return; }
+  if (!clientName) { alert('Ingresa el nombre del cliente'); return; }
+  if (!vehicleIds.length) { alert('Selecciona al menos un vehículo'); return; }
+
+  const btn = $('r-submit');
+  btn.disabled = true; btn.textContent = 'Enviando…';
+
+  const {data, error} = await sb.rpc('create_concierge_request', {
+    p_token: S.token,
+    p_tour_id: tourId,
+    p_vehicle_ids: vehicleIds,
+    p_date: date,
+    p_start_time: startTime,
+    p_end_time: endTime || null,
+    p_client_name: clientName,
+    p_client_email: $('r-email').value.trim()||null,
+    p_client_phone: $('r-phone').value.trim()||null,
+    p_num_guests: parseInt($('r-guests').value)||1,
+    p_notes: $('r-notes').value.trim()||null
+  });
+
+  btn.disabled = false; btn.textContent = 'Enviar Solicitud';
+
+  if (error) { alert('Error al enviar: ' + error.message); return; }
+
+  $('success-ref').textContent = data;
+  $('request-form-wrap').style.display = 'none';
+  $('request-success').style.display = 'block';
+
+  // Refresh month data in background
+  await loadPortalMonth();
+  renderPortalCalendar();
+}
+
+function newRequest() {
+  $('request-form-wrap').style.display = 'block';
+  $('request-success').style.display = 'none';
+  // Reset form
+  ['r-tour','r-date','r-name','r-phone','r-email','r-notes'].forEach(id=>{
+    const el=$(id); if(el){ if(el.tagName==='SELECT') el.selectedIndex=0; else el.value=''; }
+  });
+  $('r-guests').value = 1;
+  $('r-time').value = '08:00';
+  $('r-end-hint').textContent = '';
+  $('r-end-hint').dataset.endTime = '';
+  $('r-price-hint').classList.remove('show');
+  renderPortalVehicles([]);
+}
+
+// ── MIS RESERVACIONES ─────────────────────────────
+async function loadMyBookings() {
+  const list = $('portal-bk-list');
+  list.innerHTML = '<div class="no-items">Cargando…</div>';
+  const {data, error} = await sb.rpc('get_concierge_bookings', {p_token: S.token});
+  S.myBookings = data || [];
+  if (error || !S.myBookings.length) {
+    list.innerHTML = '<div class="no-items">Aún no tienes reservaciones.</div>';
+    return;
+  }
+  list.innerHTML = S.myBookings.map(b => `
+    <div class="bk-card">
+      <div class="bk-card-top">
+        <div class="bk-ref">${b.booking_ref}</div>
+        <span class="st-badge st-${b.status}">${stLabel(b.status)}</span>
+      </div>
+      <div class="bk-date">${fmtDate(b.booking_date)}${b.start_time?' · ⏰ '+b.start_time.slice(0,5)+(b.end_time?' → '+b.end_time.slice(0,5):''):''}</div>
+      <div class="bk-tour">${b.tour_name||'—'} ${b.vehicle_name?'· '+b.vehicle_name:''}</div>
+      <div class="bk-client">👤 ${b.client_name}${b.client_phone?' · '+b.client_phone:''}</div>
+      <div class="bk-bottom">
+        <div class="bk-price">${b.total_price?'$'+Number(b.total_price).toLocaleString()+' USD':''}</div>
+        <div class="bk-comm">${b.commission_pct?`Comisión ${b.commission_pct}%: $${Number(b.commission_amount||0).toLocaleString()}`:''}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ── COMISIONES ────────────────────────────────────
+async function loadCommissions() {
+  if (!S.myBookings.length) await loadMyBookings();
+  const bks = S.myBookings.filter(b=>b.status!=='cancelled');
+  const total = bks.reduce((s,b)=>s+(Number(b.commission_amount)||0),0);
+  const pending = bks.filter(b=>b.status==='pending').reduce((s,b)=>s+(Number(b.commission_amount)||0),0);
+  const confirmed = bks.filter(b=>b.status==='confirmed'||b.status==='completed').reduce((s,b)=>s+(Number(b.commission_amount)||0),0);
+
+  $('cs-total').textContent = '$'+Math.round(total).toLocaleString()+' USD';
+  $('cs-pending').textContent = '$'+Math.round(pending).toLocaleString()+' USD';
+  $('cs-confirmed').textContent = '$'+Math.round(confirmed).toLocaleString()+' USD';
+
+  const tbody = $('comm-tbody');
+  if (!bks.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:24px">Sin reservaciones aún</td></tr>';
+    return;
+  }
+  tbody.innerHTML = bks.map(b=>`<tr>
+    <td>${fmtDate(b.booking_date)}</td>
+    <td style="color:var(--text2)">${b.tour_name||'—'}</td>
+    <td>${b.client_name}</td>
+    <td style="color:var(--yellow);font-weight:700">${b.total_price?'$'+Number(b.total_price).toLocaleString():''}</td>
+    <td class="${b.status==='pending'?'comm-pending':'comm-paid'}">${b.commission_pct?b.commission_pct+'% = $'+Number(b.commission_amount||0).toLocaleString():''}</td>
+    <td><span class="st-badge st-${b.status}">${stLabel(b.status)}</span></td>
+  </tr>`).join('');
+}
+
+// ── UTILS ─────────────────────────────────────────
+function $(id){ return document.getElementById(id); }
+function ymd(d){ return d.toISOString().split('T')[0]; }
+function fmtDate(s){ if(!s)return''; const [y,m,d]=s.split('-'); return `${d} ${MONTHS_ES[parseInt(m)-1]} ${y}`; }
+function stLabel(s){ return {confirmed:'Confirmada',pending:'Pendiente',completed:'Completada',cancelled:'Cancelada'}[s]||s; }
+
+init();
+</script>
+</body>
+</html>
