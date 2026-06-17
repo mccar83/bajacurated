@@ -493,7 +493,8 @@ tbody tr:hover td{background:rgba(255,255,255,.015);}
     <div class="modal-body">
       <input type="hidden" id="bl-vehicle-id">
       <div class="field"><label>Vehículo</label><input type="text" id="bl-vehicle-name" readonly style="opacity:.6;cursor:default;"></div>
-      <div class="field"><label>Fecha</label><input type="date" id="bl-date"></div>
+      <div class="field"><label>Desde</label><input type="date" id="bl-date"></div>
+      <div class="field"><label>Hasta <span style="color:var(--text3);font-weight:400">(opcional · para bloquear un rango)</span></label><input type="date" id="bl-date-to"></div>
       <div class="field">
         <label>Motivo</label>
         <select id="bl-reason-sel" onchange="onReasonSelect()">
@@ -1310,6 +1311,7 @@ function openBlackout(vehicleId, vehicleName, dateStr) {
   $('bl-vehicle-id').value = vehicleId;
   $('bl-vehicle-name').value = vehicleName;
   $('bl-date').value = dateStr || '';
+  $('bl-date-to').value = '';
   $('bl-reason-sel').value = '';
   $('bl-reason').value = '';
   $('bl-reason').style.display = 'none';
@@ -1329,12 +1331,18 @@ function closeBlackout() { $('modal-blackout').classList.remove('open'); }
 
 async function saveBlackout() {
   const vehicleId = $('bl-vehicle-id').value;
-  const date = $('bl-date').value;
-  if (!date) { alert('Selecciona una fecha'); return; }
+  const from = $('bl-date').value;
+  if (!from) { alert('Selecciona la fecha de inicio'); return; }
+  let to = $('bl-date-to').value || from;
+  if (to < from) { alert('La fecha "Hasta" no puede ser anterior a "Desde".'); return; }
   const selVal = $('bl-reason-sel').value;
   const reason = selVal === '__other__' ? ($('bl-reason').value.trim()||null)
     : (selVal || $('bl-reason').value.trim() || null);
-  const {error} = await sb.from('bc_blackouts').insert({vehicle_id:vehicleId, blackout_date:date, reason});
+  const rows = [];
+  const d = new Date(from + 'T00:00:00'); const end = new Date(to + 'T00:00:00');
+  while (d <= end) { rows.push({vehicle_id:vehicleId, blackout_date: ymd(d), reason}); d.setDate(d.getDate()+1); }
+  if (rows.length > 92) { alert('El rango es muy largo (máximo 92 días).'); return; }
+  const {error} = await sb.from('bc_blackouts').insert(rows);
   if (error) { alert('Error: '+error.message); return; }
   closeBlackout();
   await loadAllBlackouts();

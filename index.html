@@ -1030,6 +1030,7 @@ async function initBookingForm() {
   bkPopulateTours();
   bkSetMinDate();
   bkLoadGallery();
+  syncHomeTours();
   const sec = document.getElementById('book');
   const pre = sec && sec.getAttribute('data-preselect-tour');
   if (pre) {
@@ -1230,6 +1231,46 @@ function bkReset() {
   bkRenderVehicles(null);
 }
 
+const HOME_TOUR_SLUGS = {
+  'desert-intro-3h':'Desert Intro 3H', 'explorer-6h':'Explorer 6H', 'cabo-pulmo-expedition':'Cabo Pulmo Expedition',
+  'challenger-10h':'Challenger 10H', 'extreme-16h':'Extreme 16H', 'el-zorro-14':'El Zorro 14'
+};
+function syncHomeTours() {
+  document.querySelectorAll('.tours-grid .tour-card').forEach(function(card) {
+    const link = card.querySelector('.tour-book-btn');
+    if (!link) return;
+    const m = (link.getAttribute('href')||'').match(/tours\/([a-z0-9-]+)\.html/);
+    if (!m) return;
+    const t = _allTours.find(function(x){ return x.name === HOME_TOUR_SLUGS[m[1]]; });
+    if (!t) { card.style.display = 'none'; return; }   // inactive / removed in admin -> hide on homepage
+    card.style.display = '';
+    // name (bilingual)
+    const nm = card.querySelector('.tour-name');
+    if (nm) { nm.setAttribute('data-en', t.name); nm.setAttribute('data-es', t.name_es || t.name); nm.textContent = (lang==='es' ? (t.name_es||t.name) : t.name); }
+    // badge
+    const bd = card.querySelector('.tour-badge');
+    if (bd && t.badge) { bd.setAttribute('data-en', t.badge); bd.setAttribute('data-es', t.badge); bd.textContent = t.badge; }
+    // from-price
+    const fromP = t.price_trail || t.price_special || t.price_maverick_r || t.price_ds_max;
+    const pc = card.querySelector('.tour-price');
+    if (pc && fromP) {
+      pc.innerHTML = '<span class="price-from" data-en="From" data-es="Desde">' + (lang==='es'?'Desde':'From') + '</span> $' + Number(fromP).toLocaleString() + ' <sub data-en="USD / vehicle" data-es="USD / vehículo">' + (lang==='es'?'USD / vehículo':'USD / vehicle') + '</sub>';
+    }
+    // price tiers
+    const tiers = card.querySelector('.tour-price-tiers');
+    if (tiers) {
+      const parts = [];
+      if (t.price_trail) parts.push('Trail $' + Number(t.price_trail).toLocaleString());
+      if (t.price_maverick_r) parts.push('Maverick R $' + Number(t.price_maverick_r).toLocaleString());
+      if (t.price_ds_max) parts.push('DS Max $' + Number(t.price_ds_max).toLocaleString());
+      if (!parts.length && t.price_special) parts.push('$' + Number(t.price_special).toLocaleString());
+      if (parts.length) tiers.innerHTML = parts.map(function(p,i){ return (i?'<span class="tier-sep">·</span>':'') + '<span>' + p + '</span>'; }).join('');
+    }
+    // image
+    if (t.image_url) { const im = card.querySelector('.tour-img'); if (im) im.style.backgroundImage = "url('" + t.image_url + "')"; }
+  });
+}
+
 async function bkLoadGallery() {
   const strip = document.getElementById('gallery-strip');
   if (!strip) return;
@@ -1250,6 +1291,7 @@ window.bkOnLang = function() {
   if (val === '__custom__') { bkCustomMode(); }
   else { const t = _allTours.find(x => x.id === val); if (t) { bkRenderVehicles(t); bkUpdateEnd(); } }
   bkLoadGallery();
+  syncHomeTours();
 };
 
 document.addEventListener('DOMContentLoaded', initBookingForm);
