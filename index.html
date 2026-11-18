@@ -498,7 +498,7 @@ footer{background:var(--dark);padding:56px 48px 36px;border-top:1px solid var(--
           <span>🏁 <span data-en="All Levels" data-es="Todos los Niveles">All Levels</span></span>
         </div>
         <div class="tour-price"><span class="price-from" data-en="From" data-es="Desde">From</span> $1,025 <sub data-en="USD / vehicle · VAT incl." data-es="USD / vehículo · IVA incluido">USD / vehicle · VAT incl.</sub></div>
-        <div class="tour-price-tiers"><span>Maverick X3 Max DS $1,025</span></div>
+        <div class="tour-price-tiers"><span>1 × X3 Max DS $1,025</span><span class="tier-sep">·</span><span>2 × X3 Max DS $2,050</span></div>
         <div class="tour-includes">
           <ul>
             <li data-en="2025/2026 Can-Am Maverick" data-es="Can-Am Maverick 2025/2026">2025/2026 Can-Am Maverick</li>
@@ -525,7 +525,7 @@ footer{background:var(--dark);padding:56px 48px 36px;border-top:1px solid var(--
           <span>🏜️ <span data-en="Desert &amp; Beach" data-es="Desierto y Playa">Desert &amp; Beach</span></span>
         </div>
         <div class="tour-price"><span class="price-from" data-en="From" data-es="Desde">From</span> $2,265 <sub data-en="USD / vehicle · VAT incl." data-es="USD / vehículo · IVA incluido">USD / vehicle · VAT incl.</sub></div>
-        <div class="tour-price-tiers"><span>Maverick X3 Max DS $2,265</span></div>
+        <div class="tour-price-tiers"><span>1 × X3 Max DS $2,265</span><span class="tier-sep">·</span><span>2 × X3 Max DS $4,530</span></div>
         <div class="tour-includes">
           <ul>
             <li data-en="Can-Am Maverick X3 Max DS (or similar)" data-es="Can-Am Maverick X3 Max DS (o similar)">Can-Am Maverick X3 Max DS (or similar)</li>
@@ -552,7 +552,7 @@ footer{background:var(--dark);padding:56px 48px 36px;border-top:1px solid var(--
           <span>🌊 <span data-en="Snorkel incl." data-es="Snorkel incl.">Snorkel incl.</span></span>
         </div>
         <div class="tour-price"><span class="price-from" data-en="From" data-es="Desde">From</span> $3,345 <sub data-en="USD / vehicle · VAT incl." data-es="USD / vehículo · IVA incluido">USD / vehicle · VAT incl.</sub></div>
-        <div class="tour-price-tiers"><span>Maverick X3 Max DS $3,345</span></div>
+        <div class="tour-price-tiers"><span>1 × X3 Max DS $3,345</span><span class="tier-sep">·</span><span>2 × X3 Max DS $6,690</span></div>
         <div class="tour-includes">
           <ul>
             <li data-en="2025/2026 Can-Am Maverick" data-es="Can-Am Maverick 2025/2026">2025/2026 Can-Am Maverick</li>
@@ -581,7 +581,7 @@ footer{background:var(--dark);padding:56px 48px 36px;border-top:1px solid var(--
           <span>♨️ <span data-en="Hot Springs" data-es="Aguas Termales">Hot Springs</span></span>
         </div>
         <div class="tour-price"><span class="price-from" data-en="From" data-es="Desde">From</span> $3,560 <sub data-en="USD / vehicle · VAT incl." data-es="USD / vehículo · IVA incluido">USD / vehicle · VAT incl.</sub></div>
-        <div class="tour-price-tiers"><span>Maverick X3 Max DS $3,560</span></div>
+        <div class="tour-price-tiers"><span>1 × X3 Max DS $3,560</span><span class="tier-sep">·</span><span>2 × X3 Max DS $7,120</span></div>
         <div class="tour-includes">
           <ul>
             <li data-en="Can-Am Maverick X3 Max DS (or similar)" data-es="Can-Am Maverick X3 Max DS (o similar)">Can-Am Maverick X3 Max DS (or similar)</li>
@@ -609,7 +609,7 @@ footer{background:var(--dark);padding:56px 48px 36px;border-top:1px solid var(--
           <span>🏔️ <span data-en="Mountain · Desert · Sea" data-es="Montaña · Desierto · Mar">Mountain · Desert · Sea</span></span>
         </div>
         <div class="tour-price"><span class="price-from" data-en="From" data-es="Desde">From</span> $5,395 <sub data-en="USD / vehicle · VAT incl." data-es="USD / vehículo · IVA incluido">USD / vehicle · VAT incl.</sub></div>
-        <div class="tour-price-tiers"><span>Maverick X3 Max DS $5,395</span></div>
+        <div class="tour-price-tiers"><span>1 × X3 Max DS $5,395</span><span class="tier-sep">·</span><span>2 × X3 Max DS $10,790</span></div>
         <div class="tour-includes">
           <ul>
             <li data-en="Can-Am Maverick X3 Max DS (or similar)" data-es="Can-Am Maverick X3 Max DS (o similar)">Can-Am Maverick X3 Max DS (or similar)</li>
@@ -1260,7 +1260,7 @@ function syncHomeTours() {
     const tiers = card.querySelector('.tour-price-tiers');
     if (tiers) {
       const parts = [];
-      if (t.price_ds_max) parts.push('Maverick X3 Max DS $' + Number(t.price_ds_max).toLocaleString());
+      if (t.price_ds_max) { parts.push('1 × X3 Max DS $' + Number(t.price_ds_max).toLocaleString()); parts.push('2 × X3 Max DS $' + Number(2 * t.price_ds_max).toLocaleString()); }
       if (!parts.length && t.price_special) parts.push('$' + Number(t.price_special).toLocaleString());
       if (parts.length) tiers.innerHTML = parts.map(function(p,i){ return (i?'<span class="tier-sep">·</span>':'') + '<span>' + p + '</span>'; }).join('');
     }
