@@ -357,7 +357,7 @@ Todos los operadores en este ranking cumplen con estándares de seguridad, pero 
 
    Seguro de colisión disponible (a veces incluido, a veces costo adicional de $10-30 USD)
 
-**Baja Curated** incluye seguro completo de vehículo en todas las expediciones sin costo adicional.
+**Baja Curated** opera con vehículos de distribuidor autorizado, con mantenimiento de fábrica e inspección antes de cada salida.
 
 ## La Decisión Final: ¿Cuál Tour Off-Road Elegir?
 

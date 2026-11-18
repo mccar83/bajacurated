@@ -237,9 +237,9 @@ h1,h2,.hdr-name,.unauth-title,.success-title,.link-card-title{font-family:'Bebas
         <h2>Disponibilidad</h2>
       </div>
       <div class="legend">
-        <div class="legend-item"><div class="legend-dot" style="background:var(--trail)"></div>Trail</div>
-        <div class="legend-item"><div class="legend-dot" style="background:var(--mav)"></div>Maverick R</div>
-        <div class="legend-item"><div class="legend-dot" style="background:var(--dsmax)"></div>DS Max</div>
+        
+        
+        <div class="legend-item"><div class="legend-dot" style="background:var(--dsmax)"></div>X3 Max DS</div>
         <div class="legend-item"><div class="legend-dot" style="background:var(--zorro)"></div>El Zorro 14</div>
       </div>
       <div class="cal-nav">
@@ -291,7 +291,7 @@ h1,h2,.hdr-name,.unauth-title,.success-title,.link-card-title{font-family:'Bebas
             <div class="field"><label>Nombre completo *</label><input type="text" id="r-name" placeholder="Nombre completo"></div>
             <div class="field"><label>Teléfono</label><input type="text" id="r-phone" placeholder="+1 (555)…"></div>
             <div class="field" style="grid-column:1/-1"><label>Email</label><input type="email" id="r-email" placeholder="cliente@email.com"></div>
-            <div class="field"><label>Número de personas</label><input type="number" id="r-guests" value="1" min="1" max="20"></div>
+            <div class="field"><label>Número de personas</label><input type="number" id="r-guests" value="1" min="1" max="8"></div>
           </div>
           <div class="field"><label>Notas / Instrucciones especiales</label><textarea id="r-notes" placeholder="Alergias, preferencias, llegada desde hotel…"></textarea></div>
 
@@ -550,7 +550,7 @@ function populatePortalTourSelect() {
 
 function renderPortalVehicles(selIds=[]) {
   const tour = S.tours.find(t=>t.id===$('r-tour').value);
-  $('r-vehicles').innerHTML = S.vehicles.map(v=>{
+  $('r-vehicles').innerHTML = S.vehicles.filter(v=>v.type==='ds_max'||v.type==='el_zorro').map(v=>{
     const price = getVehiclePrice(v.type, tour);
     return `<label class="vehicle-check-label">
       <input type="checkbox" class="pv-chk" value="${v.id}" data-type="${v.type}" data-name="${v.name}" ${selIds.includes(v.id)?'checked':''} onchange="updatePortalPrice()">
