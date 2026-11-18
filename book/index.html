@@ -265,7 +265,7 @@ html,body{font-family:'Barlow',sans-serif;}
       <div class="know-item"><span class="ki">✓</span><span data-es="Apto para principiantes y familias. Los menores van acompañados de un adulto." data-en="Beginner and family friendly. Minors must be accompanied by an adult.">Apto para principiantes y familias. Los menores van acompañados de un adulto.</span></div>
       <div class="know-item"><span class="ki">📍</span><span data-es="Salida desde el showroom GMS Can-Am en San José del Cabo (pick-up de hotel con cargo adicional)." data-en="Departs from the GMS Can-Am showroom in San José del Cabo (hotel pickup for an extra fee).">Salida desde el showroom GMS Can-Am en San José del Cabo (pick-up de hotel con cargo adicional).</span></div>
       <div class="know-item"><span class="ki">🎒</span><span data-es="Qué llevar: ropa que se pueda ensuciar, tenis cerrados, lentes de sol, protector solar y ganas de aventura." data-en="What to bring: clothes you don't mind getting dirty, closed shoes, sunglasses, sunscreen and a sense of adventure.">Qué llevar: ropa que se pueda ensuciar, tenis cerrados, lentes de sol, protector solar y ganas de aventura.</span></div>
-      <div class="know-item"><span class="ki">↩️</span><span data-es="Cancelación: reembolso total con 48 h de anticipación; reagenda sin costo con 24 h de aviso." data-en="Cancellation: full refund 48h ahead; free rescheduling with 24h notice.">Cancelación: reembolso total con 48 h de anticipación; reagenda sin costo con 24 h de aviso.</span></div>
+      <div class="know-item"><span class="ki">↩️</span><span data-es="Depósito del 20% para apartar la fecha, reembolsable hasta 14 días antes; el resto se paga en sitio. Reagenda sin costo con 24 h de aviso." data-en="20% deposit reserves your date, refundable up to 14 days before; balance paid on site. Free rescheduling with 24h notice.">Depósito del 20% para apartar la fecha, reembolsable hasta 14 días antes; el resto se paga en sitio. Reagenda sin costo con 24 h de aviso.</span></div>
     </div>
   </div>
 </section>
@@ -371,7 +371,7 @@ html,body{font-family:'Barlow',sans-serif;}
             <option value="3" data-es="3 personas" data-en="3 persons">3 personas</option>
             <option value="4" data-es="4 personas" data-en="4 persons">4 personas</option>
             <option value="5" data-es="5 personas" data-en="5 persons">5 personas</option>
-            <option value="6" data-es="6+ personas" data-en="6+ persons">6+ personas</option>
+            <option value="6" data-es="6 personas" data-en="6 persons">6 personas</option><option value="7" data-es="7 personas" data-en="7 persons">7 personas</option><option value="8" data-es="8 personas" data-en="8 persons">8 personas</option>
           </select>
         </div>
         <div class="field">
@@ -411,8 +411,8 @@ const sb = window.supabase.createClient(SB_URL, SB_KEY);
 
 const VH_COLOR = {trail:'#22c55e', maverick_r:'#818cf8', ds_max:'#fb923c', el_zorro:'#ef4444'};
 const VH_DESCS = {
-  es: { trail:'El más accesible · Ideal para principiantes', maverick_r:'Alto desempeño · Experiencia de carreras', ds_max:'Hasta 4 pasajeros · Máxima comodidad', el_zorro:'Buggy de carreras · Solo tour Zorro 14' },
-  en: { trail:'Most accessible · Ideal for beginners', maverick_r:'High performance · Racing experience', ds_max:'Up to 4 passengers · Maximum comfort', el_zorro:'Race buggy · El Zorro 14 tour only' }
+  es: { trail:'El más accesible · Ideal para principiantes', maverick_r:'Alto desempeño · Experiencia de carreras', ds_max:'Hasta 4 personas · Pueden turnarse el volante', el_zorro:'Buggy de carreras · Solo tour Zorro 14' },
+  en: { trail:'Most accessible · Ideal for beginners', maverick_r:'High performance · Racing experience', ds_max:'Up to 4 riders · Take turns driving', el_zorro:'Race buggy · El Zorro 14 tour only' }
 };
 const MONTHS_ES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
@@ -543,7 +543,7 @@ function renderTourCards() {
     const desc = lang === 'en'
       ? (t.description_en || t.description_es || '')
       : (t.description_es || t.description_en || '');
-    const prices = [t.price_trail, t.price_maverick_r, t.price_ds_max, t.price_special].filter(p => p && p > 0);
+    const prices = [t.price_ds_max, t.price_special].filter(p => p && p > 0);
     const minPrice = prices.length ? Math.min(...prices) : null;
     const dur = t.duration_hours ? t.duration_hours + 'H' : '';
     return `<div class="tour-card" onclick="selectTour('${t.id}')">
@@ -558,7 +558,7 @@ function renderTourCards() {
         <div class="tc-name">${t.name}</div>
         <div class="tc-desc">${desc}</div>
         <div class="tc-footer">
-          <div class="tc-price">${lang === 'es' ? 'desde' : 'from'} <strong>$${minPrice ? Number(minPrice).toLocaleString() : '—'}</strong> USD</div>
+          <div class="tc-price">${lang === 'es' ? 'desde' : 'from'} <strong>$${minPrice ? Number(minPrice).toLocaleString() : '—'}</strong> USD · ${lang === 'es' ? 'IVA incluido' : 'VAT incl.'}</div>
           <button class="btn-tc">${lang === 'es' ? 'Reservar →' : 'Book →'}</button>
         </div>
       </div>
@@ -626,7 +626,7 @@ function renderVehicleList(tour) {
     return;
   }
   const isZorro = tour.name === 'El Zorro 14';
-  const eligible = S.vehicles.filter(v => isZorro ? v.type === 'el_zorro' : v.type !== 'el_zorro');
+  const eligible = S.vehicles.filter(v => isZorro ? v.type === 'el_zorro' : v.type === 'ds_max');
   const multiOk = !isZorro;
 
   list.innerHTML = eligible.map((v, i) => {
@@ -672,7 +672,7 @@ function updatePriceHint(tour) {
   const total = selected.reduce((s, el) => s + (Number(getVehiclePrice(el.getAttribute('data-type'), tour)) || 0), 0);
   const hint = document.getElementById('vehicle-hint');
   if (selected.length > 1) {
-    hint.textContent = `Total: $${Number(total).toLocaleString()} USD`;
+    hint.textContent = `Total: $${Number(total).toLocaleString()} USD · ${lang === 'es' ? 'IVA incluido' : 'VAT incl.'}`;
     hint.dataset.hintType = 'total';
     hint.classList.add('show');
   }
