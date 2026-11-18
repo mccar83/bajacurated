@@ -47,9 +47,9 @@ En la práctica, eso significa cosas concretas:
 
 El tour privado tiene un costo mayor que un asiento en un tour grupal. Eso es cierto. Pero la comparación no es tan simple.
 
-Un tour grupal en Los Cabos típicamente cobra entre $80 y $150 por persona. Un tour privado en Can-Am con Baja Curated empieza desde $550 por vehículo — que carga hasta 3 personas.
+Un tour grupal en Los Cabos típicamente cobra entre $80 y $150 por persona. Un tour privado en Can-Am con Baja Curated empieza desde $1,025 por vehículo, IVA incluido — que lleva hasta 4 personas.
 
-Si van dos personas, son $275 por cabeza. Si van tres, son $183. Con frecuencia, la diferencia real de precio entre un tour grupal y uno privado es menor de lo que parece — y la diferencia en experiencia es enorme.
+Si van dos personas, son $513 por cabeza. Si van cuatro, son $256. Con frecuencia, la diferencia real de precio entre un tour grupal y uno privado es menor de lo que parece — y la diferencia en experiencia es enorme.
 
 ## Por Qué Baja Curated Solo Opera Tours Privados
 

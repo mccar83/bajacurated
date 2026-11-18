@@ -60,12 +60,12 @@ What shouldn't be in a private tour: strangers sharing your vehicle. If an opera
 
 Private Can-Am tours in Los Cabos are priced per vehicle, not per person — which changes the math significantly when you're traveling with someone.
 
-Short experiences (3H): from $550/vehicle
-Half-day routes (5–6H): from $700/vehicle
-Full-day expeditions (9–10H): from $1,000/vehicle
-Extended routes (14–16H): from $1,500/vehicle
+Short experiences (3H): from $1,025/vehicle
+Half-day routes (6H): from $2,265/vehicle
+Full-day expeditions (8–10H): from $3,345/vehicle
+Extended routes (16H): from $5,395/vehicle
 
-Split between two people, a full-day expedition runs $500–750 per person. For a once-in-a-trip experience in a destination known for $400 whale-watching cruises and $200 sunset boat rides, that's competitive — especially when the alternative is a group tour where you share a vehicle with strangers and get a fraction of the driving time.
+All prices include IVA (VAT), and each Maverick X3 Max seats up to four riders. Split four ways, a full-day expedition runs about $840–890 per person. For a once-in-a-trip experience in a destination known for $400 whale-watching cruises and $200 sunset boat rides, that's competitive — especially when the alternative is a group tour where you share a vehicle with strangers and get a fraction of the driving time.
 
 ## How to Choose an Operator
 
