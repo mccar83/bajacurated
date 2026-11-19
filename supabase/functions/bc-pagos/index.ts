@@ -104,10 +104,45 @@ async function markPaid(session: any, mode: Mode) {
   const ref = String(session.metadata.booking_ref || "");
   const pi = typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id || null;
   const upd = { deposit_status: "paid", deposit_paid_at: new Date().toISOString(), stripe_payment_intent: pi, stripe_session_id: session.id, payment_mode: mode };
-  const q = admin.from("bc_bookings").update(upd).neq("deposit_status", "refunded");
-  const { error } = group ? await q.eq("group_ref", group) : await q.eq("booking_ref", ref);
+  // Only rows not yet paid: the webhook and the return page both call this, and only the first one notifies.
+  const q = admin.from("bc_bookings").update(upd).neq("deposit_status", "refunded").neq("deposit_status", "paid");
+  const { data: changed, error } = group
+    ? await q.eq("group_ref", group).select("booking_ref, booking_date, start_time, client_name, client_email, client_phone, num_guests, total_price, tour_id")
+    : await q.eq("booking_ref", ref).select("booking_ref, booking_date, start_time, client_name, client_email, client_phone, num_guests, total_price, tour_id");
   if (error) throw error;
+  if (changed && changed.length) await notifyOwner(changed, (session.amount_total || 0) / 100, mode);
   return true;
+}
+
+async function notifyOwner(rows: any[], deposit: number, mode: Mode) {
+  try {
+    const r = rows[0];
+    const { data: tour } = await admin.from("bc_tours").select("name").eq("id", r.tour_id).maybeSingle();
+    const total = rows.reduce((s, x) => s + Number(x.total_price || 0), 0);
+    const test = mode === "test" ? "[PRUEBA] " : "";
+    await fetch("https://formspree.io/f/mjgjbool", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        _subject: `${test}Depósito pagado US$${deposit.toLocaleString("en-US")} · ${tour?.name || "Tour"} · ${r.booking_date} · ${r.client_name}`,
+        tipo: "Depósito pagado (Stripe)",
+        reserva: r.booking_ref,
+        tour: tour?.name || "",
+        fecha: `${r.booking_date} ${String(r.start_time || "").slice(0, 5)}`,
+        vehiculos: rows.length,
+        personas: r.num_guests,
+        cliente: r.client_name,
+        email: r.client_email,
+        telefono: r.client_phone,
+        deposito_usd: deposit,
+        total_usd: total,
+        saldo_en_sitio_usd: Math.round((total - deposit) * 100) / 100,
+        panel: "https://bajacurated.com/panel/",
+      }),
+    });
+  } catch (e) {
+    console.error("notifyOwner", e);
+  }
 }
 
 async function handleWebhook(req: Request, mode: Mode) {
