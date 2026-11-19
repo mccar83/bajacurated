@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex"><title>Pay deposit | Baja Curated</title>
+<link rel="icon" href="/baja-curated-main.svg">
+<style>
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0d0d0d;color:#e9e6df;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;text-align:center;padding:24px;box-sizing:border-box}
+img{height:70px;margin-bottom:24px} h1{font-size:1.4rem;letter-spacing:.05em;margin:0 0 10px} p{color:#b9b5ad;max-width:440px;margin:0 auto 10px;line-height:1.5} a{color:#FFC400}
+</style></head><body><div>
+<img src="/baja-curated-main.svg" alt="Baja Curated">
+<h1 id="t">Preparing your secure payment…</h1>
+<p id="m">You will be redirected to Stripe to pay the 20% deposit for your booking.</p>
+</div>
+<script>
+(async function(){
+  var q=new URLSearchParams(location.search), ref=(q.get('ref')||'').trim(), es=(q.get('lang')||navigator.language||'').toLowerCase().indexOf('es')===0;
+  var T=document.getElementById('t'), M=document.getElementById('m');
+  if(es){document.documentElement.lang='es';T.textContent='Preparando tu pago seguro…';M.textContent='Te llevaremos a Stripe para pagar el depósito del 20% de tu reserva.';}
+  function fail(en,esTxt){T.textContent=es?'No pudimos abrir el pago':'We could not open the payment';M.innerHTML=(es?esTxt:en)+' <br><br>WhatsApp <a href="https://wa.me/525529007905">+52 55 2900 7905</a> · <a href="mailto:info@bajacurated.com">info@bajacurated.com</a>';}
+  if(!/^BC-[0-9A-Z-]+$/.test(ref)){fail('This payment link is incomplete.','Este enlace de pago está incompleto.');return;}
+  try{
+    var K='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkY3B4YXdhcmZndGduZndkdGhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MTk4ODIsImV4cCI6MjA5NDA5NTg4Mn0.birNHYp_IIp2LlZ1x5L8QQTke_jtVtG12jf1jJcuCFE';
+    var r=await fetch('https://tdcpxawarfgtgnfwdthh.supabase.co/functions/v1/bc-pagos',{method:'POST',headers:{'Content-Type':'application/json',apikey:K,Authorization:'Bearer '+K},body:JSON.stringify({action:'checkout',booking_ref:ref,lang:es?'es':'en',return_path:'/'})});
+    var d=await r.json();
+    if(d&&d.url){location.href=d.url;return;}
+    if(d&&d.error==='already_paid'){T.textContent=es?'Depósito ya pagado':'Deposit already paid';M.textContent=es?'Tu fecha ya está apartada. Nos vemos en Baja.':'Your date is already reserved. See you in Baja.';return;}
+    fail('Please contact us and we will help you right away.','Escríbenos y te ayudamos de inmediato.');
+  }catch(e){fail('Please contact us and we will help you right away.','Escríbenos y te ayudamos de inmediato.');}
+})();
+</script></body></html>
