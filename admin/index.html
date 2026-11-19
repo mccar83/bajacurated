@@ -948,7 +948,7 @@ function renderBookingsTable(data) {
       <td>${tourName}</td>
       <td>${vehicles}${g.length>1?`<br><span style="font-size:.58rem;color:var(--text3)">${g.length} vehículos</span>`:''}</td>
       <td>${f.client_name}${f.concierge_name?`<br><span style="font-size:.62rem;color:#818cf8">🤝 ${f.concierge_name}</span>`:''}${comm>0?`<br><span style="font-size:.62rem;color:${commPaid?'#22c55e':'var(--yellow)'}">Com: $${Math.round(comm).toLocaleString()}${commPaid?' ✓':''}</span>`:''}</td>
-      <td class="price-cell">${total?'$'+Number(total).toLocaleString():''}</td>
+      <td class="price-cell">${total?'$'+Number(total).toLocaleString():''}${(()=>{const dep=g.reduce((m,b)=>Math.max(m,Number(b.deposit_amount||0)),0);const ds=g.some(b=>b.deposit_status==='refunded')?'refunded':g.some(b=>b.deposit_status==='paid')?'paid':g.some(b=>b.deposit_status==='pending')?'pending':'none';if(ds==='none')return '';const test=g.some(b=>b.payment_mode==='test')?' (prueba)':'';const lbl={paid:['#22c55e','Depósito pagado'],pending:['var(--yellow)','Depósito sin pagar'],refunded:['#818cf8','Depósito reembolsado']}[ds];return `<br><span style="font-size:.62rem;color:${lbl[0]}">${lbl[1]}${dep?' $'+dep.toLocaleString():''}${test}</span>`;})()}</td>
       <td><span class="st-badge st-${status==='mixto'?'pending':status}">${status}</span></td>
       <td class="act-cell">
         ${anyPending?`<button class="btn-xs" style="background:#22c55e;color:#000;border:none" onclick="setGroupStatus('${grpKey}','confirmed')">Confirmar</button>`:''}

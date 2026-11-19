@@ -598,10 +598,10 @@ footer{background:var(--dark);padding:56px 48px 36px;border-top:1px solid var(--
 
     <div class="bk-success" id="bk-success">
       <div style="font-size:3rem;">🏁</div>
-      <div class="bk-success-title" data-en="REQUEST RECEIVED!" data-es="¡SOLICITUD RECIBIDA!">REQUEST RECEIVED!</div>
+      <div class="bk-success-title" id="bk-success-title" data-en="REQUEST RECEIVED!" data-es="¡SOLICITUD RECIBIDA!">REQUEST RECEIVED!</div>
       <div class="bk-success-lbl" data-en="Reference number" data-es="Número de referencia">Reference number</div>
       <div class="bk-success-ref" id="bk-success-ref">—</div>
-      <div class="bk-success-sub" data-en="Our team will contact you shortly to confirm availability and coordinate payment. Check your WhatsApp." data-es="Nuestro equipo te contactará en breve para confirmar disponibilidad y coordinar el pago. Revisa tu WhatsApp.">Our team will contact you shortly to confirm availability and coordinate payment. Check your WhatsApp.</div>
+      <div class="bk-success-sub" id="bk-success-sub" data-en="Our team will contact you shortly to confirm availability and coordinate payment. Check your WhatsApp." data-es="Nuestro equipo te contactará en breve para confirmar disponibilidad y coordinar el pago. Revisa tu WhatsApp.">Our team will contact you shortly to confirm availability and coordinate payment. Check your WhatsApp.</div>
       <button class="bk-reset" onclick="bkReset()" data-en="Make another booking" data-es="Hacer otra reserva">Make another booking</button>
     </div>
   </div>
@@ -994,6 +994,7 @@ async function bkSubmit() {
     const data = rpcRes.data, error = rpcRes.error;
     if (error) throw error;
     bkNotify({ ref: data, tour: isCustom ? (es ? 'Tour especial' : 'Custom tour') : (_allTours.find(function(t){return t.id===tourId;})||{}).name, date: date, time: startTime, vehicles: vehicleIds.length, name: name, phone: phone, email: email, guests: guests, notes: notes });
+    if (!isCustom && await bkStartDeposit(data)) return;
     document.getElementById('bk-success-ref').textContent = data;
     document.getElementById('bk-form-wrap').style.display = 'none';
     document.getElementById('bk-success').style.display = 'block';
@@ -1004,6 +1005,65 @@ async function bkSubmit() {
     alert(es ? 'Error al enviar. Intenta de nuevo o contáctanos por WhatsApp.' : 'Error submitting. Please try again or contact us via WhatsApp.');
   }
 }
+
+// ---- Stripe deposit (bc-pagos) ----
+function bkSetSuccess(ref, titleEn, titleEs, subEn, subEs) {
+  var es = lang === 'es';
+  document.getElementById('bk-success-ref').textContent = ref || '—';
+  var t = document.getElementById('bk-success-title'), s = document.getElementById('bk-success-sub');
+  if (t) { t.setAttribute('data-en', titleEn); t.setAttribute('data-es', titleEs); t.textContent = es ? titleEs : titleEn; }
+  if (s) { s.setAttribute('data-en', subEn); s.setAttribute('data-es', subEs); s.textContent = es ? subEs : subEn; }
+  document.getElementById('bk-form-wrap').style.display = 'none';
+  document.getElementById('bk-success').style.display = 'block';
+}
+async function bkPagos(body) {
+  var r = await fetch(SB_URL + '/functions/v1/bc-pagos', { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY }, body: JSON.stringify(body) });
+  return r.json();
+}
+async function bkStartDeposit(ref) {
+  try {
+    var test = new URLSearchParams(location.search).has('pagotest');
+    if (test) sessionStorage.setItem('bcPagoTest', '1');
+    test = test || sessionStorage.getItem('bcPagoTest') === '1';
+    var res = await bkPagos({ action: 'checkout', booking_ref: ref, lang: lang === 'es' ? 'es' : 'en', test: test, return_path: location.pathname });
+    if (res && res.enabled && res.url) { location.href = res.url; return true; }
+  } catch (e) { console.error('deposit', e); }
+  return false;
+}
+async function bkHandlePaymentReturn() {
+  var q = new URLSearchParams(location.search), st = q.get('pago');
+  if (!st) return;
+  history.replaceState(null, '', location.pathname + '#book');
+  if (st === 'ok' && q.get('session_id')) {
+    try {
+      var res = await bkPagos({ action: 'confirmar', session_id: q.get('session_id') });
+      if (res && res.paid) {
+        bkSetSuccess(res.booking_ref, 'DATE RESERVED!', '¡FECHA APARTADA!',
+          'We received your deposit of US$' + Number(res.deposit).toLocaleString() + '. Stripe sent your receipt by email and our team will confirm the details by WhatsApp. The balance is paid on site.',
+          'Recibimos tu depósito de US$' + Number(res.deposit).toLocaleString() + '. Stripe te envió el recibo por correo y nuestro equipo te confirmará los detalles por WhatsApp. El resto se paga en sitio.');
+        return;
+      }
+    } catch (e) { console.error('confirm', e); }
+    bkSetSuccess('', 'PAYMENT RECEIVED', 'PAGO RECIBIDO',
+      'We are confirming your deposit. You will receive a confirmation by email or WhatsApp shortly.',
+      'Estamos confirmando tu depósito. Recibirás la confirmación por correo o WhatsApp en breve.');
+  } else if (st === 'cancelado') {
+    var ref = q.get('ref') || '';
+    bkSetSuccess(ref, 'REQUEST SAVED', 'SOLICITUD GUARDADA',
+      'Your date is not reserved until the 20% deposit is paid. You can pay now or we will contact you by WhatsApp.',
+      'Tu fecha no queda apartada hasta pagar el depósito del 20%. Puedes pagar ahora o te contactaremos por WhatsApp.');
+    var box = document.getElementById('bk-success');
+    if (ref && box && !document.getElementById('bk-retry-pay')) {
+      var b = document.createElement('button');
+      b.id = 'bk-retry-pay'; b.className = 'bk-reset';
+      b.style.cssText = 'background:#FFC400;color:#0d0d0d;border-color:#FFC400;margin-bottom:10px;';
+      b.textContent = lang === 'es' ? 'PAGAR DEPÓSITO →' : 'PAY DEPOSIT →';
+      b.onclick = function () { b.disabled = true; bkStartDeposit(ref).then(function (ok) { if (!ok) b.disabled = false; }); };
+      box.insertBefore(b, box.querySelector('.bk-reset'));
+    }
+  }
+}
+setTimeout(bkHandlePaymentReturn, 0);
 
 function bkReset() {
   document.getElementById('bk-form-wrap').style.display = 'block';
