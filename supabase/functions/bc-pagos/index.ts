@@ -3,6 +3,7 @@
 // Stripe webhook: POST ?evt=<test|live> with stripe-signature header.
 // Settings live in bc_payment_config (server only): stripe_mode = off | test | live, deposit_pct,
 // webhook_id_<mode>, webhook_secret_<mode> (created automatically the first time).
+// Keys: BC_STRIPE_SECRET_KEY_TEST / BC_STRIPE_SECRET_KEY_LIVE — Baja Curated only, independent of other apps in this project.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.95.0";
 
@@ -21,7 +22,7 @@ const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE
 
 type Mode = "test" | "live";
 const keyFor = (mode: Mode) =>
-  mode === "live" ? Deno.env.get("STRIPE_SECRET_KEY") || "" : Deno.env.get("BC_STRIPE_SECRET_KEY_TEST") || "";
+  mode === "live" ? Deno.env.get("BC_STRIPE_SECRET_KEY_LIVE") || "" : Deno.env.get("BC_STRIPE_SECRET_KEY_TEST") || "";
 
 async function cfg(key: string): Promise<string | null> {
   const { data } = await admin.from("bc_payment_config").select("value").eq("key", key).maybeSingle();
@@ -166,7 +167,7 @@ async function createCheckout(body: any) {
     client_reference_id: group || ref,
     line_items: [{ quantity: 1, price_data: { currency: "usd", unit_amount: cents(deposit), product_data: { name, description: desc } } }],
     metadata: { app: "baja_curated", product_code: "bc_deposit", group_ref: group, booking_ref: ref },
-    payment_intent_data: { description: name, metadata: { app: "baja_curated", group_ref: group, booking_ref: ref } },
+    payment_intent_data: { description: name, statement_descriptor_suffix: "BAJA CURATED", metadata: { app: "baja_curated", group_ref: group, booking_ref: ref } },
     success_url: `${SITE}${back}?pago=ok&session_id={CHECKOUT_SESSION_ID}#book`,
     cancel_url: `${SITE}${back}?pago=cancelado&ref=${encodeURIComponent(ref)}#book`,
   });
