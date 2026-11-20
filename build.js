@@ -165,7 +165,9 @@ function buildPost(post, allPosts) {
 <meta property="og:url" content="${SITE}/blog/${post.slug}/">
 ${post.featured_image?`<meta property="og:image" content="${SITE}${post.featured_image}">`:''}
 <meta property="article:published_time" content="${post.date}">
-<link rel="icon" href="/favicon.ico">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/favicon-180.png">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,600;0,700;1,300&display=swap" rel="stylesheet">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Article","headline":${JSON.stringify(post.title)},"description":${JSON.stringify(post.meta_description||'')},"datePublished":"${post.date}","author":{"@type":"Organization","name":"${post.author||'Baja Curated'}"},"publisher":{"@type":"Organization","name":"Baja Curated","url":"${SITE}"},"url":"${SITE}/blog/${post.slug}/"${post.featured_image?`,"image":"${SITE}${post.featured_image}"`:''}}</script>
@@ -228,7 +230,9 @@ function buildIndex(posts) {
 <meta property="og:title" content="Blog — Baja Curated">
 <meta property="og:description" content="Guías, rutas y experiencias de off-road en Baja California Sur.">
 <meta property="og:url" content="${SITE}/blog/">
-<link rel="icon" href="/favicon.ico">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/favicon-180.png">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,600;0,700;1,300&display=swap" rel="stylesheet">
 <style>${CSS}${BLOG_CSS}</style>
 </head>
