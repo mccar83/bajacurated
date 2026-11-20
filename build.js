@@ -32,7 +32,7 @@ function fmtDate(d) {
 function nav(activeBlog) {
   return `<nav>
   <a href="/" class="nav-left">
-    <img src="${LOGO}" alt="Baja Curated" style="height:80px;width:auto;display:block;">
+    <img src="${LOGO}" alt="Baja Curated Expeditions" style="height:clamp(28px,7.2vw,42px);width:auto;display:block;margin:16px 0;">
     <img src="https://i.imgur.com/GlHNHM9.png" alt="Can-Am BRP" style="height:36px;width:auto;display:block;">
   </a>
   <ul class="nav-links">
