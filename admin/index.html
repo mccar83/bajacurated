@@ -255,6 +255,12 @@ tbody tr:hover td{background:rgba(255,255,255,.015);}
 .nav-badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;margin-left:6px;background:#ef4444;color:#fff;border-radius:9px;font-size:.62rem;font-weight:800;vertical-align:middle;line-height:1;}
 .nav-item.has-pending{color:var(--yellow);}
 .nav-item.has-pending .ni{filter:drop-shadow(0 0 4px rgba(245,197,24,.6));}
+
+/* Read-only role (viewer): hide every edit control; RLS blocks writes anyway */
+body.readonly .btn-new, body.readonly #dp-add-btn, body.readonly .btn-xs, body.readonly .chip-block-btn,
+body.readonly .btn-add-bl, body.readonly .btn-edit-vehicle, body.readonly .btn-link, body.readonly .btn-primary,
+body.readonly .nav-item[onclick*="'tours'"], body.readonly .nav-item[onclick*="'galeria'"],
+body.readonly .nav-item[onclick*="'concierges'"], body.readonly .nav-item[onclick*="/cms/"] { display: none !important; }
 </style>
 </head>
 <body>
@@ -711,9 +717,20 @@ function showLogin() {
   $('app').classList.remove('visible');
 }
 async function boot() {
+  // Role: admin (edits) or viewer (read only). Not in bc_admins = no access.
+  const { data: me } = await sb.from('bc_admins').select('role').eq('email', S.user.email).maybeSingle();
+  if (!me) {
+    $('login-screen').style.display = 'flex';
+    $('app').classList.remove('visible');
+    $('login-err').textContent = 'Este correo (' + S.user.email + ') no tiene acceso al panel. Pídele acceso a JP.';
+    await sb.auth.signOut();
+    return;
+  }
+  S.role = me.role;
+  document.body.classList.toggle('readonly', me.role !== 'admin');
   $('login-screen').style.display = 'none';
   $('app').classList.add('visible');
-  $('user-email').textContent = S.user.email;
+  $('user-email').textContent = S.user.email + (me.role !== 'admin' ? ' · solo lectura' : '');
   await loadStatic();
   await loadConcierges();
   populateTourSelect();
